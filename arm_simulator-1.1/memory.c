@@ -56,14 +56,57 @@ void memory_destroy(memory mem) {
 }
 
 int memory_read_byte(memory mem, uint32_t address, uint8_t *value) {
-    return -1;
+	if (address < mem->size){
+		*value = mem->address[address];
+		return 0;
+	}
+	return -1;
 }
 
 int memory_read_half(memory mem, int be, uint32_t address, uint16_t *value) {
+	if (address < mem->size-1){
+		if (be){
+			*value = mem->address[address];
+			*value = *value << 8;
+			*value |= mem->address[address + 1];
+			return 0;
+		}
+		else {
+			*value = mem->address[address + 1];
+			*value = *value << 8;
+			*value |= mem->address[address];
+			return 0;
+		}	
+	}
     return -1;
 }
 
 int memory_read_word(memory mem, int be, uint32_t address, uint32_t *value) {
+
+	if (address < mem->size-3){
+		if (be){
+			int i = 0;
+			*value = 0;
+			while (i < 3) {
+				*value |= mem->address[address + i];
+				*value = *value << 8;
+				i++;
+			}
+			*value |= mem->address[address + i];
+			
+			return 0;
+		}
+		else {
+			int i = 3;
+			*value = 0;
+			while (i > 0) {
+				*value |= mem->address[address + i];
+				*value = *value << 8;
+				i--;
+			}
+			*value |= mem->address[address + i];
+		}	
+	}
     return -1;
 }
 
