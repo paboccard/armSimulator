@@ -119,6 +119,22 @@ int memory_write_byte(memory mem, uint32_t address, uint8_t value) {
 }
 
 int memory_write_half(memory mem, int be, uint32_t address, uint16_t value) {
+    if (address < mem->size-1){
+		if (be){
+			uint8_t tmp = value >> 8;
+			mem->address[address] = tmp;
+			tmp = value;
+			mem->address[address + 1] = tmp;
+			return 0;
+		}
+		else {
+			uint8_t tmp = value >> 8;
+			mem->address[address + 1] = tmp;
+			tmp = value;
+			mem->address[address] = tmp;
+			return 0;
+		}	
+	}
     return -1;
 }
 
