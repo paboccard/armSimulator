@@ -111,6 +111,10 @@ int memory_read_word(memory mem, int be, uint32_t address, uint32_t *value) {
 }
 
 int memory_write_byte(memory mem, uint32_t address, uint8_t value) {
+	if (address < mem->size){
+		mem->address[address] = value;
+		return 0;
+	}
     return -1;
 }
 
