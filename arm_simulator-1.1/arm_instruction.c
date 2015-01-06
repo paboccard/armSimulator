@@ -27,59 +27,66 @@ Contact: Guillaume.Huard@imag.fr
 #include "arm_branch_other.h"
 #include "arm_constants.h"
 #include "util.h"
-#include "memory.h"
 
 static int arm_execute_instruction(arm_core p) {
-  int32_t instr;
-  int4_t opcode;
-  if (!(p->register_storage[15] << 30)){
-    if ((memory_read_word(p->mem,1,p->register_storage[15]-8,instr))==0){
-      if ((0x3 & (instr >> 26)){ //vérifie à 0 les bit [27:26]
-	opcode = OxF & (instr >> 21);
-	switch(opcode){
-	case AND:
-	  break;
-	case EOR:
-	  break;
-	case SUB:
-	  break;
-	case RSB:
-	  break;
-	case ADD:
-	  break;
-	case ADC:
-	  break;
-	case SBC:
-	  break;
-	case RSC:
-	  break;
-	case TST:
-	  break;
-	case TEQ:
-	  break;
-	case CMP:
-	  break;
-	case CMN:
-	  break;
-	case ORR:
-	  break;
-	case MOV:
-	  break;
-	case BIC:
-	  break;
-	case MVN:
-	  break;
-	}
+  uint32_t *instr;
+  int8_t opcode;
+  int32_t rs = p->registers_storage[15];
+  if (p != NULL){
+  if (get_bit(rs,0)==0 && get_bit(rs,1)==0){
+      //if ((memory_read_word(p->mem,1,p->register_storage[15]-8,instr))==0){
+      if(arm_fetch(p,instr)==0){
+	if ((0x3 & (*instr >> 26))){ //verifie à 0 les bit [27:26]
+	    opcode = 0xF & (*instr >> 21);
+	    switch(opcode){
+	    case AND:
+	      break;
+	    case EOR:
+	      break;
+	    case SUB:
+	      break;
+	    case RSB:
+	      break;
+	    case ADD:
+	      break;
+	    case ADC:
+	      break;
+	    case SBC:
+	      break;
+	    case RSC:
+	      break;
+	    case TST:
+	      break;
+	    case TEQ:
+	      break;
+	    case CMP:
+	      break;
+	    case CMN:
+	      break;
+	    case ORR:
+ 	      break;
+	    case MOV:
+	      break;
+	    case BIC:
+	      break;
+	    case MVN:
+	      break;
+	    default:
+	      printf("Erreur d'instruction");
+	      break;
+	    }
+	  }
       }
+  }
   }
   return PREFETCH_ABORT; //exception 
 }
 
 int arm_step(arm_core p) {
-    int result;
-
-    result = arm_execute_instruction(p);
-    if (result)
-        arm_exception(p, result);
-    return result;
+  int result;
+  
+  result = arm_execute_instruction(p);
+  if (result)
+    arm_exception(p, result);
+      return result;
 }
