@@ -49,81 +49,81 @@ int arm_op_and(arm_core p, uint32_t instr, int32_t *cpsr){
     }
     else
       return DATA_ABORT;
-    else if (S ==1){
-      dest = arm_read_register(p,rd);
-      if (get_bit(dest,31)==1)
-	set_bit(*cpsr,N);
-      else
-	clr_bit(*cpsr,N);
-      if (dest==0)
-	set_bit(*cpsr,Z); 
-      else 
-	clr_bit(*cpsr,Z);
-      // mettre  C Flag en fonction de shifter_carry_out
-      clr_bit(*cpsr,V);
-    }
+  }
+  else if (get_bit(instr,20)==1){
+    dest = arm_read_register(p,rd);
+    if (get_bit(dest,31)==1)
+      *cpsr = set_bit(*cpsr,N);
+    else
+      *cpsr = clr_bit(*cpsr,N);
+    if (dest==0)
+      *cpsr = set_bit(*cpsr,Z); 
+    else 
+      *cpsr = clr_bit(*cpsr,Z);
+    // mettre  C Flag en fonction de shifter_carry_out
+    *cpsr = clr_bit(*cpsr,V);
   }
   return 0;
 }
 
 int arm_op_eor(arm_core p, uint32_t instr, int32_t *cpsr){ 
-  
+  return 0;
 }
 
 int arm_op_sub(arm_core p, uint32_t instr, int32_t *cpsr){
-  
+  return 0;
 }
 
 int arm_op_rsb(arm_core p, uint32_t instr, int32_t *cpsr){
-  
+  return 0;
 }
 
 int arm_op_add(arm_core p, uint32_t instr, int32_t *cpsr){
-  
+  return 0;
 }
 
 int arm_op_adc(arm_core p, uint32_t instr, int32_t *cpsr){
-  
+  return 0;
 }
 
 int arm_op_sbc(arm_core p, uint32_t instr, int32_t *cpsr){
-  
+  return 0;
 }
 
 int arm_op_rsc(arm_core p, uint32_t instr, int32_t *cpsr){
-  
+  return 0;
 }
 
 int arm_op_tst(arm_core p, uint32_t instr, int32_t *cpsr){
-  
+  return 0;
 }
 
 int arm_op_teq(arm_core p, uint32_t instr, int32_t *cpsr){
-  
+  return 0;
 }
 
 int arm_op_cmp(arm_core p, uint32_t instr, int32_t *cpsr){
-  
+  return 0;
 }
 
 int arm_op_cmn(arm_core p, uint32_t instr, int32_t *cpsr){
-  
+  return 0;
 }
 
 int arm_op_orr(arm_core p, uint32_t instr, int32_t *cpsr){
-  
+  return 0;
 }
 
 int arm_op_mov(arm_core p, uint32_t instr, int32_t *cpsr){
-  
+  return 0;
 }
 
 int arm_op_bic(arm_core p, uint32_t instr, int32_t *cpsr){
-  
+  return 0;
 }
 
 int arm_op_mvn(arm_core p, uint32_t instr, int32_t *cpsr){
-  
+  return 0;
 }
 
 static int arm_execute_instruction(arm_core p) {
