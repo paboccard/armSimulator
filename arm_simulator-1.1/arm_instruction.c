@@ -31,34 +31,39 @@
 int arm_op_and(arm_core p, uint32_t instr, int32_t *cpsr){
   int8_t rn, rd, rs;
   int x, y, dest;
-  if (get_bit(instr,25)==0){
-    rn = get_bits(instr,19,16);
-    rd = get_bits(instr,15,12);
-    rs = get_bits(instr,11,0);
-    x = arm_read_register(p,rn);
+ 
+  rn = get_bits(instr,19,16);
+  rd = get_bits(instr,15,12);
+  rs = get_bits(instr,11,0);
+  x = arm_read_register(p,rn);
+
+  if (get_bit(instr,25)==0) //test valeur immediate
     y = arm_read_register(p,rs);
-    arm_write_register(p,rd,x&y);
-    if ((get_bit(instr,20)) && (rd==15)){
-      if (arm_current_mode_has_spsr(p)){
-	*cpsr = arm_read_spsr(p);
-      }
-      else
-	return DATA_ABORT;
-      else if (S ==1){
-	dest = arm_read_register(p,rd);
-	if (get_bit(dest,31)==1)
-	  set_bit(*cpsr,N);
-	else
-	  clr_bit(*cpsr,N);
-	if (dest==0)
-	  set_bit(*cpsr,Z); 
-	else 
-	  clr_bit(*cpsr,Z);
-	// mettre  C Flag en fonction de shifter_carry_out
-	clr_bit(*cpsr,V);
-      }
+  else
+    y = rs;
+
+  arm_write_register(p,rd,x&y);
+  if ((get_bit(instr,20)) && (rd==15)){
+    if (arm_current_mode_has_spsr(p)){
+      *cpsr = arm_read_spsr(p);
     }
-  }    
+    else
+      return DATA_ABORT;
+    else if (S ==1){
+      dest = arm_read_register(p,rd);
+      if (get_bit(dest,31)==1)
+	set_bit(*cpsr,N);
+      else
+	clr_bit(*cpsr,N);
+      if (dest==0)
+	set_bit(*cpsr,Z); 
+      else 
+	clr_bit(*cpsr,Z);
+      // mettre  C Flag en fonction de shifter_carry_out
+      clr_bit(*cpsr,V);
+    }
+  }
+  return 0;
 }
 
 int arm_op_eor(arm_core p, uint32_t instr, int32_t *cpsr){ 
