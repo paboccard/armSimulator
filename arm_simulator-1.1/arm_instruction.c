@@ -28,7 +28,7 @@
 #include "arm_constants.h"
 #include "util.h"
 
-int arm_op_and(arm_core p, uint32_t instr, uint32_t *cpsr){
+int arm_op_and(arm_core p, uint32_t instr, int32_t *cpsr){
   int8_t rn, rd, rs;
   int x, y, dest;
   if (get_bit(instr,25)==0){
@@ -61,63 +61,63 @@ int arm_op_and(arm_core p, uint32_t instr, uint32_t *cpsr){
   }    
 }
 
-int arm_op_eor(arm_core p, uint32_t instr){ 
+int arm_op_eor(arm_core p, uint32_t instr, int32_t *cpsr){ 
   
 }
 
-int arm_op_sub(arm_core p, uint32_t instr){
+int arm_op_sub(arm_core p, uint32_t instr, int32_t *cpsr){
   
 }
 
-int arm_op_rsb(arm_core p, uint32_t instr){
+int arm_op_rsb(arm_core p, uint32_t instr, int32_t *cpsr){
   
 }
 
-int arm_op_add(arm_core p, uint32_t instr){
+int arm_op_add(arm_core p, uint32_t instr, int32_t *cpsr){
   
 }
 
-int arm_op_adc(arm_core p, uint32_t instr){
+int arm_op_adc(arm_core p, uint32_t instr, int32_t *cpsr){
   
 }
 
-int arm_op_sbc(arm_core p, uint32_t instr){
+int arm_op_sbc(arm_core p, uint32_t instr, int32_t *cpsr){
   
 }
 
-int arm_op_rsc(arm_core p, uint32_t instr){
+int arm_op_rsc(arm_core p, uint32_t instr, int32_t *cpsr){
   
 }
 
-int arm_op_tst(arm_core p, uint32_t instr){
+int arm_op_tst(arm_core p, uint32_t instr, int32_t *cpsr){
   
 }
 
-int arm_op_teq(arm_core p, uint32_t instr){
+int arm_op_teq(arm_core p, uint32_t instr, int32_t *cpsr){
   
 }
 
-int arm_op_cmp(arm_core p, uint32_t instr){
+int arm_op_cmp(arm_core p, uint32_t instr, int32_t *cpsr){
   
 }
 
-int arm_op_cmn(arm_core p, uint32_t instr){
+int arm_op_cmn(arm_core p, uint32_t instr, int32_t *cpsr){
   
 }
 
-int arm_op_orr(arm_core p, uint32_t instr){
+int arm_op_orr(arm_core p, uint32_t instr, int32_t *cpsr){
   
 }
 
-int arm_op_mov(arm_core p, uint32_t instr){
+int arm_op_mov(arm_core p, uint32_t instr, int32_t *cpsr){
   
 }
 
-int arm_op_bic(arm_core p, uint32_t instr){
+int arm_op_bic(arm_core p, uint32_t instr, int32_t *cpsr){
   
 }
 
-int arm_op_mvn(arm_core p, uint32_t instr){
+int arm_op_mvn(arm_core p, uint32_t instr, int32_t *cpsr){
   
 }
 
@@ -205,49 +205,49 @@ static int arm_execute_instruction(arm_core p) {
 	  return arm_op_and(p,*instr,&cpsr);
 	  break;
 	case EOR:
-	  return arm_op_eor(p,*instr);
+	  return arm_op_eor(p,*instr,&cpsr);
 	  break;
 	case SUB:
-	  return arm_op_sub(p,*instr);
+	  return arm_op_sub(p,*instr,&cpsr);
 	  break;
 	case RSB:
-	  return arm_op_rsb(p,*instr);
+	  return arm_op_rsb(p,*instr,&cpsr);
 	  break;
 	case ADD:
-	  return arm_op_add(p,*instr);
+	  return arm_op_add(p,*instr,&cpsr);
 	  break;
 	case ADC:
-	  return arm_op_adc(p,*instr);
+	  return arm_op_adc(p,*instr,&cpsr);
 	  break;
 	case SBC:
-	  return arm_op_sbc(p,*instr);
+	  return arm_op_sbc(p,*instr,&cpsr);
 	  break;
 	case RSC:
-	  return arm_op_rsc(p,*instr);
+	  return arm_op_rsc(p,*instr,&cpsr);
 	  break;
 	case TST:
-	  return arm_op_tst(p,*instr);
+	  return arm_op_tst(p,*instr,&cpsr);
 	  break;
 	case TEQ:
-	  return arm_op_teq(p,*instr);
+	  return arm_op_teq(p,*instr,&cpsr);
 	  break;
 	case CMP:
-	  return arm_op_cmp(p,*instr);
+	  return arm_op_cmp(p,*instr,&cpsr);
 	  break;
 	case CMN:
-	  return arm_op_cmn(p,*instr);
+	  return arm_op_cmn(p,*instr,&cpsr);
 	  break;
 	case ORR:
-	  return arm_op_orr(p,*instr);
+	  return arm_op_orr(p,*instr,&cpsr);
 	  break;
 	case MOV:
-	  return arm_op_mov(p,*instr);
+	  return arm_op_mov(p,*instr,&cpsr);
 	  break;
 	case BIC:
-	  return arm_op_bic(p,*instr);
+	  return arm_op_bic(p,*instr,&cpsr);
 	  break;
 	case MVN:
-	  return arm_op_mvn(p,*instr);
+	  return arm_op_mvn(p,*instr,&cpsr);
 	  break;
 	default:
 	  return UNDEFINED_INSTRUCTION;
