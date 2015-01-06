@@ -28,7 +28,6 @@ Contact: Guillaume.Huard@imag.fr
 #include "memory.h"
 
 typedef struct arm_core_data *arm_core;
-
 void arm_init();
 arm_core arm_create(memory mem);
 void arm_destroy(arm_core p);
