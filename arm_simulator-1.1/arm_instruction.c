@@ -29,11 +29,10 @@ Contact: Guillaume.Huard@imag.fr
 #include "util.h"
 
 static int arm_execute_instruction(arm_core p) {
-  uint32_t *instr;
+  uint32_t *instr = NULL;
   int8_t opcode;
-  int32_t rs = p->registers_storage[15];
-  if (p != NULL){
-  if (get_bit(rs,0)==0 && get_bit(rs,1)==0){
+  int32_t rs = arm_read_register(p, 15);
+    if (get_bit(rs,0)==0 && get_bit(rs,1)==0){
       //if ((memory_read_word(p->mem,1,p->register_storage[15]-8,instr))==0){
       if(arm_fetch(p,instr)==0){
 	if ((0x3 & (*instr >> 26))){ //verifie à 0 les bit [27:26]
@@ -77,7 +76,6 @@ static int arm_execute_instruction(arm_core p) {
 	    }
 	  }
       }
-  }
   }
   return PREFETCH_ABORT; //exception 
 }
