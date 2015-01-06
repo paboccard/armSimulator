@@ -145,7 +145,7 @@ int memory_write_word(memory mem, int be, uint32_t address, uint32_t value) {
 			int i = 3;
 			while(i>=0){
 				tmp = value >> (8*i);
-				mem->address[address+3*i]=tmp;
+				mem->address[address+3-i]=tmp;
 				i--;
 			}
 			return 0;
