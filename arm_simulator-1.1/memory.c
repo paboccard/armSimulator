@@ -139,5 +139,27 @@ int memory_write_half(memory mem, int be, uint32_t address, uint16_t value) {
 }
 
 int memory_write_word(memory mem, int be, uint32_t address, uint32_t value) {
+    if (address < mem->size-3){
+		if (be){
+			uint8_t tmp ;
+			int i = 3;
+			while(i>=0){
+				tmp = value >> (8*i);
+				mem->address[address+3*i]=tmp;
+				i--;
+			}
+			return 0;
+		}
+		else {
+			uint8_t tmp ;
+			int i = 3;
+			while(i>=0){
+				tmp = value >> (8*i);
+				mem->address[address+i]=tmp;
+				i--;
+			}
+			return 0;
+		}	
+	}
     return -1;
 }
