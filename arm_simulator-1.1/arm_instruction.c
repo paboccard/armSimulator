@@ -81,7 +81,7 @@ int arm_op_eor(arm_core p, uint32_t instr, int32_t *cpsr){
   else
     y = rs;
 
-  arm_write_register(p,rd,x|y);
+  arm_write_register(p,rd,x^y);   // il s'agit du ou exclusif
   if ((get_bit(instr,20)) && (rd==15)){
     if (arm_current_mode_has_spsr(p)){
       *cpsr = arm_read_spsr(p);
@@ -167,18 +167,131 @@ int arm_op_tst(arm_core p, uint32_t instr, int32_t *cpsr){
 }
 
 int arm_op_teq(arm_core p, uint32_t instr, int32_t *cpsr){
+int8_t rn;
+  int32_t n, shift_op;
+  int64_t alu_out;
+ 
+  rn = get_bits(instr,19,16);
+  shift_op = get_bits(instr,11,0);
+  n = arm_read_register(p,rn);
+  alu_out = n^shift_op;
+  res = get_bits(alu_out,31,0);
+
+  if (get_bit(alu_out,31)==1)
+    *cpsr = set_bit(*cpsr,N);
+  else
+    *cpsr = clr_bit(*cpsr,N);
+  if (alu_out==0)
+    *cpsr = set_bit(*cpsr,Z); 
+  else 
+    *cpsr = clr_bit(*cpsr,Z);
+  // ici j'ai fait un clear C pas shifter_carry_out (p378)
+  *cpsr = clr_bit(*cpsr,C);
+  *cpsr = clr_bit(*cpsr,V);
+  
   return 0;
 }
-
+// CMP2 p552 mais surement qu'il faut faire les trois versions
 int arm_op_cmp(arm_core p, uint32_t instr, int32_t *cpsr){
+  int8_t rn, rm;
+  int32_t n, m, res;
+  int64_t alu_out;
+ 
+  rn = get_bits(instr,2,0);
+  rm = get_bits(instr,5,3);
+  n = arm_read_register(p,rn);
+  m = (arm_read_register(p,rm));
+  alu_out = n-m;
+  res = get_bits(alu_out,31,0);
+
+  if (get_bit(alu_out,31)==1)
+    *cpsr = set_bit(*cpsr,N);
+  else
+    *cpsr = clr_bit(*cpsr,N);
+  if (alu_out==0)
+    *cpsr = set_bit(*cpsr,Z); 
+  else 
+    *cpsr = clr_bit(*cpsr,Z);
+  if (get_bit(alu_out,32)==1)
+    *cpsr = set_bit(*cpsr,C);
+  else
+    *cpsr = clr_bit(*cpsr,C);
+  if (((n<0) && (m>0) && (res>0)) || ((n<0) && (m<0) && (res<0)))
+    *cpsr = set_bit(*cpsr,V);
+  else
+    *cpsr = clr_bit(*cpsr,V);
+  
   return 0;
 }
 
 int arm_op_cmn(arm_core p, uint32_t instr, int32_t *cpsr){
+  int8_t rn, rm;
+  int32_t n, m, res;
+  int64_t alu_out;
+ 
+  rn = get_bits(instr,2,0);
+  rm = get_bits(instr,5,3);
+  n = arm_read_register(p,rn);
+  m = (arm_read_register(p,rm));
+  alu_out = n+m;
+  res = get_bits(alu_out,31,0);
+
+  if (get_bit(alu_out,31)==1)
+    *cpsr = set_bit(*cpsr,N);
+  else
+    *cpsr = clr_bit(*cpsr,N);
+  if (alu_out==0)
+    *cpsr = set_bit(*cpsr,Z); 
+  else 
+    *cpsr = clr_bit(*cpsr,Z);
+  if (get_bit(alu_out,32)==1)
+    *cpsr = set_bit(*cpsr,C);
+  else
+    *cpsr = clr_bit(*cpsr,C);
+  if (((n>0) && (m>0) && (res<0)) || ((n<0) && (m<0) && (res>0)))
+    *cpsr = set_bit(*cpsr,V);
+  else
+    *cpsr = clr_bit(*cpsr,V);
+
   return 0;
 }
 
+
 int arm_op_orr(arm_core p, uint32_t instr, int32_t *cpsr){
+  int8_t rn, rd, rs;
+  int x, y, dest;
+ 
+  rn = get_bits(instr,19,16);
+  rd = get_bits(instr,15,12);
+  rs = get_bits(instr,11,0);
+  x = arm_read_register(p,rn);
+
+  if (get_bit(instr,25)==0) //test valeur immediate
+    y = arm_read_register(p,rs);
+  else
+    y = rs;
+
+  arm_write_register(p,rd,x|y);
+  if ((get_bit(instr,20)) && (rd==15)){
+    if (arm_current_mode_has_spsr(p)){
+      *cpsr = arm_read_spsr(p);
+    }
+    else
+      return DATA_ABORT;
+  }
+  else if (get_bit(instr,20)==1){
+    dest = arm_read_register(p,rd);
+    if (get_bit(dest,31)==1)
+      *cpsr = set_bit(*cpsr,N);
+    else
+      *cpsr = clr_bit(*cpsr,N);
+    if (dest==0)
+      *cpsr = set_bit(*cpsr,Z); 
+    else 
+      *cpsr = clr_bit(*cpsr,Z);
+    // mettre  C Flag en fonction de shifter_carry_out
+    *cpsr = clr_bit(*cpsr,V);
+  }
   return 0;
 }
 
