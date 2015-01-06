@@ -105,6 +105,7 @@ int memory_read_word(memory mem, int be, uint32_t address, uint32_t *value) {
 				i--;
 			}
 			*value |= mem->address[address + i];
+			return 0;
 		}	
 	}
     return -1;
