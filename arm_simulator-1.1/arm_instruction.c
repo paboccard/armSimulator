@@ -28,6 +28,8 @@
 #include "arm_constants.h"
 #include "util.h"
 
+
+
 int arm_op_and(arm_core p, uint32_t instr, int32_t *cpsr){
   int8_t rn, rd, rs;
   int x, y, dest;
@@ -168,14 +170,12 @@ int arm_op_tst(arm_core p, uint32_t instr, int32_t *cpsr){
 
 int arm_op_teq(arm_core p, uint32_t instr, int32_t *cpsr){
 int8_t rn;
-  int32_t n, shift_op;
+  int32_t n;
   int64_t alu_out;
- 
+
   rn = get_bits(instr,19,16);
-  shift_op = get_bits(instr,11,0);
   n = arm_read_register(p,rn);
-  alu_out = n^shift_op;
-  res = get_bits(alu_out,31,0);
+  alu_out = n^arm_data_processing_shift(p,instr);
 
   if (get_bit(alu_out,31)==1)
     *cpsr = set_bit(*cpsr,N);
@@ -185,8 +185,7 @@ int8_t rn;
     *cpsr = set_bit(*cpsr,Z); 
   else 
     *cpsr = clr_bit(*cpsr,Z);
-  // ici j'ai fait un clear C pas shifter_carry_out (p378)
-  *cpsr = clr_bit(*cpsr,C);
+  
   *cpsr = clr_bit(*cpsr,V);
   
   return 0;
@@ -256,9 +255,10 @@ int arm_op_cmn(arm_core p, uint32_t instr, int32_t *cpsr){
   return 0;
 }
 
-
+// p234
 int arm_op_orr(arm_core p, uint32_t instr, int32_t *cpsr){
-  int8_t rn, rd, rs;
+  int8_t rn, rd;
+  int32_t rs;
   int x, y, dest;
  
   rn = get_bits(instr,19,16);
@@ -266,10 +266,7 @@ int arm_op_orr(arm_core p, uint32_t instr, int32_t *cpsr){
   rs = get_bits(instr,11,0);
   x = arm_read_register(p,rn);
 
-  if (get_bit(instr,25)==0) //test valeur immediate
-    y = arm_read_register(p,rs);
-  else
-    y = rs;
+  y = shifter_operand(rs, *cpsr,instr);
 
   arm_write_register(p,rd,x|y);
   if ((get_bit(instr,20)) && (rd==15)){
