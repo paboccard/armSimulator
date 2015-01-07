@@ -151,6 +151,49 @@ int arm_op_add(arm_core p, uint32_t instr, int32_t *cpsr){
 }
 
 int arm_op_adc(arm_core p, uint32_t instr, int32_t *cpsr){
+  int8_t rn, rd, rs;
+  int x, y, dest;
+
+  rn = get_bits(instr,19,16);
+  rd = get_bits(instr,15,12);
+  rs = get_bits(instr,11,0);
+  x = arm_read_register(p,rn);
+
+  if (get_bit(instr,25)==0) //test valeur immediate
+    y = arm_read_register(p,rs);
+  else
+    y = rs;
+    
+  arm_write_register(p, rd,x + y + get_bits(*cpsr,30) );
+  
+  if(get_bit(instr,20) && rd ==15){
+	if(arm_current_mode_has_spsr(p)){
+	  *cpsr = amd_read_spsr(p);
+	}
+	else
+	  return DATA_ABORT;
+  }
+  else if (get_bit(instr,20)==1){
+    dest = arm_read_register(p,rd);
+    if (get_bit(dest,31)==1)
+      *cpsr = set_bit(*cpsr,N);
+    else
+      *cpsr = clr_bit(*cpsr,N);
+      
+    if (dest==0)
+      *cpsr = set_bit(*cpsr,Z); 
+    else 
+      *cpsr = clr_bit(*cpsr,Z);
+    
+    long long int test;  
+    test = x + y + get_bits(*cpsr,30);
+    
+    int32_t b=~0;
+    if(test > b)
+      *cpsr = set_bit(*cpsr,C);
+    else
+      *cpsr = clr_bit(*cpsr,C);
+  
   return 0;
 }
 
