@@ -43,6 +43,13 @@ int shift_lsl(int8_t rs,int32_t val_rm, int8_t shift_imm, int8_t shift_val_imm, 
 }
 
   int shift_lsr(int8_t rs,int32_t val_rm, int8_t shift_imm, int8_t shift_val_imm, int *cpsr){
+    *cpsr = get_bit(val_rm,shift_imm-1) ? set_bit(*cpsr,C) : clr_bit(*cpsr,C);
+    return val_rm >> shift_imm;
+  }
+  else{ // si on a un registre pour le shift
+    *cpsr = rs >= 32 ? ( rs == 32 ? get_bit(val_rm,0) : 0 ) : get_bit(val_rm,shift_imm-1);
+    return rs < 32 ? val_rm >> rs : 0;
+  }
   }
   
   int shift_asr(int8_t rs,int32_t val_rm, int8_t shift_imm, int8_t shift_val_imm, int *cpsr){
@@ -95,13 +102,12 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
     else if(shift == ASR){
       shift_operand = shift_asr(rs,val_rm,shift_imm,shift_val_imm, cpsr);
     }
-    else if((shift == RRX) && (shift_imm == 0)){
-      shift_operand = shift_rrx(rs,val_rm, shift_imm,shift_val_imm, cpsr);
-    }
     else if(shift == ROR){
       shift_operand = shift_ror(rs,val_rm, shift_imm,shift_val_imm, cpsr);
     }
-    
+    else if((shift == RRX) && (val_immed == 0)){
+      shift_operand = shift_rrx(rs,val_rm, shift_imm,shift_val_imm, cpsr);
+    }
     
   return shifter_operand;
 }
