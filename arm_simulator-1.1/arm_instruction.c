@@ -373,7 +373,7 @@ int arm_op_cmn(arm_core p, uint32_t instr, int32_t *cpsr){
     *cpsr = set_bit(*cpsr,Z); 
   else 
     *cpsr = clr_bit(*cpsr,Z);
-  if (get_bit(alu_out,32)==1)
+  if (get_bit(alu_out,32)==1) 
     *cpsr = set_bit(*cpsr,C);
   else
     *cpsr = clr_bit(*cpsr,C);
@@ -421,16 +421,15 @@ int arm_op_orr(arm_core p, uint32_t instr, int32_t *cpsr){
 }
 
 int arm_op_mov(arm_core p, uint32_t instr, int32_t *cpsr){
-  int8_t rd, rs;
+  int8_t rd;
   int x, dest;
  
   rd = get_bits(instr,15,12);
-  rs = get_bits(instr,11,0);
 
   if (get_bit(instr,25)==0) //test valeur immediate
     x = arm_read_register(p,rs);
   else
-    x = rs;
+    x = arm_data_processing_shift(p,instr);
 
   arm_write_register(p,rd,x);
   if ((get_bit(instr,20)) && (rd==15)){
@@ -450,25 +449,21 @@ int arm_op_mov(arm_core p, uint32_t instr, int32_t *cpsr){
       *cpsr = set_bit(*cpsr,Z); 
     else 
       *cpsr = clr_bit(*cpsr,Z);
-    // TODO: mettre C Flag en fonction de shifter_carry_out
+    // C Flag en fonction de shifter_carry_out
     *cpsr = clr_bit(*cpsr,V);
   }
   return 0;
 }
 
 int arm_op_bic(arm_core p, uint32_t instr, int32_t *cpsr){
-  int8_t rn, rd, rs;
+  int8_t rn, rd;
   int x, y, dest;
  
   rn = get_bits(instr,19,16);
   rd = get_bits(instr,15,12);
-  rs = get_bits(instr,11,0);
   x = arm_read_register(p,rn);
 
-  if (get_bit(instr,25)==0) //test valeur immediate
-    y = arm_read_register(p,rs);
-  else
-    y = rs;
+  y = arm_data_processing_shift(p,instr);
 
   arm_write_register(p,rd,x&~y); // Rd = Rn AND NOT shifter_operand
   if ((get_bit(instr,20)) && (rd==15)){
@@ -488,23 +483,19 @@ int arm_op_bic(arm_core p, uint32_t instr, int32_t *cpsr){
       *cpsr = set_bit(*cpsr,Z); 
     else 
       *cpsr = clr_bit(*cpsr,Z);
-    //TODO: mettre  C Flag en fonction de shifter_carry_out
+    //C Flag en fonction de shifter_carry_out
     *cpsr = clr_bit(*cpsr,V);
   }
   return 0;
 }
 
 int arm_op_mvn(arm_core p, uint32_t instr, int32_t *cpsr){
-  int8_t rd, rs;
+  int8_t rd;
   int x, dest;
  
   rd = get_bits(instr,15,12);
-  rs = get_bits(instr,11,0);
 
-  if (get_bit(instr,25)==0) //test valeur immediate
-    x = arm_read_register(p,rs);
-  else
-    x = rs;
+  x = arm_data_processing_shift(p,instr);
 
   arm_write_register(p,rd,~x); // Rd = NOT shifter_operand
   if ((get_bit(instr,20)) && (rd==15)){
@@ -524,7 +515,7 @@ int arm_op_mvn(arm_core p, uint32_t instr, int32_t *cpsr){
       *cpsr = set_bit(*cpsr,Z); 
     else 
       *cpsr = clr_bit(*cpsr,Z);
-    // TODO: mettre C Flag en fonction de shifter_carry_out
+    // C Flag en fonction de shifter_carry_out
     *cpsr = clr_bit(*cpsr,V);
   }
   return 0;
