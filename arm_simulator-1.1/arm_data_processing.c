@@ -42,7 +42,7 @@ int shift_lsl(int8_t rs,int32_t val_rm, int8_t shift_imm, int8_t shift_val_imm, 
     
 }
 
-  int shift_lsr(int8_t rs,int32_t val_rm, int8_t shift_imm, int8_t shift_val_imm, int *cpsr){
+int shift_lsr(int8_t rs,int32_t val_rm, int8_t shift_imm, int8_t shift_val_imm, int *cpsr){
   if (shift_val_imm == 0){ //si on a une valeur immediate pour le shift
     *cpsr = get_bit(val_rm,shift_imm-1) ? set_bit(*cpsr,C) : clr_bit(*cpsr,C);
     return val_rm >> shift_imm;
