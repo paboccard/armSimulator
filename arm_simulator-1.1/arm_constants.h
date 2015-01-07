@@ -90,6 +90,14 @@ Contact: Guillaume.Huard@imag.fr
 #define AL 14
 #define UNPREDICTABLE 15
 
+/* instruction shift */
+#define LSL 0
+#define LSR 1
+#define ASR 2
+#define ROR 3
+#define RRX 3
+
+
 /* Bit mask constants for msr */
 /* We simulate architecture v5T */
 #define UnallocMask 0x0FFFFF00
