@@ -335,16 +335,15 @@ int8_t rn;
   
   return 0;
 }
-// CMP2 p552 mais surement qu'il faut faire les trois versions
+
 int arm_op_cmp(arm_core p, uint32_t instr, int32_t *cpsr){
-  int8_t rn, rm;
-  int32_t n, m, res;
+  int8_t rn;
+  int32_t n,m, res;
   int64_t alu_out;
  
-  rn = get_bits(instr,2,0);
-  rm = get_bits(instr,5,3);
+  rn = get_bits(instr,19,16);
   n = arm_read_register(p,rn);
-  m = (arm_read_register(p,rm));
+  m = arm_data_processing_shift(p,instr);
   alu_out = n-m;
   res = get_bits(alu_out,31,0);
 
@@ -369,14 +368,13 @@ int arm_op_cmp(arm_core p, uint32_t instr, int32_t *cpsr){
 }
 
 int arm_op_cmn(arm_core p, uint32_t instr, int32_t *cpsr){
-  int8_t rn, rm;
+  int8_t rn;
   int32_t n, m, res;
   int64_t alu_out;
  
-  rn = get_bits(instr,2,0);
-  rm = get_bits(instr,5,3);
+  rn = get_bits(instr,19,16);
   n = arm_read_register(p,rn);
-  m = (arm_read_register(p,rm));
+  m = arm_data_processing_shift(p,instr);
   alu_out = n+m;
   res = get_bits(alu_out,31,0);
 
@@ -403,15 +401,13 @@ int arm_op_cmn(arm_core p, uint32_t instr, int32_t *cpsr){
 // p234
 int arm_op_orr(arm_core p, uint32_t instr, int32_t *cpsr){
   int8_t rn, rd;
-  int32_t rs;
   int x, y, dest;
  
   rn = get_bits(instr,19,16);
   rd = get_bits(instr,15,12);
-  rs = get_bits(instr,11,0);
   x = arm_read_register(p,rn);
 
-  y = shifter_operand(rs, *cpsr,instr);
+  y = arm_data_processing_shift(p,instr);
 
   arm_write_register(p,rd,x|y);
   if ((get_bit(instr,20)) && (rd==15)){
