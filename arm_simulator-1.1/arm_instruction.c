@@ -245,7 +245,7 @@ int arm_op_adc(arm_core p, uint32_t instr, int32_t *cpsr){
   
   if(get_bit(instr,20) && rd ==15){
 	if(arm_current_mode_has_spsr(p)){
-	  *cpsr = amd_read_spsr(p);
+	  *cpsr = arm_read_spsr(p);
 	}
 	else
 	  return DATA_ABORT;
@@ -273,9 +273,9 @@ int arm_op_adc(arm_core p, uint32_t instr, int32_t *cpsr){
       *cpsr = clr_bit(*cpsr,C);
       
     //Fonction OverflowFrom avec 3 paramètres
-    if(x>0 && y>0 && x+y<0 || x<0 && y<0 && x+y>0)
+    if((x>0 && y>0 && x+y<0) || (x<0 && y<0 && x+y>0))
       *cpsr = set_bit(*cpsr,V);
-    else if(x+y>0 && c>0 && x+y+c < 0 || x+y<0 && c<0 && x+y+c > 0)
+    else if((x+y>0 && c>0 && x+y+c < 0) || (x+y<0 && c<0 && x+y+c > 0))
 	  *cpsr = set_bit(*cpsr,V);
 	else
 	  *cpsr = clr_bit(*cpsr,V);
@@ -285,7 +285,7 @@ int arm_op_adc(arm_core p, uint32_t instr, int32_t *cpsr){
 }
 
 int arm_op_sbc(arm_core p, uint32_t instr, int32_t *cpsr){
-	int8_t rn, rd, rs;
+  int8_t rn, rd;
   int x, y, dest;
  
   rn = get_bits(instr,19,16);
@@ -344,7 +344,7 @@ int arm_op_sbc(arm_core p, uint32_t instr, int32_t *cpsr){
 }
 
 int arm_op_rsc(arm_core p, uint32_t instr, int32_t *cpsr){
-  int8_t rn, rd, rs;
+  int8_t rn, rd;
   int x, y, dest;
  
   rn = get_bits(instr,19,16);
@@ -415,7 +415,6 @@ int arm_op_tst(arm_core p, uint32_t instr, int32_t *cpsr){
   alu_out = x & y;
   
   //Flag N
-  dest = arm_read_register(p,rd);
   if (get_bit(alu_out,31)==1)
     *cpsr = set_bit(*cpsr,N);
   else
