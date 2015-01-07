@@ -99,7 +99,7 @@ int arm_op_eor(arm_core p, uint32_t instr, int32_t *cpsr){
   return 0;
 }
 
-int arm_op_sub(arm_core p, uint32_t instr, int32_t *cpsr){//a finir
+int arm_op_sub(arm_core p, uint32_t instr, int32_t *cpsr){
   int8_t rn, rd;
   int x, y, dest;
  
