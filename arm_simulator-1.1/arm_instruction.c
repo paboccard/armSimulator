@@ -477,10 +477,7 @@ int arm_op_mov(arm_core p, uint32_t instr, int32_t *cpsr){
  
   rd = get_bits(instr,15,12);
 
-  if (get_bit(instr,25)==0) //test valeur immediate
-    x = arm_read_register(p,rs);
-  else
-    x = arm_data_processing_shift(p,instr);
+  x = arm_data_processing_shift(p,instr);
 
   arm_write_register(p,rd,x);
   if ((get_bit(instr,20)) && (rd==15)){
