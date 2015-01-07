@@ -167,16 +167,17 @@ int arm_op_tst(arm_core p, uint32_t instr, int32_t *cpsr){
 }
 
 int arm_op_teq(arm_core p, uint32_t instr, int32_t *cpsr){
-int8_t rn;
-  int32_t n, shift_op;
+  int8_t rn;
+  int32_t n, shift_op
   int64_t alu_out;
  
   rn = get_bits(instr,19,16);
   shift_op = get_bits(instr,11,0);
   n = arm_read_register(p,rn);
   alu_out = n^shift_op;
-  res = get_bits(alu_out,31,0);
-
+  //  res = get_bits(alu_out,31,0);
+  res = alu_out;
+  
   if (get_bit(alu_out,31)==1)
     *cpsr = set_bit(*cpsr,N);
   else
@@ -421,66 +422,55 @@ static int arm_execute_instruction(arm_core p) {
 	z = get_bit(cpsr,Z); 
 	c = get_bit(cpsr,C); 
 	v = get_bit(cpsr,V);
-	  
-	if (cond == EQ){
+	
+	switch(cond){
+	case EQ:
 	  if (z==0)
-	    return 0; 
-	}
-	else if (cond == NE){
+	    return 0;   
+	case NE :
 	  if (z!=0)
 	    return 0; 
-	}
-	else if (cond == CS){
+	case CS :
 	  if (c==0)
 	    return 0; 
-	}
-	else if (cond == CC){
+	case CC :
 	  if (c!=0)
 	    return 0; 
-	}
-	else if (cond == MI){
+	case MI:
 	  if (n==0)  
 	    return 0; 
-	}
-	else if (cond == PL){
+	case PL:
 	  if (n!=0)
 	    return 0; 
-	}
-	else if (cond == VS){
+	case VS:
 	  if (v==0) 
 	    return 0;
-	} 
-	else if (cond == VC){
+	case VC:
 	  if (v!=0)
 	    return 0; 
-	}
-	else if (cond == HI){
+	case HI:
 	  if (c==0 || z!=0)
 	    return 0; 
-	}
-	else if (cond == LS){
+	case LS:
 	  if (c!=0 && z==0)
 	    return 0; 
-	}
-	else if (cond == GE){
+	case GE:
 	  if (n!=v)
 	    return 0; 
-	}
-	else if (cond == LT){
+	case LT:
 	  if (n==v)
 	    return 0; 
-	}
-	else if (cond == GT){
+	case GT:
 	  if (z!=0 || n!=v)
 	    return 0; 
-	}
-	else if (cond == LE){
+	case LE:
 	  if (z==0 && n==v)
 	    return 0; 
-	}
-	else if (cond == AL);
-	else if (cond == UNPREDICTABLE)
-	  return PREFETCH_ABORT; //exception 
+	case AL:
+	  break;
+	case UNPREDICTABLE:
+	  return PREFETCH_ABORT; //exception
+	} 
 
 	opcode = get_bits(*instr,24,21);
 
