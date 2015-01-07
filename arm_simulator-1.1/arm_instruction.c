@@ -292,11 +292,13 @@ int arm_op_adc(arm_core p, uint32_t instr, int32_t *cpsr){
       *cpsr = set_bit(*cpsr,C);
     else
       *cpsr = clr_bit(*cpsr,C);
-  
+    //Fonction OverflowFrom avec 3 paramètres
+  }
   return 0;
 }
 
 int arm_op_sbc(arm_core p, uint32_t instr, int32_t *cpsr){
+	
   return 0;
 }
 
