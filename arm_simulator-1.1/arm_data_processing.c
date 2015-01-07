@@ -1,24 +1,24 @@
 /*
-Armator - simulateur de jeu d'instruction ARMv5T à but pédagogique
-Copyright (C) 2011 Guillaume Huard
-Ce programme est libre, vous pouvez le redistribuer et/ou le modifier selon les
-termes de la Licence Publique Générale GNU publiée par la Free Software
-Foundation (version 2 ou bien toute autre version ultérieure choisie par vous).
+  Armator - simulateur de jeu d'instruction ARMv5T à but pédagogique
+  Copyright (C) 2011 Guillaume Huard
+  Ce programme est libre, vous pouvez le redistribuer et/ou le modifier selon les
+  termes de la Licence Publique Générale GNU publiée par la Free Software
+  Foundation (version 2 ou bien toute autre version ultérieure choisie par vous).
 
-Ce programme est distribué car potentiellement utile, mais SANS AUCUNE
-GARANTIE, ni explicite ni implicite, y compris les garanties de
-commercialisation ou d'adaptation dans un but spécifique. Reportez-vous à la
-Licence Publique Générale GNU pour plus de détails.
+  Ce programme est distribué car potentiellement utile, mais SANS AUCUNE
+  GARANTIE, ni explicite ni implicite, y compris les garanties de
+  commercialisation ou d'adaptation dans un but spécifique. Reportez-vous à la
+  Licence Publique Générale GNU pour plus de détails.
 
-Vous devez avoir reçu une copie de la Licence Publique Générale GNU en même
-temps que ce programme ; si ce n'est pas le cas, écrivez à la Free Software
-Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307,
-États-Unis.
+  Vous devez avoir reçu une copie de la Licence Publique Générale GNU en même
+  temps que ce programme ; si ce n'est pas le cas, écrivez à la Free Software
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307,
+  États-Unis.
 
-Contact: Guillaume.Huard@imag.fr
-         ENSIMAG - Laboratoire LIG
-         51 avenue Jean Kuntzmann
-         38330 Montbonnot Saint-Martin
+  Contact: Guillaume.Huard@imag.fr
+  ENSIMAG - Laboratoire LIG
+  51 avenue Jean Kuntzmann
+  38330 Montbonnot Saint-Martin
 */
 #include "arm_data_processing.h"
 #include "arm_exception.h"
@@ -27,47 +27,47 @@ Contact: Guillaume.Huard@imag.fr
 #include "util.h"
 #include "debug.h"
 
-int shift_lsl(int8_t rs,int32_t val_rm, int8_t shift_imm, int8_t shift_val_imm, int *cpsr){ 
+int shift_lsl(int8_t val_rs,int32_t val_rm, int8_t shift_imm, int8_t shift_val_imm, int *cpsr){ 
   
   if (shift_val_imm == 0){ //si on a une valeur immediate pour le shift
     *cpsr = get_bit(val_rm,32-shift_imm) ? set_bit(*cpsr,C) : clr_bit(*cpsr,C);
     return val_rm << shift_imm;
   }
   else{ // si on a un registre pour le shift
-    *cpsr = rs >= 32 ? ( rs == 32 ? get_bit(val_rm,0) : 0 ) : get_bit(val_rm,32-shift_imm);
-    return rs < 32 ? val_rm << rs : 0;
-  }
-      
-      
-    
+    *cpsr = val_rs >= 32 ? ( val_rs == 32 ? get_bit(val_rm,0) : 0 ) : get_bit(val_rm,32-val_rs);
+    return val_rs < 32 ? val_rm << val_rs : 0;
+  }  
 }
 
-int shift_lsr(int8_t rs,int32_t val_rm, int8_t shift_imm, int8_t shift_val_imm, int *cpsr){
+int shift_lsr(int8_t val_rs,int32_t val_rm, int8_t shift_imm, int8_t shift_val_imm, int *cpsr){
   if (shift_val_imm == 0){ //si on a une valeur immediate pour le shift
     *cpsr = get_bit(val_rm,shift_imm-1) ? set_bit(*cpsr,C) : clr_bit(*cpsr,C);
     return val_rm >> shift_imm;
   }
   else{ // si on a un registre pour le shift
-    *cpsr = rs >= 32 ? ( rs == 32 ? get_bit(val_rm,0) : 0 ) : get_bit(val_rm,shift_imm-1);
-    return rs < 32 ? val_rm >> rs : 0;
+    *cpsr = val_rs >= 32 ? ( val_rs == 32 ? get_bit(val_rm,0) : 0 ) : get_bit(val_rm,val_rs-1);
+    return val_rs < 32 ? val_rm >> val_rs : 0;
   }
-  }
+}
+
+int shift_asr(int8_t val_rs,int32_t val_rm, int8_t shift_imm, int8_t shift_val_imm, int *cpsr){
+  return 0;
+}
   
-  int shift_asr(int8_t rs,int32_t val_rm, int8_t shift_imm, int8_t shift_val_imm, int *cpsr){
-  }
-  
-  int shift_ror(int8_t rs,int32_t val_rm, int8_t shift_imm, int8_t shift_val_imm, int *cpsr){
-  }
-  
-  int shift_rrx(int8_t rs, int32_t val_rm, int8_t shift_imm, int8_t shift_val_imm, int *cpsr){
-  }
+int shift_ror(int8_t val_rs,int32_t val_rm, int8_t shift_imm, int8_t shift_val_imm, int *cpsr){
+  return 0;
+}
+
+int shift_rrx(int8_t val_rs, int32_t val_rm, int8_t shift_imm, int8_t shift_val_imm, int *cpsr){
+  return 0;
+}
 
 /* Decoding functions for different classes of instructions */
 int arm_data_processing_shift(arm_core p, uint32_t ins) {
-  int8_t rn, rd, rs, rm, shift, shift_imm;
+  int8_t rs, rm, shift, shift_imm, shift_val_imm;
   int shifter_operand = UNDEFINED_INSTRUCTION;
-  int32_t val_rn, val_rd, val_rs, val_rm, val_immed;
-  int32_t *cpsr;
+  int32_t val_rs, val_rm;
+  int32_t *cpsr = NULL;
 
   *cpsr = arm_read_cpsr(p);
   
@@ -95,24 +95,26 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
       *cpsr = clr_bit(*cpsr,C); // shifter_carry_out = C Flags
     }
     else if(shift == LSL){
-      shift_operand = shift_lsl(rs,val_rm, shift_imm, shift_val_imm, cpsr);
+      shifter_operand = shift_lsl(val_rs,val_rm, shift_imm, shift_val_imm, cpsr);
     }
     else if(shift == LSR){
-      shift_operand = shift_lsr(rs,val_rm,shift_imm,shift_val_imm, cpsr);
+      shifter_operand = shift_lsr(val_rs,val_rm,shift_imm,shift_val_imm, cpsr);
     }
     else if(shift == ASR){
-      shift_operand = shift_asr(rs,val_rm,shift_imm,shift_val_imm, cpsr);
+      shifter_operand = shift_asr(val_rs,val_rm,shift_imm,shift_val_imm, cpsr);
     }
     else if(shift == ROR){
-      shift_operand = shift_ror(rs,val_rm, shift_imm,shift_val_imm, cpsr);
+      shifter_operand = shift_ror(val_rs,val_rm, shift_imm,shift_val_imm, cpsr);
     }
-    else if((shift == RRX) && (val_immed == 0)){
-      shift_operand = shift_rrx(rs,val_rm, shift_imm,shift_val_imm, cpsr);
+    else if((shift == RRX) && (shift_val_imm == 0)){
+      shifter_operand = shift_rrx(val_rs,val_rm, shift_imm,shift_val_imm, cpsr);
     }
-    
+    else
+      shifter_operand = UNDEFINED_INSTRUCTION;
+  }
   return shifter_operand;
 }
 
 int arm_data_processing_immediate_msr(arm_core p, uint32_t ins) {
-    return UNDEFINED_INSTRUCTION;
+  return UNDEFINED_INSTRUCTION;
 }
