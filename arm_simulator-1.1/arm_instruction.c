@@ -51,6 +51,7 @@ int arm_op_and(arm_core p, uint32_t instr, int32_t *cpsr){
       return DATA_ABORT;
   }
   else if (get_bit(instr,20)==1){
+	  
     dest = arm_read_register(p,rd);
     if (get_bit(dest,31)==1)
       *cpsr = set_bit(*cpsr,N);
@@ -81,7 +82,7 @@ int arm_op_eor(arm_core p, uint32_t instr, int32_t *cpsr){
   else
     y = rs;
 
-  arm_write_register(p,rd,x^y);   // il s'agit du ou exclusif
+  arm_write_register(p,rd,x^y);
   if ((get_bit(instr,20)) && (rd==15)){
     if (arm_current_mode_has_spsr(p)){
       *cpsr = arm_read_spsr(p);
@@ -137,16 +138,114 @@ int arm_op_sub(arm_core p, uint32_t instr, int32_t *cpsr){//a finir
       *cpsr = set_bit(*cpsr,Z); 
     else 
       *cpsr = clr_bit(*cpsr,Z);
+      
+    if ((x-y)>=0)
+      *cpsr = ~set_bit(*cpsr,C); 
+    else 
+      *cpsr = clr_bit(*cpsr,C); 
     // mettre  C Flag en fonction de shifter_carry_out
-    *cpsr = clr_bit(*cpsr,V);
+    
+    
+    if ((x>0 && y<0 && (x-y)>0) || (x<0 && y>0 && (x-y)<0) )
+      *cpsr = set_bit(*cpsr,V); 
+    else 
+      *cpsr = clr_bit(*cpsr,V);
   }
   return 0;
 }
+
 int arm_op_rsb(arm_core p, uint32_t instr, int32_t *cpsr){
+  int8_t rn, rd, rs;
+  int x, y, dest;
+ 
+  rn = get_bits(instr,19,16);
+  rd = get_bits(instr,15,12);
+  rs = get_bits(instr,11,0);
+  x = arm_read_register(p,rn);
+
+  if (get_bit(instr,25)==0) //test valeur immediate
+    y = arm_read_register(p,rs);
+  else
+    y = rs;
+
+  arm_write_register(p,rd,y-x);
+  if ((get_bit(instr,20)) && (rd==15)){
+    if (arm_current_mode_has_spsr(p)){
+      *cpsr = arm_read_spsr(p);
+    }
+    else
+      return DATA_ABORT;
+  }
+  else if (get_bit(instr,20)==1){
+    dest = arm_read_register(p,rd);
+    if (get_bit(dest,31)==1)
+      *cpsr = set_bit(*cpsr,N);
+    else
+      *cpsr = clr_bit(*cpsr,N);
+    if (dest==0)
+      *cpsr = set_bit(*cpsr,Z); 
+    else 
+      *cpsr = clr_bit(*cpsr,Z);
+      
+    if ((y-x)>=0)
+      *cpsr = ~set_bit(*cpsr,C); 
+    else 
+      *cpsr = clr_bit(*cpsr,C); 
+    // mettre  C Flag en fonction de shifter_carry_out
+    
+    
+    if ((y>0 && x<0 && (y-x)>0) || (y<0 && x>0 && (y-x)<0) )
+      *cpsr = set_bit(*cpsr,V); 
+    else 
+      *cpsr = clr_bit(*cpsr,V);
+  }
   return 0;
 }
 
 int arm_op_add(arm_core p, uint32_t instr, int32_t *cpsr){
+   int8_t rn, rd, rs;
+  int x, y, dest;
+ 
+  rn = get_bits(instr,19,16);
+  rd = get_bits(instr,15,12);
+  rs = get_bits(instr,11,0);
+  x = arm_read_register(p,rn);
+
+  if (get_bit(instr,25)==0) //test valeur immediate
+    y = arm_read_register(p,rs);
+  else
+    y = rs;
+
+  arm_write_register(p,rd,x+y);
+  if ((get_bit(instr,20)) && (rd==15)){
+    if (arm_current_mode_has_spsr(p)){
+      *cpsr = arm_read_spsr(p);
+    }
+    else
+      return DATA_ABORT;
+  }
+  else if (get_bit(instr,20)==1){
+    dest = arm_read_register(p,rd);
+    if (get_bit(dest,31)==1)
+      *cpsr = set_bit(*cpsr,N);
+    else
+      *cpsr = clr_bit(*cpsr,N);
+    if (dest==0)
+      *cpsr = set_bit(*cpsr,Z); 
+    else 
+      *cpsr = clr_bit(*cpsr,Z);
+    
+    long long int a= x+y;
+    int32_t b=~0;
+    if(a>b)
+		*cpsr = set_bit(*cpsr,C);
+	else
+		*cpsr = clr_bit(*cpsr,C);
+	if((x>0 && y>0 && (x+y)<0) || (x<0 && y<0 && (x+y)>0) )
+		*cpsr = set_bit(*cpsr,V);
+	else
+		*cpsr = clr_bit(*cpsr,V);
+  }
   return 0;
 }
 
@@ -210,16 +309,17 @@ int arm_op_tst(arm_core p, uint32_t instr, int32_t *cpsr){
 }
 
 int arm_op_teq(arm_core p, uint32_t instr, int32_t *cpsr){
-int8_t rn;
-  int32_t n, shift_op;
+  int8_t rn;
+  int32_t n, shift_op
   int64_t alu_out;
  
   rn = get_bits(instr,19,16);
   shift_op = get_bits(instr,11,0);
   n = arm_read_register(p,rn);
   alu_out = n^shift_op;
-  res = get_bits(alu_out,31,0);
-
+  //  res = get_bits(alu_out,31,0);
+  res = alu_out;
+  
   if (get_bit(alu_out,31)==1)
     *cpsr = set_bit(*cpsr,N);
   else
@@ -464,66 +564,55 @@ static int arm_execute_instruction(arm_core p) {
 	z = get_bit(cpsr,Z); 
 	c = get_bit(cpsr,C); 
 	v = get_bit(cpsr,V);
-	  
-	if (cond == EQ){
+	
+	switch(cond){
+	case EQ:
 	  if (z==0)
-	    return 0; 
-	}
-	else if (cond == NE){
+	    return 0;   
+	case NE :
 	  if (z!=0)
 	    return 0; 
-	}
-	else if (cond == CS){
+	case CS :
 	  if (c==0)
 	    return 0; 
-	}
-	else if (cond == CC){
+	case CC :
 	  if (c!=0)
 	    return 0; 
-	}
-	else if (cond == MI){
+	case MI:
 	  if (n==0)  
 	    return 0; 
-	}
-	else if (cond == PL){
+	case PL:
 	  if (n!=0)
 	    return 0; 
-	}
-	else if (cond == VS){
+	case VS:
 	  if (v==0) 
 	    return 0;
-	} 
-	else if (cond == VC){
+	case VC:
 	  if (v!=0)
 	    return 0; 
-	}
-	else if (cond == HI){
+	case HI:
 	  if (c==0 || z!=0)
 	    return 0; 
-	}
-	else if (cond == LS){
+	case LS:
 	  if (c!=0 && z==0)
 	    return 0; 
-	}
-	else if (cond == GE){
+	case GE:
 	  if (n!=v)
 	    return 0; 
-	}
-	else if (cond == LT){
+	case LT:
 	  if (n==v)
 	    return 0; 
-	}
-	else if (cond == GT){
+	case GT:
 	  if (z!=0 || n!=v)
 	    return 0; 
-	}
-	else if (cond == LE){
+	case LE:
 	  if (z==0 && n==v)
 	    return 0; 
-	}
-	else if (cond == AL);
-	else if (cond == UNPREDICTABLE)
-	  return PREFETCH_ABORT; //exception 
+	case AL:
+	  break;
+	case UNPREDICTABLE:
+	  return PREFETCH_ABORT; //exception
+	} 
 
 	opcode = get_bits(*instr,24,21);
 
