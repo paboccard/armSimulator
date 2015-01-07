@@ -31,18 +31,14 @@
 
 
 int arm_op_and(arm_core p, uint32_t instr, int32_t *cpsr){
-  int8_t rn, rd, rs;
+  int8_t rn, rd;
   int x, y, dest;
  
   rn = get_bits(instr,19,16);
   rd = get_bits(instr,15,12);
-  rs = get_bits(instr,11,0);
   x = arm_read_register(p,rn);
 
-  if (get_bit(instr,25)==0) //test valeur immediate
-    y = arm_read_register(p,rs);
-  else
-    y = rs;
+ y= arm_data_processing_shift(p,instr);
 
   arm_write_register(p,rd,x&y);
   if ((get_bit(instr,20)) && (rd==15)){
@@ -71,7 +67,7 @@ int arm_op_and(arm_core p, uint32_t instr, int32_t *cpsr){
 
 int arm_op_eor(arm_core p, uint32_t instr, int32_t *cpsr){ 
 
-  int8_t rn, rd, rs;
+  int8_t rn, rd;
   int x, y, dest;
  
   rn = get_bits(instr,19,16);
@@ -104,7 +100,7 @@ int arm_op_eor(arm_core p, uint32_t instr, int32_t *cpsr){
 }
 
 int arm_op_sub(arm_core p, uint32_t instr, int32_t *cpsr){//a finir
-  int8_t rn, rd, rs;
+  int8_t rn, rd;
   int x, y, dest;
  
   rn = get_bits(instr,19,16);
@@ -149,7 +145,7 @@ int arm_op_sub(arm_core p, uint32_t instr, int32_t *cpsr){//a finir
 }
 
 int arm_op_rsb(arm_core p, uint32_t instr, int32_t *cpsr){
-  int8_t rn, rd, rs;
+  int8_t rn, rd;
   int x, y, dest;
  
   rn = get_bits(instr,19,16);
@@ -193,7 +189,7 @@ int arm_op_rsb(arm_core p, uint32_t instr, int32_t *cpsr){
 }
 
 int arm_op_add(arm_core p, uint32_t instr, int32_t *cpsr){
-   int8_t rn, rd, rs;
+   int8_t rn, rd;
   int x, y, dest;
  
   rn = get_bits(instr,19,16);
