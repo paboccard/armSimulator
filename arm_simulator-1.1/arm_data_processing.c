@@ -118,11 +118,16 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
   int shifter_operand = UNDEFINED_INSTRUCTION;
   int32_t val_rs, val_rm;
   int32_t *cpsr = NULL;
+  int32_t rotation;
 
   *cpsr = arm_read_cpsr(p);
   
   if (get_bit(ins,25)==1){
-    shifter_operand = get_bits(ins,7,0); // TODO: Traiter la rotation droite
+    shifter_operand = get_bits(ins,7,0);
+    rotation = get_bits(ins,11,8)*2;
+    for (;rotation>0;rotation--)
+      shifter_operand = (shifter_operand>>1) | (shifter_operand&1<<31);
+
     if (get_bits(ins,11,8)==0)
       *cpsr = clr_bit(*cpsr,C); // shifter_carry_out = C Flags
     else
