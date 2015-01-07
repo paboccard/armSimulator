@@ -244,13 +244,9 @@ int arm_op_adc(arm_core p, uint32_t instr, int32_t *cpsr){
 
   rn = get_bits(instr,19,16);
   rd = get_bits(instr,15,12);
-  rs = get_bits(instr,11,0);
   x = arm_read_register(p,rn);
 
-  if (get_bit(instr,25)==0) //test valeur immediate
-    y = arm_read_register(p,rs);
-  else
-    y = rs;
+  y= arm_data_processing_shift(p,instr);
     
   arm_write_register(p, rd,x + y + get_bits(*cpsr,30) );
   
@@ -273,21 +269,64 @@ int arm_op_adc(arm_core p, uint32_t instr, int32_t *cpsr){
     else 
       *cpsr = clr_bit(*cpsr,Z);
     
-    long long int test;  
-    test = x + y + get_bits(*cpsr,30);
+    long long int test;
+    int c = get_bit(*cpsr,C);  
+    test = x + y + c;
     
     int32_t b=~0;
     if(test > b)
       *cpsr = set_bit(*cpsr,C);
     else
       *cpsr = clr_bit(*cpsr,C);
+      
     //Fonction OverflowFrom avec 3 paramètres
+    if(x>0 && y>0 && x+y<0 || x<0 && y<0 && x+y>0)
+      *cpsr = set_bit(*cpsr,V);
+    else if(x+y>0 && c>0 && x+y+c < 0 || x+y<0 && c<0 && x+y+c > 0)
+	  *cpsr = set_bit(*cpsr,V);
+	else
+	  *cpsr = clr_bit(*cpsr,V);
+    
   }
   return 0;
 }
 
 int arm_op_sbc(arm_core p, uint32_t instr, int32_t *cpsr){
-	
+  int8_t rn, rd;
+  int32_t rs;
+  int x, y, dest;
+ 
+  rn = get_bits(instr,19,16);
+  rd = get_bits(instr,15,12);
+  rs = get_bits(instr,11,0);
+  x = arm_read_register(p,rn);
+
+  if (get_bit(instr,25)==0) //test valeur immediate
+    y = arm_read_register(p,rs);
+  else
+    y = rs;
+    
+  arm_write_register(p, rd, x - y - ~(get_bits(*cpsr,30)));
+   
+  if(get_bit(instr,20) && rd ==15){
+	if(arm_current_mode_has_spsr(p)){
+	  *cpsr = amd_read_spsr(p);
+	}
+	else
+	  return DATA_ABORT;
+  }
+  else if (get_bit(instr,20)==1){
+    dest = arm_read_register(p,rd);
+    if (get_bit(dest,31)==1)
+      *cpsr = set_bit(*cpsr,N);
+    else
+      *cpsr = clr_bit(*cpsr,N);
+      
+    if (dest==0)
+      *cpsr = set_bit(*cpsr,Z); 
+    else 
+      *cpsr = clr_bit(*cpsr,Z);
+  } 
   return 0;
 }
 
@@ -296,6 +335,18 @@ int arm_op_rsc(arm_core p, uint32_t instr, int32_t *cpsr){
 }
 
 int arm_op_tst(arm_core p, uint32_t instr, int32_t *cpsr){
+  int8_t rn;
+  int y;
+  
+  rn = get_bits(instr,19,16);
+  
+  if (get_bit(instr,25)==0) //test valeur immediate
+    y = arm_read_register(p,rs);
+  else
+    y = rs;
+    
+  int alu_out = 
+    
   return 0;
 }
 
