@@ -239,7 +239,7 @@ int arm_op_add(arm_core p, uint32_t instr, int32_t *cpsr){
 }
 
 int arm_op_adc(arm_core p, uint32_t instr, int32_t *cpsr){
-  int8_t rn, rd, rs;
+  int8_t rn, rd;
   int x, y, dest;
 
   rn = get_bits(instr,19,16);
@@ -248,7 +248,7 @@ int arm_op_adc(arm_core p, uint32_t instr, int32_t *cpsr){
 
   y= arm_data_processing_shift(p,instr);
     
-  arm_write_register(p, rd,x + y + get_bits(*cpsr,30) );
+  arm_write_register(p, rd,x + y + get_bit(*cpsr,30) );
   
   if(get_bit(instr,20) && rd ==15){
 	if(arm_current_mode_has_spsr(p)){
@@ -306,7 +306,7 @@ int arm_op_sbc(arm_core p, uint32_t instr, int32_t *cpsr){
   else
     y = rs;
     
-  arm_write_register(p, rd, x - y - ~(get_bits(*cpsr,30)));
+  arm_write_register(p, rd, x - y - ~(get_bit(*cpsr,30)));
    
   if(get_bit(instr,20) && rd ==15){
 	if(arm_current_mode_has_spsr(p)){
@@ -336,16 +336,35 @@ int arm_op_rsc(arm_core p, uint32_t instr, int32_t *cpsr){
 
 int arm_op_tst(arm_core p, uint32_t instr, int32_t *cpsr){
   int8_t rn;
-  int y;
+  int64_t alu_out;
+  int32_t x, y;
   
   rn = get_bits(instr,19,16);
   
-  if (get_bit(instr,25)==0) //test valeur immediate
-    y = arm_read_register(p,rs);
-  else
-    y = rs;
+  x = arm_read_register(p,rn);
+  y = arm_data_processing_shift(p,instr);
     
-  int alu_out = 
+  alu_out = x & y;
+  
+  //Flag N
+  dest = arm_read_register(p,rd);
+  if (get_bit(alu_out,31)==1)
+    *cpsr = set_bit(*cpsr,N);
+  else
+    *cpsr = clr_bit(*cpsr,N);
+      
+  //Flag Z
+  if (alu_out==0)
+    *cpsr = set_bit(*cpsr,Z); 
+  else 
+    *cpsr = clr_bit(*cpsr,Z);
+    
+  //Flag C
+	//Fait dans data processing
+  
+  
+  //Flag V
+	*cpsr = clr_bit(*cpsr,V);
     
   return 0;
 }
