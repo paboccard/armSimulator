@@ -244,13 +244,9 @@ int arm_op_adc(arm_core p, uint32_t instr, int32_t *cpsr){
 
   rn = get_bits(instr,19,16);
   rd = get_bits(instr,15,12);
-  rs = get_bits(instr,11,0);
   x = arm_read_register(p,rn);
 
-  if (get_bit(instr,25)==0) //test valeur immediate
-    y = arm_read_register(p,rs);
-  else
-    y = rs;
+  y= arm_data_processing_shift(p,instr);
     
   arm_write_register(p, rd,x + y + get_bits(*cpsr,30) );
   
