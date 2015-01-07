@@ -51,6 +51,7 @@ int arm_op_and(arm_core p, uint32_t instr, int32_t *cpsr){
       return DATA_ABORT;
   }
   else if (get_bit(instr,20)==1){
+	  
     dest = arm_read_register(p,rd);
     if (get_bit(dest,31)==1)
       *cpsr = set_bit(*cpsr,N);
@@ -81,7 +82,7 @@ int arm_op_eor(arm_core p, uint32_t instr, int32_t *cpsr){
   else
     y = rs;
 
-  arm_write_register(p,rd,x^y);   // il s'agit du ou exclusif
+  arm_write_register(p,rd,x^y);
   if ((get_bit(instr,20)) && (rd==15)){
     if (arm_current_mode_has_spsr(p)){
       *cpsr = arm_read_spsr(p);
@@ -137,16 +138,114 @@ int arm_op_sub(arm_core p, uint32_t instr, int32_t *cpsr){//a finir
       *cpsr = set_bit(*cpsr,Z); 
     else 
       *cpsr = clr_bit(*cpsr,Z);
+      
+    if ((x-y)>=0)
+      *cpsr = ~set_bit(*cpsr,C); 
+    else 
+      *cpsr = clr_bit(*cpsr,C); 
     // mettre  C Flag en fonction de shifter_carry_out
-    *cpsr = clr_bit(*cpsr,V);
+    
+    
+    if ((x>0 && y<0 && (x-y)>0) || (x<0 && y>0 && (x-y)<0) )
+      *cpsr = set_bit(*cpsr,V); 
+    else 
+      *cpsr = clr_bit(*cpsr,V);
   }
   return 0;
 }
+
 int arm_op_rsb(arm_core p, uint32_t instr, int32_t *cpsr){
+  int8_t rn, rd, rs;
+  int x, y, dest;
+ 
+  rn = get_bits(instr,19,16);
+  rd = get_bits(instr,15,12);
+  rs = get_bits(instr,11,0);
+  x = arm_read_register(p,rn);
+
+  if (get_bit(instr,25)==0) //test valeur immediate
+    y = arm_read_register(p,rs);
+  else
+    y = rs;
+
+  arm_write_register(p,rd,y-x);
+  if ((get_bit(instr,20)) && (rd==15)){
+    if (arm_current_mode_has_spsr(p)){
+      *cpsr = arm_read_spsr(p);
+    }
+    else
+      return DATA_ABORT;
+  }
+  else if (get_bit(instr,20)==1){
+    dest = arm_read_register(p,rd);
+    if (get_bit(dest,31)==1)
+      *cpsr = set_bit(*cpsr,N);
+    else
+      *cpsr = clr_bit(*cpsr,N);
+    if (dest==0)
+      *cpsr = set_bit(*cpsr,Z); 
+    else 
+      *cpsr = clr_bit(*cpsr,Z);
+      
+    if ((y-x)>=0)
+      *cpsr = ~set_bit(*cpsr,C); 
+    else 
+      *cpsr = clr_bit(*cpsr,C); 
+    // mettre  C Flag en fonction de shifter_carry_out
+    
+    
+    if ((y>0 && x<0 && (y-x)>0) || (y<0 && x>0 && (y-x)<0) )
+      *cpsr = set_bit(*cpsr,V); 
+    else 
+      *cpsr = clr_bit(*cpsr,V);
+  }
   return 0;
 }
 
 int arm_op_add(arm_core p, uint32_t instr, int32_t *cpsr){
+   int8_t rn, rd, rs;
+  int x, y, dest;
+ 
+  rn = get_bits(instr,19,16);
+  rd = get_bits(instr,15,12);
+  rs = get_bits(instr,11,0);
+  x = arm_read_register(p,rn);
+
+  if (get_bit(instr,25)==0) //test valeur immediate
+    y = arm_read_register(p,rs);
+  else
+    y = rs;
+
+  arm_write_register(p,rd,x+y);
+  if ((get_bit(instr,20)) && (rd==15)){
+    if (arm_current_mode_has_spsr(p)){
+      *cpsr = arm_read_spsr(p);
+    }
+    else
+      return DATA_ABORT;
+  }
+  else if (get_bit(instr,20)==1){
+    dest = arm_read_register(p,rd);
+    if (get_bit(dest,31)==1)
+      *cpsr = set_bit(*cpsr,N);
+    else
+      *cpsr = clr_bit(*cpsr,N);
+    if (dest==0)
+      *cpsr = set_bit(*cpsr,Z); 
+    else 
+      *cpsr = clr_bit(*cpsr,Z);
+    
+    long long int a= x+y;
+    int32_t b=~0;
+    if(a>b)
+		*cpsr = set_bit(*cpsr,C);
+	else
+		*cpsr = clr_bit(*cpsr,C);
+	if((x>0 && y>0 && (x+y)<0) || (x<0 && y<0 && (x+y)>0) )
+		*cpsr = set_bit(*cpsr,V);
+	else
+		*cpsr = clr_bit(*cpsr,V);
+  }
   return 0;
 }
 
