@@ -51,15 +51,108 @@ int shift_lsr(int8_t val_rs,int32_t val_rm, int8_t shift_imm, int8_t shift_val_i
 }
 
 int shift_asr(int8_t val_rs,int32_t val_rm, int8_t shift_imm, int8_t shift_val_imm, int *cpsr){
-  return 0;
+  if (!shift_val_imm) {
+    if (!get_bits(val_rs,7,0)) {
+      *cpsr = clr_bit(*cpsr,C);
+      return val_rm;
+    }
+    else if (get_bits(val_rs,7,0) < 32) {
+      *cpsr = get_bit(val_rm,(get_bits(val_rs,7,0)-1)) ? set_bit(*cpsr,C) : clr_bit(*cpsr,C);
+      return asr(val_rm, val_rs);
+    }
+    else {
+      if (!get_bit(val_rm,31)){
+        *cpsr = clr_bit(*cpsr,C);
+        return 0;
+      }
+      else {
+        *cpsr = set_bit(*cpsr,C);
+        return ~0;
+      }
+    }
+  }
+  else {
+    if (!get_bits(shift_imm,7,0)) {
+      *cpsr = clr_bit(*cpsr,C);
+      return val_rm;
+    }
+    else if (get_bits(shift_imm,7,0) < 32) {
+      *cpsr = get_bit(val_rm,(get_bits(shift_imm,7,0)-1)) ? set_bit(*cpsr,C) : clr_bit(*cpsr,C);
+      return asr(val_rm, shift_imm);
+    }
+    else {
+      if (!get_bit(val_rm,31)){
+        *cpsr = clr_bit(*cpsr,C);
+        return 0;
+      }
+      else {
+        *cpsr = set_bit(*cpsr,C);
+        return ~0;
+      }
+    }
+  }
+
 }
   
 int shift_ror(int8_t val_rs,int32_t val_rm, int8_t shift_imm, int8_t shift_val_imm, int *cpsr){
-  return 0;
+ 
+  if (shift_val_imm) {
+    // p456
+    if (!(get_bits(val_rs,7,0))) {
+      *cpsr = clr_bit(*cpsr,C);
+      return val_rm;
+    }
+    else if (!(get_bits(val_rs,4,0))) {
+      if (get_bit(val_rm,31)) {
+        *cpsr = set_bit(*cpsr,C);
+      }
+      else 
+        *cpsr = clr_bit(*cpsr,C);
+      return val_rm;
+      
+    }
+    else {
+      if (get_bit(val_rm,(get_bits(val_rs,4,0) - 1))) {
+        *cpsr = set_bit(*cpsr,C);
+      }
+      else 
+        *cpsr = clr_bit(*cpsr,C);
+
+      return ror(val_rm, val_rs);
+    }
+  }
+  else {
+    if (!(get_bits(shift_imm,7,0))) {
+      *cpsr = clr_bit(*cpsr,C);
+      return val_rm;
+    }
+    else if (!(get_bits(shift_imm,4,0))) {
+      if (get_bit(val_rm,31)) {
+        *cpsr = set_bit(*cpsr,C);
+      }
+      else {
+        *cpsr = clr_bit(*cpsr,C);
+      }
+      return val_rm;
+      
+    }
+    else {
+      if (get_bit(val_rm,(get_bits(shift_imm,4,0) - 1))) {
+        *cpsr = set_bit(*cpsr,C);
+      }
+      else 
+        *cpsr = clr_bit(*cpsr,C);
+      
+      return ror(val_rm, shift_imm);
+    }
+  } 
 }
 
 int shift_rrx(int8_t val_rs, int32_t val_rm, int8_t shift_imm, int8_t shift_val_imm, int *cpsr){
-  return 0;
+  
+  *cpsr = get_bit(val_rm, 0) ? set_bit(*cpsr,C) : clr_bit(*cpsr,C);
+  return ((get_bit(*cpsr,29)<<31) | (val_rm>>1));
+
 }
 
 /* Decoding functions for different classes of instructions */
