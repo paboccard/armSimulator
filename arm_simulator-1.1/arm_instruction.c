@@ -31,7 +31,7 @@
 
 
 int arm_op_and(arm_core p, uint32_t instr, int32_t *cpsr){
-  int8_t rn, rd;
+  uint8_t rn, rd;
   int x, y, dest;
  
   rn = get_bits(instr,19,16);
@@ -67,7 +67,7 @@ int arm_op_and(arm_core p, uint32_t instr, int32_t *cpsr){
 
 int arm_op_eor(arm_core p, uint32_t instr, int32_t *cpsr){ 
 
-  int8_t rn, rd;
+  uint8_t rn, rd;
   int x, y, dest;
  
   rn = get_bits(instr,19,16);
@@ -100,7 +100,7 @@ int arm_op_eor(arm_core p, uint32_t instr, int32_t *cpsr){
 }
 
 int arm_op_sub(arm_core p, uint32_t instr, int32_t *cpsr){
-  int8_t rn, rd;
+  uint8_t rn, rd;
   int x, y, dest;
  
   rn = get_bits(instr,19,16);
@@ -145,7 +145,7 @@ int arm_op_sub(arm_core p, uint32_t instr, int32_t *cpsr){
 }
 
 int arm_op_rsb(arm_core p, uint32_t instr, int32_t *cpsr){
-  int8_t rn, rd;
+  uint8_t rn, rd;
   int x, y, dest;
  
   rn = get_bits(instr,19,16);
@@ -189,7 +189,7 @@ int arm_op_rsb(arm_core p, uint32_t instr, int32_t *cpsr){
 }
 
 int arm_op_add(arm_core p, uint32_t instr, int32_t *cpsr){
-  int8_t rn, rd;
+  uint8_t rn, rd;
   int x, y, dest;
  
   rn = get_bits(instr,19,16);
@@ -232,7 +232,7 @@ int arm_op_add(arm_core p, uint32_t instr, int32_t *cpsr){
 }
 
 int arm_op_adc(arm_core p, uint32_t instr, int32_t *cpsr){
-  int8_t rn, rd;
+  uint8_t rn, rd;
   int x, y, dest;
 
   rn = get_bits(instr,19,16);
@@ -286,7 +286,7 @@ int arm_op_adc(arm_core p, uint32_t instr, int32_t *cpsr){
 }
 
 int arm_op_sbc(arm_core p, uint32_t instr, int32_t *cpsr){
-  int8_t rn, rd;
+  uint8_t rn, rd;
   int x, y, dest;
  
   rn = get_bits(instr,19,16);
@@ -346,7 +346,7 @@ int arm_op_sbc(arm_core p, uint32_t instr, int32_t *cpsr){
 }
 
 int arm_op_rsc(arm_core p, uint32_t instr, int32_t *cpsr){
-  int8_t rn, rd;
+  uint8_t rn, rd;
   int x, y, dest;
  
   rn = get_bits(instr,19,16);
@@ -405,7 +405,7 @@ int arm_op_rsc(arm_core p, uint32_t instr, int32_t *cpsr){
 }
 
 int arm_op_tst(arm_core p, uint32_t instr, int32_t *cpsr){
-  int8_t rn;
+  uint8_t rn;
   int64_t alu_out;
   int32_t x, y;
   
@@ -439,7 +439,7 @@ int arm_op_tst(arm_core p, uint32_t instr, int32_t *cpsr){
 
 int arm_op_teq(arm_core p, uint32_t instr, int32_t *cpsr){
 
-  int8_t rn;
+  uint8_t rn;
   int32_t n;
   int64_t alu_out;
 
@@ -462,7 +462,7 @@ int arm_op_teq(arm_core p, uint32_t instr, int32_t *cpsr){
 }
 
 int arm_op_cmp(arm_core p, uint32_t instr, int32_t *cpsr){
-  int8_t rn;
+  uint8_t rn;
   int32_t n,m, res;
   int64_t alu_out;
  
@@ -493,7 +493,7 @@ int arm_op_cmp(arm_core p, uint32_t instr, int32_t *cpsr){
 }
 
 int arm_op_cmn(arm_core p, uint32_t instr, int32_t *cpsr){
-  int8_t rn;
+  uint8_t rn;
   int32_t n, m, res;
   int64_t alu_out;
  
@@ -525,7 +525,7 @@ int arm_op_cmn(arm_core p, uint32_t instr, int32_t *cpsr){
 
 // p234
 int arm_op_orr(arm_core p, uint32_t instr, int32_t *cpsr){
-  int8_t rn, rd;
+  uint8_t rn, rd;
   int x, y, dest;
  
   rn = get_bits(instr,19,16);
@@ -591,7 +591,7 @@ int arm_op_mov(arm_core p, uint32_t instr, int32_t *cpsr){
 }
 
 int arm_op_bic(arm_core p, uint32_t instr, int32_t *cpsr){
-  int8_t rn, rd;
+  uint8_t rn, rd;
   int x, y, dest;
  
   rn = get_bits(instr,19,16);
@@ -625,7 +625,7 @@ int arm_op_bic(arm_core p, uint32_t instr, int32_t *cpsr){
 }
 
 int arm_op_mvn(arm_core p, uint32_t instr, int32_t *cpsr){
-  int8_t rd;
+  uint8_t rd;
   int x, dest;
  
   rd = get_bits(instr,15,12);
@@ -757,7 +757,7 @@ int test_cond(uint8_t cond, arm_core p){
 
 static int arm_execute_instruction(arm_core p) {
   uint32_t instr;
-  int8_t opcode;
+  uint8_t opcode;
   int test;
   int32_t cpsr;
   int32_t rs = arm_read_register(p, 15);
@@ -839,8 +839,7 @@ static int arm_execute_instruction(arm_core p) {
 	    return arm_op_strh(p,instr);
       }
       else if (get_bits(instr,27,26)==1){ //verifie à 01 les bit [27:26]
-	printf("instr[27:26] = 01 \n"); //TODELETE
-	int8_t cond = get_bits(instr, 31, 28);
+	uint8_t cond = get_bits(instr, 31, 28);
 	test = test_cond(cond,p);
 	if (test==0 || test ==  PREFETCH_ABORT)  return test;
 	
