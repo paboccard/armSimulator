@@ -278,8 +278,7 @@ int arm_op_adc(arm_core p, uint32_t instr, int32_t *cpsr){
     else if((x+y>0 && c>0 && x+y+c < 0) || (x+y<0 && c<0 && x+y+c > 0))
 	  *cpsr = set_bit(*cpsr,V);
 	else
-	  *cpsr = clr_bit(*cpsr,V);
-    
+	  *cpsr = clr_bit(*cpsr,V);   
   }
   return 0;
 }
@@ -337,8 +336,7 @@ int arm_op_sbc(arm_core p, uint32_t instr, int32_t *cpsr){
 		}
 		else{
 			*cpsr = clr_bit(*cpsr,V);
-		}
-      
+		}      
   }
   return 0;
 }
@@ -428,7 +426,6 @@ int arm_op_tst(arm_core p, uint32_t instr, int32_t *cpsr){
     
   //Flag C
 	//Fait dans data processing
-  
   
   //Flag V
 	*cpsr = clr_bit(*cpsr,V);
