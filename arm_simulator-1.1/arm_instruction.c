@@ -218,7 +218,7 @@ int arm_op_add(arm_core p, uint32_t instr, int32_t *cpsr){
       *cpsr = clr_bit(*cpsr,Z);
     
     long long int a= x+y;
-    int32_t b=~0;
+    uint32_t b=~0;
     if(a>b)
       *cpsr = set_bit(*cpsr,C);
     else
@@ -266,7 +266,7 @@ int arm_op_adc(arm_core p, uint32_t instr, int32_t *cpsr){
     int c = get_bit(*cpsr,C);  
     test = x + y + c;
     
-    int32_t b=~0;
+    uint32_t b=~0;
     if(test > b)
       *cpsr = set_bit(*cpsr,C);
     else
@@ -516,7 +516,7 @@ int arm_op_cmn(arm_core p, uint32_t instr, int32_t *cpsr){
       *cpsr = clr_bit(*cpsr,Z);
     
     long long int a= x+y;
-    int32_t b=~0;
+    uint32_t b=~0;
     if(a>b)
       *cpsr = set_bit(*cpsr,C);
     else
