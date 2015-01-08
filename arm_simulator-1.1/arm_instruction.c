@@ -562,7 +562,7 @@ int arm_op_mov(arm_core p, uint32_t instr, int32_t *cpsr){
   int x, dest;
  
   rd = get_bits(instr,15,12);
-
+  printf("Test1");
   x = arm_data_processing_shift(p,instr);
 
   arm_write_register(p,rd,x);
