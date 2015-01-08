@@ -160,19 +160,19 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
   int8_t rs, rm, shift, shift_imm, shift_val_imm;
   int shifter_operand = UNDEFINED_INSTRUCTION;
   int32_t val_rs, val_rm;
-  int32_t *cpsr = NULL;
+  int32_t cpsr;
 
-  *cpsr = arm_read_cpsr(p);
+  cpsr = arm_read_cpsr(p);
   
   if (get_bit(ins,25)==1){
     shifter_operand = get_bits(ins,7,0); // TODO: Traiter la rotation droite
     if (get_bits(ins,11,8)==0)
-      *cpsr = clr_bit(*cpsr,C); // shifter_carry_out = C Flags
+      cpsr = clr_bit(cpsr,C); // shifter_carry_out = C Flags
     else
       if (get_bit(shifter_operand,31)==1)
-	*cpsr = set_bit(*cpsr,C);
+	cpsr = set_bit(cpsr,C);
       else
-	*cpsr = clr_bit(*cpsr,C);
+	cpsr = clr_bit(cpsr,C);
   }
   else{
     rs = get_bits(ins,11,8);
@@ -185,22 +185,22 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
 
     if (get_bits(ins,11,4)==0){ //shift_operand = Registre -> sans shift
       shifter_operand = val_rm;
-      *cpsr = clr_bit(*cpsr,C); // shifter_carry_out = C Flags
+      cpsr = clr_bit(cpsr,C); // shifter_carry_out = C Flags
     }
     else if(shift == LSL){
-      shifter_operand = shift_lsl(val_rs,val_rm, shift_imm, shift_val_imm, cpsr);
+      shifter_operand = shift_lsl(val_rs,val_rm, shift_imm, shift_val_imm, &cpsr);
     }
     else if(shift == LSR){
-      shifter_operand = shift_lsr(val_rs,val_rm,shift_imm,shift_val_imm, cpsr);
+      shifter_operand = shift_lsr(val_rs,val_rm,shift_imm,shift_val_imm, &cpsr);
     }
     else if(shift == ASR){
-      shifter_operand = shift_asr(val_rs,val_rm,shift_imm,shift_val_imm, cpsr);
+      shifter_operand = shift_asr(val_rs,val_rm,shift_imm,shift_val_imm, &cpsr);
     }
     else if(shift == ROR){
-      shifter_operand = shift_ror(val_rs,val_rm, shift_imm,shift_val_imm, cpsr);
+      shifter_operand = shift_ror(val_rs,val_rm, shift_imm,shift_val_imm, &cpsr);
     }
     else if((shift == RRX) && (shift_val_imm == 0)){
-      shifter_operand = shift_rrx(val_rs,val_rm, shift_imm,shift_val_imm, cpsr);
+      shifter_operand = shift_rrx(val_rs,val_rm, shift_imm,shift_val_imm, &cpsr);
     }
     else
       shifter_operand = UNDEFINED_INSTRUCTION;
