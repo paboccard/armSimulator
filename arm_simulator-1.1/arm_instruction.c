@@ -562,21 +562,14 @@ int arm_op_mov(arm_core p, uint32_t instr, int32_t *cpsr){
   uint8_t rd;
   int x, dest;
 
-  printf("test mov\n"); //TODELETE
- 
   rd = get_bits(instr,15,12);
-  printf("test1\n"); //TODELETE
   x = arm_data_processing_shift(p,instr);
 
-  printf("test2\n"); //TODELETE
-
   arm_write_register(p,rd,x);
+
   if ((get_bit(instr,20)) && (rd==15)){
-    
     if (arm_current_mode_has_spsr(p)){
-      printf("cpsr1 \n"); //TODELETE
       *cpsr = arm_read_spsr(p);
-      printf("cpsr1 \n"); //TODELETE
     }
     else
       return DATA_ABORT;
@@ -762,20 +755,6 @@ int test_cond(uint8_t cond, arm_core p){
   return PREFETCH_ABORT;
 }  
 
-/*TODELETE*/
-void affichebin(unsigned n, int nbBit)
-{
-  int i;
-  unsigned bit = 0 ;
-  unsigned mask = 1 ;
-  for (i = 0 ; i < nbBit ; ++i)
-    {
-      bit = (n & mask) >> i ;
-      printf("%d", bit) ;
-      mask >>= 1 ;
-    }
-}
-
 static int arm_execute_instruction(arm_core p) {
   uint32_t instr;
   int8_t opcode;
@@ -783,42 +762,22 @@ static int arm_execute_instruction(arm_core p) {
   int32_t cpsr;
   int32_t rs = arm_read_register(p, 15);
 
-  
-  printf("test arm_execute_instruction\n"); //TODELETE
-  
-
   if (get_bit(rs,0)==0 && get_bit(rs,1)==0){
-    printf("rs[1:0] = 00\n"); //TODELETE
     //if ((memory_read_word(p->mem,1,p->register_storage[15]-8,instr))==0){
     
     if(arm_fetch(p,&instr)==0){
 
-      printf("arm_fetch\n"); //TODELETE
-      printf("bit instruction: %x\n",instr); //TODELETE
-      printf("bit [27:26] %x\n",get_bits(instr,27,26)); //TODELETE;
-      printf("bit [7:4] %x\n",get_bits(instr,7,4)); //TODELETE;
-      printf("bit [31:28] %x\n",get_bits(instr,31,28)); //TODELETE;
-
       if (get_bits(instr,27,26)==0){ //verifie à 0 les bit [27:26]
-	printf("instr[27:26] = 00\n"); // TODELETE
 
 	if (!(get_bit(instr,4) && get_bit(instr,7))){ // test pour différencier les instruction avec MSR, STRH, LDRH
-	  printf("on différencie les instructions de MSR\n"); //TODELETE
 
 	  uint8_t cond = get_bits(instr,31, 28);
-	  printf("COND:  %x\n", get_bits(instr,31, 28)); //TODELETE
 	  test = test_cond(cond,p);
-	  
-	  printf("test Condition\n"); //TODELETE
 
 	  if (test==0 || test ==  PREFETCH_ABORT)  return test;
 	  
-	  printf("Test de la condition OK! \n"); //TODELETE
-
 	  opcode = get_bits(instr,24,21);
 	  
-	  printf("bit opecode: %x\n",opcode); //TODELETE
-
 	  switch(opcode){
 	  case AND:
 	    return arm_op_and(p,instr,&cpsr);
@@ -899,7 +858,6 @@ static int arm_execute_instruction(arm_core p) {
 	} 
       }
       else if (get_bits(instr,27,26)==2){ //verifie à 10 les bit [27:26]
-	printf("instr[27:26] = 10 \n"); //TODELETE
 	if (get_bit(instr,25)==0){
 	  if (get_bit(instr,20)==1)//test pour savoir si c'est un load
 	    return arm_op_ldm1(p,instr);
@@ -917,8 +875,6 @@ static int arm_execute_instruction(arm_core p) {
 int arm_step(arm_core p) {
   int result;
   
-  printf("test arm_step\n"); //TODELETE
-
   result = arm_execute_instruction(p);
   if (result)
     arm_exception(p, result);
