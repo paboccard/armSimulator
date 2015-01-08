@@ -24,9 +24,14 @@ Contact: Guillaume.Huard@imag.fr
 #include "memory.h"
 #include "util.h"
 
-struct memory_data {
+/*struct memory_data {
     int8_t *address;
     size_t size;
+    };*/
+
+struct memory_data {
+  uint8_t *address;
+  size_t size;
 };
 
 memory memory_create(size_t size) {
