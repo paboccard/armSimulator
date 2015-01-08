@@ -1,19 +1,19 @@
 /*
-  Armator - simulateur de jeu d'instruction ARMv5T ‡ but pÈdagogique
+  Armator - simulateur de jeu d'instruction ARMv5T √† but p√©dagogique
   Copyright (C) 2011 Guillaume Huard
   Ce programme est libre, vous pouvez le redistribuer et/ou le modifier selon les
-  termes de la Licence Publique GÈnÈrale GNU publiÈe par la Free Software
-  Foundation (version 2 ou bien toute autre version ultÈrieure choisie par vous).
+  termes de la Licence Publique G√©n√©rale GNU publi√©e par la Free Software
+  Foundation (version 2 ou bien toute autre version ult√©rieure choisie par vous).
 
-  Ce programme est distribuÈ car potentiellement utile, mais SANS AUCUNE
+  Ce programme est distribu√© car potentiellement utile, mais SANS AUCUNE
   GARANTIE, ni explicite ni implicite, y compris les garanties de
-  commercialisation ou d'adaptation dans un but spÈcifique. Reportez-vous ‡ la
-  Licence Publique GÈnÈrale GNU pour plus de dÈtails.
+  commercialisation ou d'adaptation dans un but sp√©cifique. Reportez-vous √† la
+  Licence Publique G√©n√©rale GNU pour plus de d√©tails.
 
-  Vous devez avoir reÁu une copie de la Licence Publique GÈnÈrale GNU en mÍme
-  temps que ce programme ; si ce n'est pas le cas, Ècrivez ‡ la Free Software
+  Vous devez avoir re√ßu une copie de la Licence Publique G√©n√©rale GNU en m√™me
+  temps que ce programme ; si ce n'est pas le cas, √©crivez √† la Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307,
-  …tats-Unis.
+  √âtats-Unis.
 
   Contact: Guillaume.Huard@imag.fr
   ENSIMAG - Laboratoire LIG
@@ -272,7 +272,7 @@ int arm_op_adc(arm_core p, uint32_t instr, int32_t *cpsr){
     else
       *cpsr = clr_bit(*cpsr,C);
       
-    //Fonction OverflowFrom avec 3 paramËtres
+    //Fonction OverflowFrom avec 3 param√®tres
     if((x>0 && y>0 && x+y<0) || (x<0 && y<0 && x+y>0))
       *cpsr = set_bit(*cpsr,V);
     else if((x+y>0 && c>0 && x+y+c < 0) || (x+y<0 && c<0 && x+y+c > 0))
@@ -469,7 +469,7 @@ int arm_op_cmp(arm_core p, uint32_t instr, int32_t *cpsr){
   n = arm_read_register(p,rn);
   m = arm_data_processing_shift(p,instr);
   alu_out = n-m;
-  res = get_bits(alu_out,31,0);
+  res = get_bits(alu_out,31,1); //MODIF modifie 0->1
 
   if (get_bit(alu_out,31)==1)
     *cpsr = set_bit(*cpsr,N);
@@ -500,7 +500,7 @@ int arm_op_cmn(arm_core p, uint32_t instr, int32_t *cpsr){
   n = arm_read_register(p,rn);
   m = arm_data_processing_shift(p,instr);
   alu_out = n+m;
-  res = get_bits(alu_out,31,0);
+  res = get_bits(alu_out,31,1); //MODIF modifie 0->1
 
   if (get_bit(alu_out,31)==1)
     *cpsr = set_bit(*cpsr,N);
@@ -558,16 +558,24 @@ int arm_op_orr(arm_core p, uint32_t instr, int32_t *cpsr){
 }
 
 int arm_op_mov(arm_core p, uint32_t instr, int32_t *cpsr){
-  int8_t rd;
+  uint8_t rd;
   int x, dest;
+
+  printf("test mov\n"); //TODELETE
  
   rd = get_bits(instr,15,12);
+  printf("test1\n"); //TODELETE
   x = arm_data_processing_shift(p,instr);
+
+  printf("test2\n"); //TODELETE
 
   arm_write_register(p,rd,x);
   if ((get_bit(instr,20)) && (rd==15)){
+    
     if (arm_current_mode_has_spsr(p)){
+      printf("cpsr1 \n"); //TODELETE
       *cpsr = arm_read_spsr(p);
+      printf("cpsr1 \n"); //TODELETE
     }
     else
       return DATA_ABORT;
@@ -692,7 +700,7 @@ int arm_op_bl(arm_core p, uint32_t instr){
   return 0;
 }
 
-int test_cond(int8_t cond, arm_core p){
+int test_cond(uint8_t cond, arm_core p){
   int z,n,c,v;
   int32_t cpsr;
   cpsr = arm_read_cpsr(p);
@@ -745,6 +753,7 @@ int test_cond(int8_t cond, arm_core p){
     if (z==0 && n==v)
       return 0; 
   case AL:
+    return 1;
     break;
   case UNPREDICTABLE:
     return PREFETCH_ABORT; //exception
@@ -752,24 +761,63 @@ int test_cond(int8_t cond, arm_core p){
   return PREFETCH_ABORT;
 }  
 
+/*TODELETE*/
+void affichebin(unsigned n, int nbBit)
+{
+  int i;
+  unsigned bit = 0 ;
+  unsigned mask = 1 ;
+  for (i = 0 ; i < nbBit ; ++i)
+    {
+      bit = (n & mask) >> i ;
+      printf("%d", bit) ;
+      mask >>= 1 ;
+    }
+}
+
 static int arm_execute_instruction(arm_core p) {
   uint32_t instr;
   int8_t opcode;
   int test;
   int32_t cpsr;
   int32_t rs = arm_read_register(p, 15);
-  if (get_bit(rs,0)==0 && get_bit(rs,1)==0){
-    //if ((memory_read_word(p->mem,1,p->register_storage[15]-8,instr))==0){
-    if(arm_fetch(p,&instr)==0){
-      if ((0x3 & (instr >> 26))){ //verifie ‡ 0 les bit [27:26]
 
-	if (!(get_bit(instr,4) && get_bit(instr,7))){ // test pour diffÈrencier les instruction avec MSR, STRH, LDRH
-	  int8_t cond = get_bits(instr, 31, 28);
+  
+  printf("test arm_execute_instruction\n"); //TODELETE
+  
+
+  if (get_bit(rs,0)==0 && get_bit(rs,1)==0){
+    printf("rs[1:0] = 00\n"); //TODELETE
+    //if ((memory_read_word(p->mem,1,p->register_storage[15]-8,instr))==0){
+    
+    if(arm_fetch(p,&instr)==0){
+
+      printf("arm_fetch\n"); //TODELETE
+      printf("bit instruction: %x\n",instr); //TODELETE
+      printf("bit [27:26] %x\n",get_bits(instr,27,26)); //TODELETE;
+      printf("bit [7:4] %x\n",get_bits(instr,7,4)); //TODELETE;
+      printf("bit [31:28] %x\n",get_bits(instr,31,28)); //TODELETE;
+
+      if (get_bits(instr,27,26)==0){ //verifie √† 0 les bit [27:26]
+	printf("instr[27:26] = 00\n"); // TODELETE
+
+	if (!(get_bit(instr,4) && get_bit(instr,7))){ // test pour diff√©rencier les instruction avec MSR, STRH, LDRH
+	  printf("on diff√©rencie les instructions de MSR\n"); //TODELETE
+
+	  uint8_t cond = get_bits(instr,31, 28);
+	  printf("COND:  %x\n", get_bits(instr,31, 28)); //TODELETE
 	  test = test_cond(cond,p);
+	  
+	  printf("test Condition\n"); //TODELETE
+
 	  if (test==0 || test ==  PREFETCH_ABORT)  return test;
 	  
+	  printf("Test de la condition OK! \n"); //TODELETE
+
 	  opcode = get_bits(instr,24,21);
 	  
+	  printf("bit opecode: %x\n",opcode); //TODELETE
+
 	  switch(opcode){
 	  case AND:
 	    return arm_op_and(p,instr,&cpsr);
@@ -830,7 +878,8 @@ static int arm_execute_instruction(arm_core p) {
 	  else
 	    return arm_op_strh(p,instr);
       }
-      else if (get_bits(instr,27,26)==1){ //verifie ‡ 01 les bit [27:26]
+      else if (get_bits(instr,27,26)==1){ //verifie √† 01 les bit [27:26]
+	printf("instr[27:26] = 01 \n"); //TODELETE
 	int8_t cond = get_bits(instr, 31, 28);
 	test = test_cond(cond,p);
 	if (test==0 || test ==  PREFETCH_ABORT)  return test;
@@ -848,7 +897,8 @@ static int arm_execute_instruction(arm_core p) {
 	    return arm_op_strb(p,instr);
 	} 
       }
-      else if (get_bits(instr,27,26)==2){ //verifie ‡ 10 les bit [27:26]
+      else if (get_bits(instr,27,26)==2){ //verifie √† 10 les bit [27:26]
+	printf("instr[27:26] = 10 \n"); //TODELETE
 	if (get_bit(instr,25)==0){
 	  if (get_bit(instr,20)==1)//test pour savoir si c'est un load
 	    return arm_op_ldm1(p,instr);
@@ -866,6 +916,8 @@ static int arm_execute_instruction(arm_core p) {
 int arm_step(arm_core p) {
   int result;
   
+  printf("test arm_step\n"); //TODELETE
+
   result = arm_execute_instruction(p);
   if (result)
     arm_exception(p, result);
