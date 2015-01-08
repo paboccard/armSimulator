@@ -463,63 +463,66 @@ int arm_op_teq(arm_core p, uint32_t instr, int32_t *cpsr){
 
 int arm_op_cmp(arm_core p, uint32_t instr, int32_t *cpsr){
   int8_t rn;
-  int32_t n,m, res;
-  int64_t alu_out;
+  int x, y, dest;
  
   rn = get_bits(instr,19,16);
-  n = arm_read_register(p,rn);
-  m = arm_data_processing_shift(p,instr);
-  alu_out = n-m;
-  res = get_bits(alu_out,31,1); //MODIF modifie 0->1
+  x = arm_read_register(p,rn);
 
-  if (get_bit(alu_out,31)==1)
-    *cpsr = set_bit(*cpsr,N);
-  else
-    *cpsr = clr_bit(*cpsr,N);
-  if (alu_out==0)
-    *cpsr = set_bit(*cpsr,Z); 
-  else 
-    *cpsr = clr_bit(*cpsr,Z);
-  if (get_bit(alu_out,32)==1)
-    *cpsr = set_bit(*cpsr,C);
-  else
-    *cpsr = clr_bit(*cpsr,C);
-  if (((n<0) && (m>0) && (res>0)) || ((n<0) && (m<0) && (res<0)))
-    *cpsr = set_bit(*cpsr,V);
-  else
-    *cpsr = clr_bit(*cpsr,V);
-  
+  y= arm_data_processing_shift(p,instr);
+    dest = x-y;
+    if (get_bit(dest,31)==1)
+      *cpsr = set_bit(*cpsr,N);
+    else
+      *cpsr = clr_bit(*cpsr,N);
+      
+    if (dest==0)
+      *cpsr = set_bit(*cpsr,Z); 
+    else 
+      *cpsr = clr_bit(*cpsr,Z);
+      
+    //NOT BorrowFrom(Rn - shifter_operand)
+    if ((x-y)>=0)
+      *cpsr = clr_bit(*cpsr,C); 
+    else 
+      *cpsr = set_bit(*cpsr,C); 
+    // mettre  C Flag en fonction de shifter_carry_out
+    
+    
+    if ((x>0 && y<0 && (x-y)>0) || (x<0 && y>0 && (x-y)<0) )
+      *cpsr = set_bit(*cpsr,V); 
+    else 
+      *cpsr = clr_bit(*cpsr,V);
   return 0;
 }
 
 int arm_op_cmn(arm_core p, uint32_t instr, int32_t *cpsr){
   int8_t rn;
-  int32_t n, m, res;
-  int64_t alu_out;
+  int x, y, dest;
  
   rn = get_bits(instr,19,16);
-  n = arm_read_register(p,rn);
-  m = arm_data_processing_shift(p,instr);
-  alu_out = n+m;
-  res = get_bits(alu_out,31,1); //MODIF modifie 0->1
+  x = arm_read_register(p,rn);
 
-  if (get_bit(alu_out,31)==1)
-    *cpsr = set_bit(*cpsr,N);
-  else
-    *cpsr = clr_bit(*cpsr,N);
-  if (alu_out==0)
-    *cpsr = set_bit(*cpsr,Z); 
-  else 
-    *cpsr = clr_bit(*cpsr,Z);
-  if (get_bit(alu_out,32)==1) 
-    *cpsr = set_bit(*cpsr,C);
-  else
-    *cpsr = clr_bit(*cpsr,C);
-  if (((n>0) && (m>0) && (res<0)) || ((n<0) && (m<0) && (res>0)))
-    *cpsr = set_bit(*cpsr,V);
-  else
-    *cpsr = clr_bit(*cpsr,V);
-
+  y= arm_data_processing_shift(p,instr);
+    dest = x+y;
+    if (get_bit(dest,31)==1)
+      *cpsr = set_bit(*cpsr,N);
+    else
+      *cpsr = clr_bit(*cpsr,N);
+    if (dest==0)
+      *cpsr = set_bit(*cpsr,Z); 
+    else 
+      *cpsr = clr_bit(*cpsr,Z);
+    
+    long long int a= x+y;
+    int32_t b=~0;
+    if(a>b)
+      *cpsr = set_bit(*cpsr,C);
+    else
+      *cpsr = clr_bit(*cpsr,C);
+    if((x>0 && y>0 && (x+y)<0) || (x<0 && y<0 && (x+y)>0) )
+      *cpsr = set_bit(*cpsr,V);
+    else
+      *cpsr = clr_bit(*cpsr,V);
   return 0;
 }
 
@@ -766,7 +769,6 @@ static int arm_execute_instruction(arm_core p) {
     //if ((memory_read_word(p->mem,1,p->register_storage[15]-8,instr))==0){
     
     if(arm_fetch(p,&instr)==0){
-
       if (get_bits(instr,27,26)==0){ //verifie à 0 les bit [27:26]
 
 	if (!(get_bit(instr,4) && get_bit(instr,7))){ // test pour différencier les instruction avec MSR, STRH, LDRH
