@@ -130,9 +130,9 @@ int arm_op_sub(arm_core p, uint32_t instr, int32_t *cpsr){
       
     //NOT BorrowFrom(Rn - shifter_operand)
     if ((x-y)>=0)
-      *cpsr = clr_bit(*cpsr,C); 
-    else 
       *cpsr = set_bit(*cpsr,C); 
+    else 
+      *cpsr = clr_bit(*cpsr,C); 
     // mettre  C Flag en fonction de shifter_carry_out
     
     
@@ -173,7 +173,7 @@ int arm_op_rsb(arm_core p, uint32_t instr, int32_t *cpsr){
     else 
       *cpsr = clr_bit(*cpsr,Z);
     //NOT BorrowFrom(shifter_operand - Rn)
-    if ((y-x)>=0)
+    if ((y-x)<0)
       *cpsr = clr_bit(*cpsr,C); 
     else 
       *cpsr = set_bit(*cpsr,C); 
@@ -336,10 +336,10 @@ int arm_op_sbc(arm_core p, uint32_t instr, int32_t *cpsr){
 		
 
       if ((res>0 && flagC<0 && (res-flagC)>0) || (res<0 && flagC>0 && (res-flagC)<0) ){
-	*cpsr = set_bit(*cpsr,V); 
+	*cpsr = clr_bit(*cpsr,V); 
       }
       else{
-	*cpsr = clr_bit(*cpsr,V);
+	*cpsr = set_bit(*cpsr,V);
       }
       
   }
