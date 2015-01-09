@@ -703,8 +703,8 @@ int arm_op_str(arm_core p, uint32_t instr){
 
 int arm_op_ldrb(arm_core p, uint32_t instr){
 
-  uint8_t rd, val_rd;;
-  uint32_t y
+  uint8_t rd, val_rd;
+  uint32_t y;
 
   rd = get_bits(instr,15,12);
   
