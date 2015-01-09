@@ -700,10 +700,6 @@ int arm_op_str(arm_core p, uint32_t instr){
 }
 
 int arm_op_ldrb(arm_core p, uint32_t instr){
-<<<<<<< HEAD
-
-=======
->>>>>>> 1252773dc78367be010a2dc8a71d865f1d421867
   uint8_t rd, val_rd;
   uint32_t y;
 
