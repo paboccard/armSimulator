@@ -41,6 +41,7 @@ Contact: Guillaume.Huard@imag.fr
 #define DATA_ABORT              5
 #define INTERRUPT               6
 #define FAST_INTERRUPT          7
+#define UNPREDICTABLE           8
 
 /* Some CPSR bits */
 #define N 31
@@ -88,7 +89,7 @@ Contact: Guillaume.Huard@imag.fr
 #define GT 12
 #define LE 13
 #define AL 14
-#define UNPREDICTABLE 15
+
 
 /* instruction shift */
 #define LSL 0
