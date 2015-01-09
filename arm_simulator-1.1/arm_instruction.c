@@ -687,35 +687,57 @@ int arm_op_ldr(arm_core p, uint32_t instr){
 }
 
 int arm_op_str(arm_core p, uint32_t instr){
-  uint8_t rd;
-  int x, y;
+   uint8_t rd;
+  uint32_t y, val_rd;
+
   rd = get_bits(instr,15,12);
-  x = arm_read_register(p,rd);
-  y= arm_load_store(p,instr);
+  val_rd = arm_read_register(p,rd);
 
-  arm_write_word(p,y, x);
-
-
+  y = arm_load_store(p,instr); //y = adresse de la valeur a load
+  
+  if ((arm_write_word(p, y, val_rd)!=0)) {
+    return DATA_ABORT;
+  }
   return 0;
 }
 
 int arm_op_ldrb(arm_core p, uint32_t instr){
-  if ((arm_read_word(p, y, &val_rd)==-1)) {
-    return DATA_ABORT;    
+ uint8_t rd;
+  int cpsr;
+  uint32_t y, val_rd;
 
+  rd = get_bits(instr,15,12);
+  val_rd = arm_read_register(p,rd);
+
+  y = arm_load_store(p,instr); //y = adresse de la valeur a load
+  
+  if ((arm_read_byte(p, y, &val_rd)==0)) {
+    if (rd == 15){
+      val_rd = val_rd & 0xFFFFFFFE;
+      cpsr = arm_read_cpsr(p);
+      cpsr = get_bit(instr,0) ? set_bit(cpsr,5) : clr_bit(cpsr,5); // T bit = y[0] 
+    }
+    arm_write_register(p,rd,val_rd);
+  }
+  else
+    return DATA_ABORT;
 
   return 0;
 }
 
 int arm_op_strb(arm_core p, uint32_t instr){
   uint8_t rd;
-  int x, y;
+  uint32_t y, val_rd;
+
   rd = get_bits(instr,15,12);
-  x = arm_read_register(p,rd);
-  y= arm_load_store(p,instr);
+  val_rd = arm_read_register(p,rd);
+
+  y = arm_load_store(p,instr); //y = adresse de la valeur a load
   
-  if(arm_write_byte(p, y, x)==0)
-{}
+  if ((arm_write_byte(p, y, val_rd)==0)) {
+  
+    return DATA_ABORT;
+  }
   return 0;
 }
 
@@ -724,14 +746,18 @@ int arm_op_ldrh(arm_core p, uint32_t instr){
 }
 
 int arm_op_strh(arm_core p, uint32_t instr){
-  uint8_t rd;
-  int x, y;
-  rd = get_bits(instr,15,12);
-  x = arm_read_register(p,rd);
-  y= arm_load_store(p,instr);
-  
-  arm_write_half(p, y, x);
+   uint8_t rd;
+  uint32_t y, val_rd;
 
+  rd = get_bits(instr,15,12);
+  val_rd = arm_read_register(p,rd);
+
+  y = arm_load_store(p,instr); //y = adresse de la valeur a load
+  
+  if ((arm_write_half(p, y, val_rd)==0)) {
+  
+    return DATA_ABORT;
+  }
   return 0;
 }
 
