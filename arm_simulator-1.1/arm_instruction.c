@@ -669,7 +669,6 @@ int arm_op_ldr(arm_core p, uint32_t instr){
   uint32_t y, val_rd;
  
   rd = get_bits(instr,15,12);
-  val_rd = arm_read_register(p,rd);
 
   y = arm_load_store(p,instr); //y = adresse de la valeur a load
   
@@ -688,7 +687,7 @@ int arm_op_ldr(arm_core p, uint32_t instr){
 }
 
 int arm_op_str(arm_core p, uint32_t instr){
-   uint8_t rd;
+  uint8_t rd;
   uint32_t y, val_rd;
  
   rd = get_bits(instr,15,12);
@@ -854,9 +853,11 @@ static int arm_execute_instruction(arm_core p) {
 	if (get_bit(rs,0)==0 && get_bit(rs,1)==0){
     //if ((memory_read_word(p->mem,1,p->register_storage[15]-8,instr))==0){
     
-		if(arm_fetch(p,&instr)==0){
-		
+
+    	if(arm_fetch(p,&instr)==0){
+			arm_coprocessor_others_swi(p,instr); // Fini le programme quand l'instruction est swi 0x123456
       		if (get_bits(instr,27,26)==0){ //verifie à 0 les bit [27:26]
+
 
 				if (!(get_bit(instr,4) && get_bit(instr,7))){ // test pour différencier les instruction avec MSR, STRH, LDRH
 
@@ -889,9 +890,10 @@ static int arm_execute_instruction(arm_core p) {
 	    return res;
 	    break;
 	  case ADD:
-	    res = arm_op_add(p,instr,&cpsr);
-	    arm_write_cpsr(p,cpsr);
-	    return res;
+	//    res = arm_op_add(p,instr,&cpsr);
+	//    arm_write_cpsr(p,cpsr);
+	//    return res;
+	    return arm_op_add(p,instr,&cpsr);
 	    break;
 	  case ADC:
 	    res = arm_op_adc(p,instr,&cpsr);
