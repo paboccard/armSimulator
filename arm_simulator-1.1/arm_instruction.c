@@ -851,7 +851,7 @@ static int arm_execute_instruction(arm_core p) {
     //if ((memory_read_word(p->mem,1,p->register_storage[15]-8,instr))==0){
     
     if(arm_fetch(p,&instr)==0){
-		
+		arm_coprocessor_others_swi(p,instr); // Fini le programme quand l'instruction est swi 0x123456
       if (get_bits(instr,27,26)==0){ //verifie à 0 les bit [27:26]
 
 	if (!(get_bit(instr,4) && get_bit(instr,7))){ // test pour différencier les instruction avec MSR, STRH, LDRH
@@ -885,9 +885,10 @@ static int arm_execute_instruction(arm_core p) {
 	    return res;
 	    break;
 	  case ADD:
-	    res = arm_op_add(p,instr,&cpsr);
-	    arm_write_cpsr(p,cpsr);
-	    return res;
+	//    res = arm_op_add(p,instr,&cpsr);
+	//    arm_write_cpsr(p,cpsr);
+	//    return res;
+	    return arm_op_add(p,instr,&cpsr);
 	    break;
 	  case ADC:
 	    res = arm_op_adc(p,instr,&cpsr);
