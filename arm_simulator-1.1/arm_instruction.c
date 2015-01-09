@@ -666,9 +666,9 @@ int arm_op_ldr(arm_core p, uint32_t instr){
   uint8_t rd;
   int cpsr;
   uint32_t y, val_rd;
-
+ 
   rd = get_bits(instr,15,12);
-  val_rd = arm_read_register(p,rd);
+  //val_rd = arm_read_register(p,rd);
 
   y = arm_load_store(p,instr); //y = adresse de la valeur a load
   
@@ -698,10 +698,17 @@ int arm_op_str(arm_core p, uint32_t instr){
 }
 
 int arm_op_ldrb(arm_core p, uint32_t instr){
-  if ((arm_read_word(p, y, &val_rd)==-1)) {
+  uint8_t rd, val_rd;;
+  uint32_t y;
+
+  rd = get_bits(instr,15,12);
+  
+  y = arm_load_store(p,instr); //y = adresse de la valeur a load
+ 
+  if ((arm_read_byte(p, y, &val_rd)==-1))
     return DATA_ABORT;    
-
-
+  arm_write_register(p, rd, val_rd);
+    
   return 0;
 }
 
