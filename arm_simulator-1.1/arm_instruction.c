@@ -727,6 +727,18 @@ int arm_op_strb(arm_core p, uint32_t instr){
 }
 
 int arm_op_ldrh(arm_core p, uint32_t instr){
+  uint8_t rd;
+  uint16_t val_rd;
+  uint32_t y;
+
+  rd = get_bits(instr,15,12);
+  
+  y = arm_load_store(p,instr); //y = adresse de la valeur a load
+ 
+  if ((arm_read_half(p, y, &val_rd)==-1))
+    return DATA_ABORT;    
+  arm_write_register(p, rd, val_rd);
+
   return 0;
 }
 
