@@ -691,7 +691,7 @@ int arm_op_str(arm_core p, uint32_t instr){
   rd = get_bits(instr,15,12);
   x = arm_read_register(p,rd);
   y= arm_load_store(p,instr);
-  memory_write_word(p->mem, 1, y, x);
+  memory_write_word(p.mem, 1, y, x);
 
   return 0;
 }
@@ -806,7 +806,7 @@ int test_cond(uint8_t cond, arm_core p){
 static int arm_execute_instruction(arm_core p) {
   uint32_t instr;
   uint8_t opcode;
-  int test;
+  int test, res;
   int32_t cpsr;
   int32_t rs = arm_read_register(p, 15);
 
@@ -821,32 +821,46 @@ static int arm_execute_instruction(arm_core p) {
 
 	  uint8_t cond = get_bits(instr,31, 28);
 	  test = test_cond(cond,p);
-
+	
 	  if (test==0 || test ==  PREFETCH_ABORT)  return test;
 	  
 	  opcode = get_bits(instr,24,21);
 	  
 	  switch(opcode){
 	  case AND:
-	    return arm_op_and(p,instr,&cpsr);
+	    res = arm_op_and(p,instr,&cpsr);
+	    arm_write_cpsr(p,cpsr);
+	    return res;
 	    break;
 	  case EOR:
-	    return arm_op_eor(p,instr,&cpsr);
+	    res = arm_op_eor(p,instr,&cpsr);
+	    arm_write_cpsr(p,cpsr);
+	    return res;
 	    break;
 	  case SUB:
-	    return arm_op_sub(p,instr,&cpsr);
+	    res = arm_op_sub(p,instr,&cpsr);
+	    arm_write_cpsr(p,cpsr);
+	    return res;
 	    break;
 	  case RSB:
-	    return arm_op_rsb(p,instr,&cpsr);
+	    res = arm_op_rsb(p,instr,&cpsr);
+	    arm_write_cpsr(p,cpsr);
+	    return res;
 	    break;
 	  case ADD:
-	    return arm_op_add(p,instr,&cpsr);
+	    res = arm_op_add(p,instr,&cpsr);
+	    arm_write_cpsr(p,cpsr);
+	    return res;
 	    break;
 	  case ADC:
-	    return arm_op_adc(p,instr,&cpsr);
+	    res = arm_op_adc(p,instr,&cpsr);
+	    arm_write_cpsr(p,cpsr);
+	    return res;
 	    break;
 	  case SBC:
-	    return arm_op_sbc(p,instr,&cpsr);
+	    res = arm_op_sbc(p,instr,&cpsr);
+	    arm_write_cpsr(p,cpsr);
+	    return res;
 	    break;
 	  case RSC:
 	    return arm_op_rsc(p,instr,&cpsr);
