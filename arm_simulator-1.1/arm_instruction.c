@@ -687,23 +687,23 @@ int arm_op_ldr(arm_core p, uint32_t instr){
 }
 
 int arm_op_str(arm_core p, uint32_t instr){
-  uint8_t rd;
-  int x, y;
+   uint8_t rd;
+  uint32_t y, val_rd;
+ 
   rd = get_bits(instr,15,12);
-  x = arm_read_register(p,rd);
-  y= arm_load_store(p,instr);
+  //val_rd = arm_read_register(p,rd);
 
-  arm_write_word(p,y, x);
-
-
+  y = arm_load_store(p,instr); //y = adresse de la valeur a load
+  
+  if ((arm_write_word(p, y, val_rd)!=0)) {
+    
+    return DATA_ABORT;
+}
   return 0;
 }
 
 int arm_op_ldrb(arm_core p, uint32_t instr){
-<<<<<<< HEAD
 
-=======
->>>>>>> 1252773dc78367be010a2dc8a71d865f1d421867
   uint8_t rd, val_rd;
   uint32_t y;
 
@@ -719,14 +719,18 @@ int arm_op_ldrb(arm_core p, uint32_t instr){
 }
 
 int arm_op_strb(arm_core p, uint32_t instr){
-  uint8_t rd;
-  int x, y;
+   uint8_t rd;
+  uint32_t y, val_rd;
+ 
   rd = get_bits(instr,15,12);
-  x = arm_read_register(p,rd);
-  y= arm_load_store(p,instr);
+  //val_rd = arm_read_register(p,rd);
+
+  y = arm_load_store(p,instr); //y = adresse de la valeur a load
   
-  if(arm_write_byte(p, y, x)==0)
-{}
+  if ((arm_write_byte(p, y, val_rd)!=0)) {
+    
+    return DATA_ABORT;
+}
   return 0;
 }
 
@@ -747,14 +751,18 @@ int arm_op_ldrh(arm_core p, uint32_t instr){
 }
 
 int arm_op_strh(arm_core p, uint32_t instr){
-  uint8_t rd;
-  int x, y;
+   uint8_t rd;
+  uint32_t y, val_rd;
+ 
   rd = get_bits(instr,15,12);
-  x = arm_read_register(p,rd);
-  y= arm_load_store(p,instr);
-  
-  arm_write_half(p, y, x);
+  //val_rd = arm_read_register(p,rd);
 
+  y = arm_load_store(p,instr); //y = adresse de la valeur a load
+  
+  if ((arm_write_half(p, y, val_rd)!=0)) {
+    
+    return DATA_ABORT;
+}
   return 0;
 }
 
