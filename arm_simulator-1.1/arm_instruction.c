@@ -668,7 +668,6 @@ int arm_op_ldr(arm_core p, uint32_t instr){
   uint32_t y, val_rd;
  
   rd = get_bits(instr,15,12);
-  //val_rd = arm_read_register(p,rd);
 
   y = arm_load_store(p,instr); //y = adresse de la valeur a load
   
@@ -687,7 +686,7 @@ int arm_op_ldr(arm_core p, uint32_t instr){
 }
 
 int arm_op_str(arm_core p, uint32_t instr){
-   uint8_t rd;
+  uint8_t rd;
   uint32_t y, val_rd;
  
   rd = get_bits(instr,15,12);
