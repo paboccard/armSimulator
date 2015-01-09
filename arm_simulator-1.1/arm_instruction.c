@@ -658,7 +658,24 @@ int arm_op_mvn(arm_core p, uint32_t instr, int32_t *cpsr){
 
 /****************** LOAD / STORE ******************/
 int arm_op_ldr(arm_core p, uint32_t instr){
-  
+  uint8_t rd;
+  int val_rd;
+  rd = get_bits(instr,15,12);
+  val_rd = arm_read_register(p,rd);
+
+  if (CP15_reg1_Ubit == 0)//A Modifier
+    data = Memory[address,4] Rotate_Right (8 * address[1:0]); //A Modifier
+  else
+    /* CP15_reg_Ubit == 1 */
+    data = Memory[address,4]; //A Modifier
+  if (rd ==15){
+    /*A Modifier*/
+    PC = data AND 0xFFFFFFFE// 
+      T Bit = data[0]//
+    else
+      PC = data AND 0xFFFFFFFC//
+      else
+	Rd = data//
   return 0;
 }
 
