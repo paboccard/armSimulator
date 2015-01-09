@@ -29,7 +29,7 @@
 #include "util.h"
 
 
-
+/****************** traitement de donnees ******************/
 int arm_op_and(arm_core p, uint32_t instr, int32_t *cpsr){
   uint8_t rn, rd;
   int x, y, dest;
@@ -681,10 +681,18 @@ int arm_op_ldr(arm_core p, uint32_t instr){
   }
   else
     return DATA_ABORT;
+
   return 0;
 }
 
 int arm_op_str(arm_core p, uint32_t instr){
+  uint8_t rd;
+  int x, y;
+  rd = get_bits(instr,15,12);
+  x = arm_read_register(p,rd);
+  y= arm_load_store(p,instr);
+  memory_write_word(p->mem, 1, y, x);
+
   return 0;
 }
 
@@ -693,6 +701,14 @@ int arm_op_ldrb(arm_core p, uint32_t instr){
 }
 
 int arm_op_strb(arm_core p, uint32_t instr){
+  uint8_t rd;
+  int x, y;
+  rd = get_bits(instr,15,12);
+  x = arm_read_register(p,rd);
+  y= arm_load_store(p,instr);
+  
+  memory_write_byte(p->mem, y, x);
+
   return 0;
 }
 
@@ -701,6 +717,14 @@ int arm_op_ldrh(arm_core p, uint32_t instr){
 }
 
 int arm_op_strh(arm_core p, uint32_t instr){
+  uint8_t rd;
+  int x, y;
+  rd = get_bits(instr,15,12);
+  x = arm_read_register(p,rd);
+  y= arm_load_store(p,instr);
+  
+  memory_write_half(p->mem, 1, y, x);
+
   return 0;
 }
 
@@ -711,6 +735,7 @@ int arm_op_ldm1(arm_core p, uint32_t instr){
 int arm_op_stm1(arm_core p, uint32_t instr){
   return 0;
 }
+
 
 /****************** B / BL ******************/
 int arm_op_bl(arm_core p, uint32_t instr){
@@ -789,6 +814,7 @@ static int arm_execute_instruction(arm_core p) {
     //if ((memory_read_word(p->mem,1,p->register_storage[15]-8,instr))==0){
     
     if(arm_fetch(p,&instr)==0){
+		
       if (get_bits(instr,27,26)==0){ //verifie à 0 les bit [27:26]
 
 	if (!(get_bit(instr,4) && get_bit(instr,7))){ // test pour différencier les instruction avec MSR, STRH, LDRH
