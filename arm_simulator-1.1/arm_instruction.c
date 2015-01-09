@@ -890,10 +890,9 @@ static int arm_execute_instruction(arm_core p) {
 	    return res;
 	    break;
 	  case ADD:
-	//    res = arm_op_add(p,instr,&cpsr);
-	//    arm_write_cpsr(p,cpsr);
-	//    return res;
-	    return arm_op_add(p,instr,&cpsr);
+	    res = arm_op_add(p,instr,&cpsr);
+	    arm_write_cpsr(p,cpsr);
+	    return res;
 	    break;
 	  case ADC:
 	    res = arm_op_adc(p,instr,&cpsr);
