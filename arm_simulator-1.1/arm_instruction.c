@@ -666,9 +666,9 @@ int arm_op_ldr(arm_core p, uint32_t instr){
   uint8_t rd;
   int cpsr;
   uint32_t y, val_rd;
-
+ 
   rd = get_bits(instr,15,12);
-  val_rd = arm_read_register(p,rd);
+  //val_rd = arm_read_register(p,rd);
 
   y = arm_load_store(p,instr); //y = adresse de la valeur a load
   
@@ -702,26 +702,18 @@ int arm_op_str(arm_core p, uint32_t instr){
 }
 
 int arm_op_ldrb(arm_core p, uint32_t instr){
- uint8_t rd;
-  int cpsr;
-  uint32_t y, val_rd;
+
+  uint8_t rd, val_rd;;
+  uint32_t y
 
   rd = get_bits(instr,15,12);
-  val_rd = arm_read_register(p,rd);
-
-  y = arm_load_store(p,instr); //y = adresse de la valeur a load
   
-  if ((arm_read_byte(p, y, &val_rd)==0)) {
-    if (rd == 15){
-      val_rd = val_rd & 0xFFFFFFFE;
-      cpsr = arm_read_cpsr(p);
-      cpsr = get_bit(instr,0) ? set_bit(cpsr,5) : clr_bit(cpsr,5); // T bit = y[0] 
-    }
-    arm_write_register(p,rd,val_rd);
-  }
-  else
-    return DATA_ABORT;
-
+  y = arm_load_store(p,instr); //y = adresse de la valeur a load
+ 
+  if ((arm_read_byte(p, y, &val_rd)==-1))
+    return DATA_ABORT;    
+  arm_write_register(p, rd, val_rd);
+    
   return 0;
 }
 
@@ -896,31 +888,49 @@ static int arm_execute_instruction(arm_core p) {
 	    return res;
 	    break;
 	  case RSC:
-	    return arm_op_rsc(p,instr,&cpsr);
+	    res = arm_op_rsc(p,instr,&cpsr);
+	    arm_write_cpsr(p,cpsr);
+	    return res;
 	    break;
 	  case TST:
-	    return arm_op_tst(p,instr,&cpsr);
+	    res = arm_op_tst(p,instr,&cpsr);
+	    arm_write_cpsr(p,cpsr);
+	    return res;
 	    break;
 	  case TEQ:
-	    return arm_op_teq(p,instr,&cpsr);
+	    res = arm_op_teq(p,instr,&cpsr);
+	    arm_write_cpsr(p,cpsr);
+	    return res;
 	    break;
 	  case CMP:
-	    return arm_op_cmp(p,instr,&cpsr);
+	    res = arm_op_cmp(p,instr,&cpsr);
+	    arm_write_cpsr(p,cpsr);
+	    return res;
 	    break;
 	  case CMN:
-	    return arm_op_cmn(p,instr,&cpsr);
+	    res = arm_op_cmn(p,instr,&cpsr);
+	    arm_write_cpsr(p,cpsr);
+	    return res;
 	    break;
 	  case ORR:
-	    return arm_op_orr(p,instr,&cpsr);
+	    res = arm_op_orr(p,instr,&cpsr);
+	    arm_write_cpsr(p,cpsr);
+	    return res;
 	    break;
 	  case MOV:
-	    return arm_op_mov(p,instr,&cpsr);
+	    res = arm_op_mov(p,instr,&cpsr);
+	    arm_write_cpsr(p,cpsr);
+	    return res;
 	    break;
 	  case BIC:
-	    return arm_op_bic(p,instr,&cpsr);
+	    res = arm_op_bic(p,instr,&cpsr);
+	    arm_write_cpsr(p,cpsr);
+	    return res;
 	    break;
 	  case MVN:
-	    return arm_op_mvn(p,instr,&cpsr);
+	    res = arm_op_mvn(p,instr,&cpsr);
+	    arm_write_cpsr(p,cpsr);
+	    return res;
 	    break;
 	  default:
 	    return UNDEFINED_INSTRUCTION;
@@ -928,10 +938,14 @@ static int arm_execute_instruction(arm_core p) {
 	  }
 	}
 	else // cas pour STRH et LDRH
-	  if (get_bit(instr,20)==1)
-	    return arm_op_ldrh(p,instr);
-	  else
-	    return arm_op_strh(p,instr);
+	  if (get_bit(instr,20)==1){
+	    res = arm_op_ldrh(p,instr);
+	    arm_write_cpsr(p,cpsr);
+	    return res;
+	    }
+	  else {
+	    res = arm_op_strh(p,instr);
+	    }
       }
       else if (get_bits(instr,27,26)==1){ //verifie à 01 les bit [27:26]
 	uint8_t cond = get_bits(instr, 31, 28);
@@ -939,24 +953,42 @@ static int arm_execute_instruction(arm_core p) {
 	if (test==0 || test ==  PREFETCH_ABORT)  return test;
 	
 	if (get_bit(instr,22)==0){
-	  if (get_bit(instr,20)==1)//test pour savoir si c'est un load
-	    return arm_op_ldr(p,instr);
-	  else
-	    return arm_op_str(p,instr);
+	  if (get_bit(instr,20)==1){//test pour savoir si c'est un load
+	    res = arm_op_ldr(p,instr);
+	    arm_write_cpsr(p,cpsr);
+	    return res;
+	    }
+	  else {
+	    res = arm_op_str(p,instr);
+	    arm_write_cpsr(p,cpsr);
+	    return res;
+	    }
 	}
 	else{
-	  if (get_bit(instr,20)==1)//test pour savoir si c'est un load
-	    return arm_op_ldrb(p,instr);
-	  else
-	    return arm_op_strb(p,instr);
+	  if (get_bit(instr,20)==1){//test pour savoir si c'est un load
+	    res = arm_op_ldrb(p,instr);
+	    arm_write_cpsr(p,cpsr);
+	    return res;
+	    }
+	  else {
+	    res = arm_op_strb(p,instr);
+	    arm_write_cpsr(p,cpsr);
+	    return res;
+	    }
 	} 
       }
       else if (get_bits(instr,27,26)==2){ //verifie à 10 les bit [27:26]
 	if (get_bit(instr,25)==0){
-	  if (get_bit(instr,20)==1)//test pour savoir si c'est un load
-	    return arm_op_ldm1(p,instr);
-	  else
-	    return arm_op_stm1(p,instr);
+	  if (get_bit(instr,20)==1){//test pour savoir si c'est un load
+	    res = arm_op_ldm1(p,instr);
+	    arm_write_cpsr(p,cpsr);
+	    return res;
+	    }
+	  else {
+	    res = arm_op_stm1(p,instr);
+	    arm_write_cpsr(p,cpsr);
+	    return res;
+	    }
 	}
 	else
 	  return arm_op_bl(p,instr);
