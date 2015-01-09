@@ -663,14 +663,6 @@ int arm_op_mvn(arm_core p, uint32_t instr, int32_t *cpsr){
 
 /****************** LOAD / STORE ******************/
 int arm_op_ldr(arm_core p, uint32_t instr){
-  uint8_t rd;
-  int x, y;
-  rd = get_bits(instr,15,12);
-  x = arm_read_register(p,rd);
-  y= arm_load_store(p,instr);
-  
-  memory_read_word(p->mem, 1, y, x);
-
   return 0;
 }
 
@@ -686,14 +678,6 @@ int arm_op_str(arm_core p, uint32_t instr){
 }
 
 int arm_op_ldrb(arm_core p, uint32_t instr){
-  uint8_t rd;
-  int x, y;
-  rd = get_bits(instr,15,12);
-  x = arm_read_register(p,rd);
-  y= arm_load_store(p,instr);
-  
-  memory_read_byte(p->mem, 1, y, x);
-
   return 0;
 }
 
@@ -704,20 +688,12 @@ int arm_op_strb(arm_core p, uint32_t instr){
   x = arm_read_register(p,rd);
   y= arm_load_store(p,instr);
   
-  memory_write_bytep->mem, 1, y, x);
+  memory_write_byte(p->mem, y, x);
 
   return 0;
 }
 
 int arm_op_ldrh(arm_core p, uint32_t instr){
-  uint8_t rd;
-  int x, y;
-  rd = get_bits(instr,15,12);
-  x = arm_read_register(p,rd);
-  y= arm_load_store(p,instr);
-  
-  memory_read_half(p->mem, 1, y, x);
-
   return 0;
 }
 
