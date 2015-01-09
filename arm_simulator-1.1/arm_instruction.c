@@ -663,6 +663,25 @@ int arm_op_mvn(arm_core p, uint32_t instr, int32_t *cpsr){
 
 /****************** LOAD / STORE ******************/
 int arm_op_ldr(arm_core p, uint32_t instr){
+  uint8_t rd;
+  int cpsr;
+  uint32_t y, val_rd;
+
+  rd = get_bits(instr,15,12);
+  //val_rd = arm_read_register(p,rd);
+
+  y = arm_load_store(p,instr); //y = adresse de la valeur a load
+  
+  if ((arm_read_word(p, y, &val_rd)==0)) {
+    if (rd == 15){
+      val_rd = y & 0xFFFFFFFE;
+      cpsr = arm_read_cpsr(p);
+      cpsr = get_bit(instr,0) ? set_bit(cpsr,5) : clr_bit(cpsr,5); // T bit = y[0] 
+    }
+  }
+  else
+    return DATA_ABORT;
+
   return 0;
 }
 
@@ -718,7 +737,7 @@ int arm_op_stm1(arm_core p, uint32_t instr){
 }
 
 
-/****************** branchement ******************/
+/****************** B / BL ******************/
 int arm_op_bl(arm_core p, uint32_t instr){
   return 0;
 }
