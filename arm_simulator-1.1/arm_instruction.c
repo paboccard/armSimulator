@@ -207,7 +207,7 @@ int arm_op_add(arm_core p, uint32_t instr, int32_t *cpsr){
       return DATA_ABORT;
   }
   else if (get_bit(instr,20)==1){
-  	printf("Ici\n");
+    printf("Ici\n");
     dest = arm_read_register(p,rd);
     if (get_bit(dest,31)==1)
       *cpsr = set_bit(*cpsr,N);
@@ -905,16 +905,16 @@ static int arm_execute_instruction(arm_core p) {
 
   cpsr = arm_read_cpsr(p);
   
-	if (get_bit(rs,0)==0 && get_bit(rs,1)==0){
+  if (get_bit(rs,0)==0 && get_bit(rs,1)==0){
     //if ((memory_read_word(p->mem,1,p->register_storage[15]-8,instr))==0){
     
 
-    	if(arm_fetch(p,&instr)==0){
-			arm_coprocessor_others_swi(p,instr); // Fini le programme quand l'instruction est swi 0x123456
-      		if (get_bits(instr,27,26)==0){ //verifie à 0 les bit [27:26]
+    if(arm_fetch(p,&instr)==0){
+      arm_coprocessor_others_swi(p,instr); // Fini le programme quand l'instruction est swi 0x123456
+      if (get_bits(instr,27,26)==0){ //verifie à 0 les bit [27:26]
 
 
-				if (!(get_bit(instr,4) && get_bit(instr,7))){ // test pour différencier les instruction avec MSR, STRH, LDRH
+	if (!(get_bit(instr,4) && get_bit(instr,7))){ // test pour différencier les instruction avec MSR, STRH, LDRH
 
 	  uint8_t cond = get_bits(instr,31, 28);
 	  test = test_cond(cond,p);
@@ -1014,62 +1014,62 @@ static int arm_execute_instruction(arm_core p) {
 	    res = arm_op_ldrh(p,instr);
 	    arm_write_cpsr(p,cpsr);
 	    return res;
-	    }
+	  }
 	  else{
 	    res = arm_op_strh(p,instr);
 	    arm_write_cpsr(p,cpsr);
 	    return res;
-	    }
-      }
-    }
-    else if (get_bits(instr,27,26)==1){ 		//verifie à 01 les bit [27:26]
-		uint8_t cond = get_bits(instr, 31, 28);
-		test = test_cond(cond,p);
-		if (test==0 || test ==  PREFETCH_ABORT)  return test;
-	
-		if (get_bit(instr,22)==0){
-			if (get_bit(instr,20)==1){		//test pour savoir si c'est un load
-				res = arm_op_ldr(p,instr);
-				arm_write_cpsr(p,cpsr);
-				return res;
-			}
-		  	else {
-				res = arm_op_str(p,instr);
-				arm_write_cpsr(p,cpsr);
-				return res;
-	    	}
-		}
-		else {
-		  if (get_bit(instr,20)==1) {		//test pour savoir si c'est un load
-			res = arm_op_ldrb(p,instr);
-			arm_write_cpsr(p,cpsr);
-	    	return res;
-			}
-		  else {
-			res = arm_op_strb(p,instr);
-			arm_write_cpsr(p,cpsr);
-	    	return res;
-			}
-		} 
+	  }
 	}
-	else if (get_bits(instr,27,26)==2) { 		//verifie à 10 les bit [27:26]
-		if (get_bit(instr,25)==0){
-	  		if (get_bit(instr,20)==1) {//test pour savoir si c'est un load
-	    		res = arm_op_ldm1(p,instr);
-	    		arm_write_cpsr(p,cpsr);
-	    		return res;
-	    	}
-	  		else {
-	    		res = arm_op_stm1(p,instr);
-	    		arm_write_cpsr(p,cpsr);
-	    		return res;
-	    	}
-		}
-		else {
-	  		res = arm_op_bl(p,instr);
-	  		arm_write_cpsr(p,cpsr);
-	    	return res;
-	    }
+      }
+      else if (get_bits(instr,27,26)==1){ 		//verifie à 01 les bit [27:26]
+	uint8_t cond = get_bits(instr, 31, 28);
+	test = test_cond(cond,p);
+	if (test==0 || test ==  PREFETCH_ABORT)  return test;
+	
+	if (get_bit(instr,22)==0){
+	  if (get_bit(instr,20)==1){		//test pour savoir si c'est un load
+	    res = arm_op_ldr(p,instr);
+	    arm_write_cpsr(p,cpsr);
+	    return res;
+	  }
+	  else {
+	    res = arm_op_str(p,instr);
+	    arm_write_cpsr(p,cpsr);
+	    return res;
+	  }
+	}
+	else {
+	  if (get_bit(instr,20)==1) {		//test pour savoir si c'est un load
+	    res = arm_op_ldrb(p,instr);
+	    arm_write_cpsr(p,cpsr);
+	    return res;
+	  }
+	  else {
+	    res = arm_op_strb(p,instr);
+	    arm_write_cpsr(p,cpsr);
+	    return res;
+	  }
+	} 
+      }
+      else if (get_bits(instr,27,26)==2) { 		//verifie à 10 les bit [27:26]
+	if (get_bit(instr,25)==0){
+	  if (get_bit(instr,20)==1) {//test pour savoir si c'est un load
+	    res = arm_op_ldm1(p,instr);
+	    arm_write_cpsr(p,cpsr);
+	    return res;
+	  }
+	  else {
+	    res = arm_op_stm1(p,instr);
+	    arm_write_cpsr(p,cpsr);
+	    return res;
+	  }
+	}
+	else {
+	  res = arm_op_bl(p,instr);
+	  arm_write_cpsr(p,cpsr);
+	  return res;
+	}
       }
     }    
   }
