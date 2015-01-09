@@ -470,29 +470,29 @@ int arm_op_cmp(arm_core p, uint32_t instr, int32_t *cpsr){
   x = arm_read_register(p,rn);
 
   y= arm_data_processing_shift(p,instr);
-    dest = x-y;
-    if (get_bit(dest,31)==1)
-      *cpsr = set_bit(*cpsr,N);
-    else
-      *cpsr = clr_bit(*cpsr,N);
+  dest = x-y;
+  if (get_bit(dest,31)==1)
+    *cpsr = set_bit(*cpsr,N);
+  else
+    *cpsr = clr_bit(*cpsr,N);
       
-    if (dest==0)
-      *cpsr = set_bit(*cpsr,Z); 
-    else 
-      *cpsr = clr_bit(*cpsr,Z);
+  if (dest==0)
+    *cpsr = set_bit(*cpsr,Z); 
+  else 
+    *cpsr = clr_bit(*cpsr,Z);
       
-    //NOT BorrowFrom(Rn - shifter_operand)
-    if ((x-y)>=0)
-      *cpsr = clr_bit(*cpsr,C); 
-    else 
-      *cpsr = set_bit(*cpsr,C); 
-    // mettre  C Flag en fonction de shifter_carry_out
+  //NOT BorrowFrom(Rn - shifter_operand)
+  if ((x-y)>=0)
+    *cpsr = clr_bit(*cpsr,C); 
+  else 
+    *cpsr = set_bit(*cpsr,C); 
+  // mettre  C Flag en fonction de shifter_carry_out
     
     
-    if ((x>0 && y<0 && (x-y)>0) || (x<0 && y>0 && (x-y)<0) )
-      *cpsr = set_bit(*cpsr,V); 
-    else 
-      *cpsr = clr_bit(*cpsr,V);
+  if ((x>0 && y<0 && (x-y)>0) || (x<0 && y>0 && (x-y)<0) )
+    *cpsr = set_bit(*cpsr,V); 
+  else 
+    *cpsr = clr_bit(*cpsr,V);
   return 0;
 }
 
@@ -505,26 +505,26 @@ int arm_op_cmn(arm_core p, uint32_t instr, int32_t *cpsr){
   x = arm_read_register(p,rn);
 
   y= arm_data_processing_shift(p,instr);
-    dest = x+y;
-    if (get_bit(dest,31)==1)
-      *cpsr = set_bit(*cpsr,N);
-    else
-      *cpsr = clr_bit(*cpsr,N);
-    if (dest==0)
-      *cpsr = set_bit(*cpsr,Z); 
-    else 
-      *cpsr = clr_bit(*cpsr,Z);
+  dest = x+y;
+  if (get_bit(dest,31)==1)
+    *cpsr = set_bit(*cpsr,N);
+  else
+    *cpsr = clr_bit(*cpsr,N);
+  if (dest==0)
+    *cpsr = set_bit(*cpsr,Z); 
+  else 
+    *cpsr = clr_bit(*cpsr,Z);
     
-    long long int a= x+y;
-    uint32_t b=~0;
-    if(a>b)
-      *cpsr = set_bit(*cpsr,C);
-    else
-      *cpsr = clr_bit(*cpsr,C);
-    if((x>0 && y>0 && (x+y)<0) || (x<0 && y<0 && (x+y)>0) )
-      *cpsr = set_bit(*cpsr,V);
-    else
-      *cpsr = clr_bit(*cpsr,V);
+  long long int a= x+y;
+  uint32_t b=~0;
+  if(a>b)
+    *cpsr = set_bit(*cpsr,C);
+  else
+    *cpsr = clr_bit(*cpsr,C);
+  if((x>0 && y>0 && (x+y)<0) || (x<0 && y<0 && (x+y)>0) )
+    *cpsr = set_bit(*cpsr,V);
+  else
+    *cpsr = clr_bit(*cpsr,V);
   return 0;
 }
 
@@ -697,7 +697,7 @@ int arm_op_str(arm_core p, uint32_t instr){
   if ((arm_write_word(p, y, val_rd)!=0)) {
     
     return DATA_ABORT;
-}
+  }
   return 0;
 }
 
@@ -718,7 +718,7 @@ int arm_op_ldrb(arm_core p, uint32_t instr){
 }
 
 int arm_op_strb(arm_core p, uint32_t instr){
-   uint8_t rd;
+  uint8_t rd;
   uint32_t y, val_rd;
  
   rd = get_bits(instr,15,12);
@@ -729,7 +729,7 @@ int arm_op_strb(arm_core p, uint32_t instr){
   if ((arm_write_byte(p, y, val_rd)!=0)) {
     
     return DATA_ABORT;
-}
+  }
   return 0;
 }
 
@@ -744,29 +744,82 @@ int arm_op_ldrh(arm_core p, uint32_t instr){
  
   if ((arm_read_half(p, y, &val_rd)==-1))
     return DATA_ABORT;    
+  if (rd == 15)
+    return UNPREDICTABLE;
   arm_write_register(p, rd, val_rd);
 
   return 0;
 }
 
+
 int arm_op_strh(arm_core p, uint32_t instr){
-   uint8_t rd;
+  uint8_t rd;
   uint32_t y, val_rd;
- 
+  
   rd = get_bits(instr,15,12);
   val_rd = arm_read_register(p,rd);
-
+  
   y = arm_load_store(p,instr); //y = adresse de la valeur a load
   
   if ((arm_write_half(p, y, val_rd)!=0)) {
     
     return DATA_ABORT;
-}
+  }
   return 0;
 }
 
+uint32_t start_address(arm_core p, uint32_t instr){
+  uint8_t i=0;
+  while (i<16 && (get_bit(instr,i)==0)){
+    i++;
+  }
+  return arm_read_register(p,i);
+}
+
+uint32_t end_address(arm_core p, uint32_t instr){
+  uint8_t i=0;
+  int end_address = 0;
+  while (i<16) {
+    if ((get_bit(instr,i)==0))
+      end_address++;
+    i++;
+  }
+  return arm_read_register(p,end_address);
+}
+ 
 int arm_op_ldm1(arm_core p, uint32_t instr){
+  int i;
+  uint8_t ri, cpsr;
+  uint16_t register_list;
+  uint32_t value;
+  int address;
+  address = start_address(p,instr);
+  register_list = get_bits(instr,15,0);
+  for (i=0; i<15; i++){
+    if (get_bit(register_list,i)){
+      if((arm_read_word(p,address,&value))==0){
+	ri = i;
+	arm_write_register(p,ri,value);
+	address += 4;
+      }
+    }
+  }
+  if (get_bit(register_list,15)){
+    if((arm_read_word(p,address,&value))==0){
+      ri = 15;
+      value &= 0xFFFFFFFE;
+      arm_write_register(p,ri,value);
+      cpsr = arm_read_cpsr(p);
+      cpsr = get_bit(instr,0) ? set_bit(cpsr,5) : clr_bit(cpsr,5); // T bit = y[0] 
+    }
+    address+=4;
+  }
   return 0;
+  /*PAS ENCORE SURE*/
+  /*if ((end_address(p,instr)==address))
+    return 0;
+    else
+    return UNPREDICTABLE;*/
 }
 
 int arm_op_stm1(arm_core p, uint32_t instr){
@@ -776,6 +829,8 @@ int arm_op_stm1(arm_core p, uint32_t instr){
 
 /****************** B / BL ******************/
 int arm_op_bl(arm_core p, uint32_t instr){
+  if (get_bit(instr,25)){
+  }
   return 0;
 }
 
@@ -834,8 +889,8 @@ int test_cond(uint8_t cond, arm_core p){
   case AL:
     return 1;
     break;
-  case UNPREDICTABLE:
-    return PREFETCH_ABORT; //exception
+  default:
+    return UNPREDICTABLE; //exception
   }
   return PREFETCH_ABORT;
 }  
