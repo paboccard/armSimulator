@@ -692,7 +692,9 @@ int arm_op_str(arm_core p, uint32_t instr){
   rd = get_bits(instr,15,12);
   x = arm_read_register(p,rd);
   y= arm_load_store(p,instr);
-  memory_write_word(p.mem, 1, y, x);
+
+  arm_write_word(p,y, x);
+
 
   return 0;
 }
@@ -712,8 +714,8 @@ int arm_op_strb(arm_core p, uint32_t instr){
   x = arm_read_register(p,rd);
   y= arm_load_store(p,instr);
   
-  memory_write_byte(p->mem, y, x);
-
+  if(arm_write_byte(p, y, x)==0)
+{}
   return 0;
 }
 
@@ -728,7 +730,7 @@ int arm_op_strh(arm_core p, uint32_t instr){
   x = arm_read_register(p,rd);
   y= arm_load_store(p,instr);
   
-  memory_write_half(p->mem, 1, y, x);
+  arm_write_half(p, y, x);
 
   return 0;
 }
