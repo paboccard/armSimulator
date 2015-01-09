@@ -207,6 +207,7 @@ int arm_op_add(arm_core p, uint32_t instr, int32_t *cpsr){
       return DATA_ABORT;
   }
   else if (get_bit(instr,20)==1){
+  	printf("Ici\n");
     dest = arm_read_register(p,rd);
     if (get_bit(dest,31)==1)
       *cpsr = set_bit(*cpsr,N);
@@ -668,7 +669,7 @@ int arm_op_ldr(arm_core p, uint32_t instr){
   uint32_t y, val_rd;
  
   rd = get_bits(instr,15,12);
-  //val_rd = arm_read_register(p,rd);
+  val_rd = arm_read_register(p,rd);
 
   y = arm_load_store(p,instr); //y = adresse de la valeur a load
   
@@ -691,7 +692,7 @@ int arm_op_str(arm_core p, uint32_t instr){
   uint32_t y, val_rd;
  
   rd = get_bits(instr,15,12);
-  //val_rd = arm_read_register(p,rd);
+  val_rd = arm_read_register(p,rd);
 
   y = arm_load_store(p,instr); //y = adresse de la valeur a load
   
@@ -723,7 +724,7 @@ int arm_op_strb(arm_core p, uint32_t instr){
   uint32_t y, val_rd;
  
   rd = get_bits(instr,15,12);
-  //val_rd = arm_read_register(p,rd);
+  val_rd = arm_read_register(p,rd);
 
   y = arm_load_store(p,instr); //y = adresse de la valeur a load
   
@@ -755,7 +756,7 @@ int arm_op_strh(arm_core p, uint32_t instr){
   uint32_t y, val_rd;
  
   rd = get_bits(instr,15,12);
-  //val_rd = arm_read_register(p,rd);
+  val_rd = arm_read_register(p,rd);
 
   y = arm_load_store(p,instr); //y = adresse de la valeur a load
   
@@ -848,14 +849,16 @@ static int arm_execute_instruction(arm_core p) {
   int32_t cpsr;
   int32_t rs = arm_read_register(p, 15);
 
-  if (get_bit(rs,0)==0 && get_bit(rs,1)==0){
+  cpsr = arm_read_cpsr(p);
+  
+	if (get_bit(rs,0)==0 && get_bit(rs,1)==0){
     //if ((memory_read_word(p->mem,1,p->register_storage[15]-8,instr))==0){
     
-    if(arm_fetch(p,&instr)==0){
+		if(arm_fetch(p,&instr)==0){
 		
-      if (get_bits(instr,27,26)==0){ //verifie à 0 les bit [27:26]
+      		if (get_bits(instr,27,26)==0){ //verifie à 0 les bit [27:26]
 
-	if (!(get_bit(instr,4) && get_bit(instr,7))){ // test pour différencier les instruction avec MSR, STRH, LDRH
+				if (!(get_bit(instr,4) && get_bit(instr,7))){ // test pour différencier les instruction avec MSR, STRH, LDRH
 
 	  uint8_t cond = get_bits(instr,31, 28);
 	  test = test_cond(cond,p);
@@ -901,70 +904,116 @@ static int arm_execute_instruction(arm_core p) {
 	    return res;
 	    break;
 	  case RSC:
-	    return arm_op_rsc(p,instr,&cpsr);
+	    res = arm_op_rsc(p,instr,&cpsr);
+	    arm_write_cpsr(p,cpsr);
+	    return res;
 	    break;
 	  case TST:
-	    return arm_op_tst(p,instr,&cpsr);
+	    res = arm_op_tst(p,instr,&cpsr);
+	    arm_write_cpsr(p,cpsr);
+	    return res;
 	    break;
 	  case TEQ:
-	    return arm_op_teq(p,instr,&cpsr);
+	    res = arm_op_teq(p,instr,&cpsr);
+	    arm_write_cpsr(p,cpsr);
+	    return res;
 	    break;
 	  case CMP:
-	    return arm_op_cmp(p,instr,&cpsr);
-	    break;
+	    res = arm_op_cmp(p,instr,&cpsr);
+	    arm_write_cpsr(p,cpsr);
+	    return res;
+	    break;	    
 	  case CMN:
-	    return arm_op_cmn(p,instr,&cpsr);
+	    res = arm_op_cmn(p,instr,&cpsr);
+	    arm_write_cpsr(p,cpsr);
+	    return res;
 	    break;
 	  case ORR:
-	    return arm_op_orr(p,instr,&cpsr);
+	    res = arm_op_orr(p,instr,&cpsr);
+	    arm_write_cpsr(p,cpsr);
+	    return res;
 	    break;
 	  case MOV:
-	    return arm_op_mov(p,instr,&cpsr);
+	    res = arm_op_mov(p,instr,&cpsr);
+	    arm_write_cpsr(p,cpsr);
+	    return res;
 	    break;
 	  case BIC:
-	    return arm_op_bic(p,instr,&cpsr);
+	    res = arm_op_bic(p,instr,&cpsr);
+	    arm_write_cpsr(p,cpsr);
+	    return res;
 	    break;
 	  case MVN:
-	    return arm_op_mvn(p,instr,&cpsr);
+	    res = arm_op_mvn(p,instr,&cpsr);
+	    arm_write_cpsr(p,cpsr);
+	    return res;
 	    break;
 	  default:
 	    return UNDEFINED_INSTRUCTION;
 	    break;
 	  }
 	}
-	else // cas pour STRH et LDRH
-	  if (get_bit(instr,20)==1)
-	    return arm_op_ldrh(p,instr);
-	  else
-	    return arm_op_strh(p,instr);
+	else{ // cas pour STRH et LDRH
+	  if (get_bit(instr,20)==1) {
+	    res = arm_op_ldrh(p,instr);
+	    arm_write_cpsr(p,cpsr);
+	    return res;
+	    }
+	  else{
+	    res = arm_op_strh(p,instr);
+	    arm_write_cpsr(p,cpsr);
+	    return res;
+	    }
       }
-      else if (get_bits(instr,27,26)==1){ //verifie à 01 les bit [27:26]
-	uint8_t cond = get_bits(instr, 31, 28);
-	test = test_cond(cond,p);
-	if (test==0 || test ==  PREFETCH_ABORT)  return test;
+    }
+    else if (get_bits(instr,27,26)==1){ 		//verifie à 01 les bit [27:26]
+		uint8_t cond = get_bits(instr, 31, 28);
+		test = test_cond(cond,p);
+		if (test==0 || test ==  PREFETCH_ABORT)  return test;
 	
-	if (get_bit(instr,22)==0){
-	  if (get_bit(instr,20)==1)//test pour savoir si c'est un load
-	    return arm_op_ldr(p,instr);
-	  else
-	    return arm_op_str(p,instr);
+		if (get_bit(instr,22)==0){
+			if (get_bit(instr,20)==1){		//test pour savoir si c'est un load
+				res = arm_op_ldr(p,instr);
+				arm_write_cpsr(p,cpsr);
+				return res;
+			}
+		  	else {
+				res = arm_op_str(p,instr);
+				arm_write_cpsr(p,cpsr);
+				return res;
+	    	}
+		}
+		else {
+		  if (get_bit(instr,20)==1) {		//test pour savoir si c'est un load
+			res = arm_op_ldrb(p,instr);
+			arm_write_cpsr(p,cpsr);
+	    	return res;
+			}
+		  else {
+			res = arm_op_strb(p,instr);
+			arm_write_cpsr(p,cpsr);
+	    	return res;
+			}
+		} 
 	}
-	else{
-	  if (get_bit(instr,20)==1)//test pour savoir si c'est un load
-	    return arm_op_ldrb(p,instr);
-	  else
-	    return arm_op_strb(p,instr);
-	} 
-      }
-      else if (get_bits(instr,27,26)==2){ //verifie à 10 les bit [27:26]
-	if (get_bit(instr,25)==0){
-	  if (get_bit(instr,20)==1)//test pour savoir si c'est un load
-	    return arm_op_ldm1(p,instr);
-	  else
-	    return arm_op_stm1(p,instr);
-	}
-	else
-	  return arm_op_bl(p,instr);
+	else if (get_bits(instr,27,26)==2) { 		//verifie à 10 les bit [27:26]
+		if (get_bit(instr,25)==0){
+	  		if (get_bit(instr,20)==1) {//test pour savoir si c'est un load
+	    		res = arm_op_ldm1(p,instr);
+	    		arm_write_cpsr(p,cpsr);
+	    		return res;
+	    	}
+	  		else {
+	    		res = arm_op_stm1(p,instr);
+	    		arm_write_cpsr(p,cpsr);
+	    		return res;
+	    	}
+		}
+		else {
+	  		res = arm_op_bl(p,instr);
+	  		arm_write_cpsr(p,cpsr);
+	    	return res;
+	    }
       }
     }    
   }
