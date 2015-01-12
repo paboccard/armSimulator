@@ -839,7 +839,7 @@ int arm_op_mrs(arm_core p, uint32_t ins){
 	arm_write_register(p,rd,arm_read_spsr(p));
     else
 	arm_write_register(p,rd,arm_read_cpsr(p));
-	return 0;
+    return 0;
 }
 			   
 int test_cond(uint8_t cond, arm_core p){
