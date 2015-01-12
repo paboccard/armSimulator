@@ -1,8 +1,11 @@
 .global main
 .text
 main:
+
+@@@@ TO DO !!!!!!  faire en sorte de ne pas ecraser les Flags des shifts !!!!!
+
 	mov r0, #15			@ r0 = 1111
-	mov r1, #9			@ r1 = 1001
+	mov r1, #0x9			@ r1 = 1001
 	
 	mov r2, #1
 	mov r3, #3
@@ -15,12 +18,15 @@ main:
 
 @@@@@@@@@@@@ test sub @@@@@@@@@@@@@@@@@
 	
-	subs r10, r1, r0		@ r10 = -6 maj N
+	subs r10, r1, r0		@ r10 = -6 N -> 1
 	sub r11, r0, #5			@ r11 = 10
-	subs r11, r11, #10		@ Z = 1
-	mov r7, #0xF7000000
-	mov r8, #0x9F000000
-	subs r9, r7, r8			@ V -> 1   C -> 1
+	subs r11, r11, #10		@ Z = 1  c =1
+	mov r7, #0xC0000000
+	mov r8, #0x50000000
+	subs r9, r7, r8			@ V -> 1   C -> 1 Z -> 1
+	mov r7, #0x40000000
+	mov r8, #0x80000000
+	subs r9, r7, r8			@ V -> 1 N ->1 
 
 
 	
@@ -32,11 +38,12 @@ main:
 @@@@@@@@@@@@@ test add @@@@@@@@@@@@@@@@
 	add r7, r0, r1			@ r7 = 24
 	add r8, r0, #3			@ r8 = 18
-	adds r9, r1, #-9		@ r9 = 0    Z = 1
+	adds r9, r1, #-9		@ r9 = 0    Z = 1  C = 1
 	adds r9, r9, #-1		@ r9 = 0    N = 1
-	adds r9, r2, #0x7FFFFFFF    @ maj V = 1
-	mov r3, #0xC0000000
-	adds r9, r3, r3			@ C = V = 1
+	mov r9, #0x80000000    
+	adds r9, r9, r9			@ V -> 1   C -> 1 Z -> 1
+	mov r9, #0x40000000   
+	adds r9, r9, r9			@ V -> 1   C -> 1 N -> 1
 
 
 
@@ -44,29 +51,32 @@ main:
 
 @@ asr 
 	add r7, r2, r0, asr #1     @ r7 = 8
-	add r8, r2, r0, asr r2	  @ r8 = 8     c -> 0
-	mov r7, #0x8F000000
-	mov r7, r7, asr #1         @ r7 = -947912704     C -> 1
+	mov r7, r0, asr #1  			@ r7 = 7
+	add r8, r2, r0, asr r2	  @ r8 = 8     
+	mov r7, #0x8f000000
+	movs r7, r7, asr #1         @ r7 = 0xc7800000     C -> 1
 
 @@ lsr 
+	mov r7, #8
+	mov r7, r7, lsr #2        @ r7 = 2
 	add r7, r2, r0, lsr #1     @ r7 = 8
-	add r8, r2, r0, lsr r2	  @ r8 = 8     c -> 0
+	add r8, r2, r0, lsr r2	  @ r8 = 8    
 	mov r7, #0x80000000
-	mov r7, r7, lsr #1         @ r7 = 1073741824      C -> 
+	mov r7, r7, lsr #1         @ r7 = 0x40000000     
 
 @@ lsl
 	mov r7, r2, lsl #1         @ r7 = 2
 	mov r8, r2, lsl r2	  @ r8 = 2
-	mov r7, #0xFFFFFFFE	  @ r7 = -2
-	mov r7, r7, lsl #1	  @ r7 = -3  C -> 1
+	mov r7, #0xfffffffe	  @ r7 = -2
+	movs r7, r7, lsl #1	  @ r7 = 0xfffffffc  C -> 1
 
 @@ ror
-	mov r7, r2, ror r2	  @ r7 = -2147483648  c -> 1
-	mov r7, r2, ror #2	  @ r7 = 1073741824 	c -> 0
+	movs r7, r2, ror r2	  @ r7 = 0x80000000  c -> 1
+	movs r7, r2, ror #2	  @ r7 = 0x80000000 	c -> 0
 	
 @@ rrx
-	mov r9, r2, RRX 		@ r9 = 0 c -> 1
-	mov r9, r9, RRX			@ r9 = -2147483648 c -> 1
+	movs r9, r2, RRX 		@ r9 = 0 c -> 1
+	mov r9, r9, RRX			@ r9 = 0x80000000 c -> 1
 	
 	
 
