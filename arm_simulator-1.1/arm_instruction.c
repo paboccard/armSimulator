@@ -207,7 +207,6 @@ int arm_op_add(arm_core p, uint32_t instr, int32_t *cpsr){
 	    return DATA_ABORT;
     }
     else if (get_bit(instr,20)==1){
-	printf("Ici\n");
 	dest = arm_read_register(p,rd);
 	if (get_bit(dest,31)==1)
 	    *cpsr = set_bit(*cpsr,N);
