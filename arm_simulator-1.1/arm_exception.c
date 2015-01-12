@@ -34,26 +34,33 @@ Contact: Guillaume.Huard@imag.fr
 #define Exception_bit_9 (CP15_reg1_EEbit << 9)
 
 void reset(arm_core p){
+    printf("Exception RESET"); //TODELETE
     arm_write_cpsr(p, 0x1d3 | Exception_bit_9);
     arm_write_usr_register(p, 15, 0);
 }
 
 void undefined_instruction(arm_core p){
+    arm_write_usr_register(p, 15, 4);
 }
 
 void software_interrupt(arm_core p){
+    arm_write_usr_register(p, 15, 8);
 }
 
 void prefetch_abort(arm_core p){
+    arm_write_usr_register(p, 15, 12);
 }
 
 void data_abort(arm_core p){
+    arm_write_usr_register(p, 15, 16);
 }
 
 void interrupt(arm_core p){
+    arm_write_usr_register(p, 15, 24);
 }
 
 void fast_interrupt(arm_core p){
+    arm_write_usr_register(p, 15, 28);
 }
 
 
