@@ -33,6 +33,35 @@
 
 #define Exception_bit_9 (CP15_reg1_EEbit << 9)
 
+void global(arm_core p,int exception, int mode){
+    uint32_t old_cpsr; 
+    old_cpsr = arm_read_cpsr(p);
+
+    if (mode == IRQ || mode == FIQ)
+	arm_write_register(p,14,arm_read_register(p,15)+4);
+    else if (mode == ABT)
+	arm_write_register(p,14,arm_read_register(p,15)+8);
+    else
+	arm_write_register(p,14,arm_read_register(p,15));
+    
+    arm_write_spsr(p,old_cpsr);
+
+    
+    old_cpsr &= 0xFFFFFFE0 | mode;
+
+    old_cpsr &= ~(1<<5);
+    if (exception == RESET || exception == FAST_INTERRUPT)
+	    old_cpsr |= 1<<6;
+    
+    old_cpsr |= 1<<7;
+
+    if (mode == UND || exception == SOFTWARE_INTERRUPT)
+	old_cpsr &= 1<<8;
+
+    arm_write_cpsr(p, old_cpsr | Exception_bit_9);
+    arm_write_usr_register(p, 15, 4);
+}
+
 void reset(arm_core p){
     printf("Exception RESET"); //TODELETE
     arm_write_cpsr(p, 0x1d3 | Exception_bit_9);
@@ -64,6 +93,19 @@ void prefetch_abort(arm_core p){
 }
 
 void data_abort(arm_core p){
+    uint32_t old_cpsr; 
+    old_cpsr = arm_read_cpsr(p);
+
+    arm_write_register(p,14,arm_read_register(p,15));
+    arm_write_spsr(p,old_cpsr);
+
+    old_cpsr &= 0xFFFFFFE0 | ABT;
+    old_cpsr &= ~(1<<5);
+    old_cpsr |= 1<<7;
+    arm_write_cpsr(p, old_cpsr | Exception_bit_9);
+    arm_write_usr_register(p, 15, 4);
+    
+
     arm_write_cpsr(p, 0x193 | Exception_bit_9);
     arm_write_usr_register(p, 15, 16);
 }
