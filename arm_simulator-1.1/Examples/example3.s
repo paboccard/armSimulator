@@ -1,7 +1,6 @@
-﻿.global main
+.global main
 .text
 main:
-
 	mov r0, #15			@ r0 = 1111
 	mov r1, #9			@ r1 = 1001
 	
@@ -44,26 +43,26 @@ main:
 @@@@@@@@@@@@@@ shifter test qvec add @@@@@@@@@@@
 
 @@ asr 
-	add r7, r2, r0 ASR #1     @ r7 = 8
-	add r8, r2, r0 ASR r2	  @ r8 = 8     c -> 0
-	mov r7, #8F000000
-	mov r7, r7 ASR #1         @ r7 = -947912704     C -> 1
+	add r7, r2, r0, asr #1     @ r7 = 8
+	add r8, r2, r0, asr r2	  @ r8 = 8     c -> 0
+	mov r7, #0x8F000000
+	mov r7, r7, asr #1         @ r7 = -947912704     C -> 1
 
 @@ lsr 
-	add r7, r2, r0 LSR #1     @ r7 = 8
-	add r8, r2, r0 LSR r2	  @ r8 = 8     c -> 0
-	mov r7, #80000000
-	mov r7, r7 LSR #1         @ r7 = 1073741824      C -> 
+	add r7, r2, r0, lsr #1     @ r7 = 8
+	add r8, r2, r0, lsr r2	  @ r8 = 8     c -> 0
+	mov r7, #0x80000000
+	mov r7, r7, lsr #1         @ r7 = 1073741824      C -> 
 
 @@ lsl
-	mov r7, r2 LSL #1         @ r7 = 2
-	mov r8, r2 LSL r2	  @ r8 = 2
+	mov r7, r2, lsl #1         @ r7 = 2
+	mov r8, r2, lsl r2	  @ r8 = 2
 	mov r7, #0xFFFFFFFE	  @ r7 = -2
-	mov r7, r7 LSL #1	  @ r7 = -3  C -> 1
+	mov r7, r7, lsl #1	  @ r7 = -3  C -> 1
 
 @@ ror
-	mov r7, r2 ROR r2	  @ r7 = -2147483648  c -> 1
-	mov r7, r2 ROR #2	  @ r7 = 1073741824 	c -> 0
+	@mov r7, r2, ror r2	  @ r7 = -2147483648  c -> 1
+	@mov r7, r2, ror #2	  @ r7 = 1073741824 	c -> 0
 
 
 
