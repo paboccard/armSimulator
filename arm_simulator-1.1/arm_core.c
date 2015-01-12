@@ -117,7 +117,7 @@ uint32_t arm_read_cpsr(arm_core p) {
     trace_register(p->cycle_count, READ, CPSR, 0, value);
     return value;
 }
-
+ 
 uint32_t arm_read_spsr(arm_core p) {
     uint8_t mode = p->cpsr & 0x1f;
     uint32_t value = p->spsr[mode];
