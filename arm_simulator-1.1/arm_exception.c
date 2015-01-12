@@ -40,30 +40,32 @@ void reset(arm_core p){
 }
 
 void undefined_instruction(arm_core p){
-	arm_write_cpsr(p, 0xb3 | Exception_bit_9);
+	arm_write_cpsr(p, 0x9b | Exception_bit_9);
     arm_write_usr_register(p, 15, 4);
 }
 
 void software_interrupt(arm_core p){
-	arm_write_cpsr(p, 0xa3 | Exception_bit_9);
+	arm_write_cpsr(p, 0x93 | Exception_bit_9);
     arm_write_usr_register(p, 15, 8);
 }
 
 void prefetch_abort(arm_core p){
-	arm_write_cpsr(p, 0x1a7 | Exception_bit_9);	
+	arm_write_cpsr(p, 0x197 | Exception_bit_9);	
     arm_write_usr_register(p, 15, 12);
 }
 
 void data_abort(arm_core p){
-	
+	arm_write_cpsr(p, 0x193 | Exception_bit_9);
     arm_write_usr_register(p, 15, 16);
 }
 
 void interrupt(arm_core p){
+	arm_write_cpsr(p, 0x192 | Exception_bit_9);
     arm_write_usr_register(p, 15, 24);
 }
 
 void fast_interrupt(arm_core p){
+	arm_write_cpsr(p, 0x1d1 | Exception_bit_9);
     arm_write_usr_register(p, 15, 28);
 }
 
