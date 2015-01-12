@@ -28,7 +28,12 @@ Contact: Guillaume.Huard@imag.fr
 
 
 int arm_branch(arm_core p, uint32_t ins) {
-    return UNDEFINED_INSTRUCTION;
+  uint32_t value;
+  if (get_bit(ins,25))
+    arm_write_register(p,14,arm_read_register(p,15)); // R14 = adresse de retour
+  value = arm_read_register(p,15) + (arm_read_register(p,15)<<2 | get_bit(ins,24) ? 0xFC000000 : 0); //le ternaire met a 1 ou a 0 tous les bits de 26 a 32 si on a une valeur negative ou non 
+  arm_write_register(p,15,value);
+  return 0;
 }
 
 int arm_coprocessor_others_swi(arm_core p, uint32_t ins) {
