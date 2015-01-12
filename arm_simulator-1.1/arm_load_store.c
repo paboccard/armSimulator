@@ -306,9 +306,6 @@ int arm_load_store(arm_core p, uint32_t ins) {
 		}
 		return address;
 	}
-	
-	
-	
     return UNDEFINED_INSTRUCTION;
 }
 
