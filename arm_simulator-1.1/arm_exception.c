@@ -33,11 +33,56 @@ Contact: Guillaume.Huard@imag.fr
 
 #define Exception_bit_9 (CP15_reg1_EEbit << 9)
 
+void reset(arm_core p){
+    arm_write_cpsr(p, 0x1d3 | Exception_bit_9);
+    arm_write_usr_register(p, 15, 0);
+}
+
+void undefined_instruction(arm_core p){
+}
+
+void software_interrupt(arm_core p){
+}
+
+void prefetch_abort(arm_core p){
+}
+
+void data_abort(arm_core p){
+}
+
+void interrupt(arm_core p){
+}
+
+void fast_interrupt(arm_core p){
+}
+
+
+
 void arm_exception(arm_core p, unsigned char exception) {
     /* We only support RESET initially */
     /* Semantics of reset interrupt (ARM manual A2-18) */
-    if (exception == RESET) {
-        arm_write_cpsr(p, 0x1d3 | Exception_bit_9);
-	arm_write_usr_register(p, 15, 0);
+    switch(exception){
+    case(RESET):
+	reset(p);
+	break;
+    case(UNDEFINED_INSTRUCTION):
+	undefined_instruction(p);
+	break;
+    case(SOFTWARE_INTERRUPT):
+	software_interrupt(p);
+	break;
+    case(PREFETCH_ABORT):
+	prefetch_abort(p);
+	break;
+    case(DATA_ABORT):
+	data_abort(p);
+	break;
+    case(INTERRUPT):
+	interrupt(p);
+	break;
+    case(FAST_INTERRUPT):
+	fast_interrupt(p);
+	break;
     }
 }
+
