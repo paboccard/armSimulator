@@ -40,18 +40,22 @@ void reset(arm_core p){
 }
 
 void undefined_instruction(arm_core p){
+	arm_write_cpsr(p, 0xb3 | Exception_bit_9);
     arm_write_usr_register(p, 15, 4);
 }
 
 void software_interrupt(arm_core p){
+	arm_write_cpsr(p, 0xa3 | Exception_bit_9);
     arm_write_usr_register(p, 15, 8);
 }
 
 void prefetch_abort(arm_core p){
+	arm_write_cpsr(p, 0x1a7 | Exception_bit_9);	
     arm_write_usr_register(p, 15, 12);
 }
 
 void data_abort(arm_core p){
+	
     arm_write_usr_register(p, 15, 16);
 }
 
