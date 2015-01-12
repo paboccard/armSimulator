@@ -54,12 +54,30 @@ void undefined_instruction(arm_core p){
 }
 
 void software_interrupt(arm_core p){
-    arm_write_cpsr(p, 0x93 | Exception_bit_9);
+    uint32_t old_cpsr; 
+    old_cpsr = arm_read_cpsr(p);
+
+    arm_write_register(p,14,arm_read_register(p,15));
+    arm_write_spsr(p,old_cpsr);
+
+    old_cpsr &= 0xFFFFFFE0 | SVC;
+    old_cpsr &= ~(1<<5);
+    old_cpsr |= 1<<7;
+    arm_write_cpsr(p, old_cpsr | Exception_bit_9);
     arm_write_usr_register(p, 15, 8);
 }
 
 void prefetch_abort(arm_core p){
-    arm_write_cpsr(p, 0x197 | Exception_bit_9);	
+    uint32_t old_cpsr; 
+    old_cpsr = arm_read_cpsr(p);
+
+    arm_write_register(p,14,arm_read_register(p,15));
+    arm_write_spsr(p,old_cpsr);
+
+    old_cpsr &= 0xFFFFFFE0 | ABT;
+    old_cpsr &= ~(1<<5);
+    old_cpsr |= 1<<7;
+    arm_write_cpsr(p, old_cpsr | Exception_bit_9);
     arm_write_usr_register(p, 15, 12);
 }
 
