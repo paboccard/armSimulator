@@ -61,8 +61,15 @@ main:
 	mov r7, r7, lsl #1	  @ r7 = -3  C -> 1
 
 @@ ror
-	@mov r7, r2, ror r2	  @ r7 = -2147483648  c -> 1
-	@mov r7, r2, ror #2	  @ r7 = 1073741824 	c -> 0
+	mov r7, r2, ror r2	  @ r7 = -2147483648  c -> 1
+	mov r7, r2, ror #2	  @ r7 = 1073741824 	c -> 0
+	
+@@ rrx
+	mov r9, r2, RRX 		@ r9 = 0 c -> 1
+	mov r9, r9, RRX			@ r9 = -2147483648 c -> 1
+	
+	
+
 
 
 
