@@ -55,20 +55,19 @@ void global(arm_core p,int exception, int mode){
     
     old_cpsr |= 1<<7;
 
-    if (mode == UND || exception == SOFTWARE_INTERRUPT)
-	old_cpsr &= 1<<8;
+    if (exception == UNDEFINED_INSTRUCTION || exception == SOFTWARE_INTERRUPT)
+	old_cpsr |= 1<<8;
 
     arm_write_cpsr(p, old_cpsr | Exception_bit_9);
     arm_write_usr_register(p, 15, 4);
 }
 
 void reset(arm_core p){
-    printf("Exception RESET"); //TODELETE
-    arm_write_cpsr(p, 0x1d3 | Exception_bit_9);
-    arm_write_usr_register(p, 15, 0);
+    global(p,RESET,SVC);
 }
 
 void undefined_instruction(arm_core p){
+    /* VERSION EN CAS DE BUG
     uint32_t old_cpsr; 
     old_cpsr = arm_read_cpsr(p);
 
@@ -80,62 +79,28 @@ void undefined_instruction(arm_core p){
     old_cpsr |= 1<<7;
     arm_write_cpsr(p, old_cpsr | Exception_bit_9);
     arm_write_usr_register(p, 15, 4);
+    */
+    global(p,UNDEFINED_INSTRUCTION,UND);
 }
 
 void software_interrupt(arm_core p){
-    uint32_t old_cpsr; 
-    old_cpsr = arm_read_cpsr(p);
-
-    arm_write_register(p,14,arm_read_register(p,15));
-    arm_write_spsr(p,old_cpsr);
-
-    old_cpsr &= 0xFFFFFFE0 | SVC;
-    old_cpsr &= ~(1<<5);
-    old_cpsr |= 1<<7;
-    arm_write_cpsr(p, old_cpsr | Exception_bit_9);
-    arm_write_usr_register(p, 15, 8);
+   global(p,SOFTWARE_INTERRUPT,SVC);
 }
 
 void prefetch_abort(arm_core p){
-    uint32_t old_cpsr; 
-    old_cpsr = arm_read_cpsr(p);
-
-    arm_write_register(p,14,arm_read_register(p,15));
-    arm_write_spsr(p,old_cpsr);
-
-    old_cpsr &= 0xFFFFFFE0 | ABT;
-    old_cpsr &= ~(1<<5);
-    old_cpsr |= 1<<7;
-    arm_write_cpsr(p, old_cpsr | Exception_bit_9);
-    arm_write_usr_register(p, 15, 12);
+    global(p,PREFETCH_ABORT,ABT);
 }
 
 void data_abort(arm_core p){
-    uint32_t old_cpsr; 
-    old_cpsr = arm_read_cpsr(p);
-
-    arm_write_register(p,14,arm_read_register(p,15));
-    arm_write_spsr(p,old_cpsr);
-
-    old_cpsr &= 0xFFFFFFE0 | ABT;
-    old_cpsr &= ~(1<<5);
-    old_cpsr |= 1<<7;
-    arm_write_cpsr(p, old_cpsr | Exception_bit_9);
-    arm_write_usr_register(p, 15, 4);
-    
-
-    arm_write_cpsr(p, 0x193 | Exception_bit_9);
-    arm_write_usr_register(p, 15, 16);
+    global(p,DATA_ABORT,ABT);
 }
 
 void interrupt(arm_core p){
-    arm_write_cpsr(p, 0x192 | Exception_bit_9);
-    arm_write_usr_register(p, 15, 24);
+    global(p,INTERRUPT,IRQ);
 }
 
 void fast_interrupt(arm_core p){
-    arm_write_cpsr(p, 0x1d1 | Exception_bit_9);
-    arm_write_usr_register(p, 15, 28);
+    global(p,FAST_INTERRUPT,FIQ);
 }
 
 
