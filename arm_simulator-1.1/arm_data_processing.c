@@ -31,33 +31,35 @@ int shift_lsl(int8_t val_rs,int32_t val_rm, int8_t shift_imm, int8_t shift_val_i
   
   if (shift_val_imm == 0){ //si on a une valeur immediate pour le shift
     *cpsr = get_bit(val_rm,32-shift_imm) ? set_bit(*cpsr,C) : clr_bit(*cpsr,C);
-    return val_rm << shift_imm;
+    return (int32_t)((uint32_t)val_rm << shift_imm);//val_rm << shift_imm;
   }
   else{ // si on a un registre pour le shift
     *cpsr = val_rs >= 32 ? ( val_rs == 32 ? get_bit(val_rm,0) : 0 ) : get_bit(val_rm,32-val_rs);
-    return val_rs < 32 ? val_rm << val_rs : 0;
+    return val_rs < 32 ? (int32_t)((uint32_t)val_rm << val_rs) : 0;//val_rm << val_rs : 0;
   }  
 }
 
 int shift_lsr(int8_t val_rs,int32_t val_rm, int8_t shift_imm, int8_t shift_val_imm, int *cpsr){
   if (shift_val_imm == 0){ //si on a une valeur immediate pour le shift
     *cpsr = get_bit(val_rm,shift_imm-1) ? set_bit(*cpsr,C) : clr_bit(*cpsr,C);
-    return val_rm >> shift_imm;
+    return (int32_t)((uint32_t)val_rm >> shift_imm); //val_rm >> shift_imm;
   }
   else{ // si on a un registre pour le shift
     *cpsr = val_rs >= 32 ? ( val_rs == 32 ? get_bit(val_rm,0) : 0 ) : get_bit(val_rm,val_rs-1);
-    return val_rs < 32 ? val_rm >> val_rs : 0;
+    return val_rs < 32 ? (int32_t)((uint32_t)val_rm >> val_rs) : 0;//val_rm >> val_rs : 0;
   }
 }
 
 int shift_asr(int8_t val_rs,int32_t val_rm, int8_t shift_imm, int8_t shift_val_imm, int *cpsr){
-  if (!shift_val_imm) {
-    if (!get_bits(val_rs,7,0)) {
+
+  
+  if (shift_val_imm) {
+    if (!val_rs) {
       *cpsr = clr_bit(*cpsr,C);
       return val_rm;
     }
-    else if (get_bits(val_rs,7,0) < 32) {
-      *cpsr = get_bit(val_rm,(get_bits(val_rs,7,0)-1)) ? set_bit(*cpsr,C) : clr_bit(*cpsr,C);
+    else if (val_rs < 32) {
+      *cpsr = get_bit(val_rm,(val_rs-1)) ? set_bit(*cpsr,C) : clr_bit(*cpsr,C);
       return asr(val_rm, val_rs);
     }
     else {
@@ -71,13 +73,14 @@ int shift_asr(int8_t val_rs,int32_t val_rm, int8_t shift_imm, int8_t shift_val_i
       }
     }
   }
+
   else {
-    if (!get_bits(shift_imm,7,0)) {
+    if (!shift_imm) {
       *cpsr = clr_bit(*cpsr,C);
       return val_rm;
     }
-    else if (get_bits(shift_imm,7,0) < 32) {
-      *cpsr = get_bit(val_rm,(get_bits(shift_imm,7,0)-1)) ? set_bit(*cpsr,C) : clr_bit(*cpsr,C);
+    else if (shift_imm < 32) {
+      *cpsr = get_bit(val_rm,shift_imm-1) ? set_bit(*cpsr,C) : clr_bit(*cpsr,C);
       return asr(val_rm, shift_imm);
     }
     else {
@@ -95,24 +98,23 @@ int shift_asr(int8_t val_rs,int32_t val_rm, int8_t shift_imm, int8_t shift_val_i
 }
   
 int shift_ror(int8_t val_rs,int32_t val_rm, int8_t shift_imm, int8_t shift_val_imm, int *cpsr){
- 
-  if (shift_val_imm) {
+
+  if (!shift_val_imm) {
     // p456
-    if (!(get_bits(val_rs,7,0))) {
+    if (!val_rm) {
       *cpsr = clr_bit(*cpsr,C);
       return val_rm;
     }
-    else if (!(get_bits(val_rs,4,0))) {
-      if (get_bit(val_rm,31)) {
+    else if (!shift_imm) {
+      if (get_bit(val_rm,31)) 
         *cpsr = set_bit(*cpsr,C);
-      }
       else 
         *cpsr = clr_bit(*cpsr,C);
       return val_rm;
       
     }
     else {
-      if (get_bit(val_rm,(get_bits(val_rs,4,0) - 1))) {
+      if (get_bit(val_rm,(shift_imm - 1))) { // on cherche le bit qui sera le bit de poid fort apres le decalage
         *cpsr = set_bit(*cpsr,C);
       }
       else 
@@ -121,12 +123,12 @@ int shift_ror(int8_t val_rs,int32_t val_rm, int8_t shift_imm, int8_t shift_val_i
       return ror(val_rm, val_rs);
     }
   }
-  else {
-    if (!(get_bits(shift_imm,7,0))) {
+  else {	// c'est un registre
+    if (!val_rm) {
       *cpsr = clr_bit(*cpsr,C);
       return val_rm;
     }
-    else if (!(get_bits(shift_imm,4,0))) {
+    else if (!val_rs) {
       if (get_bit(val_rm,31)) {
         *cpsr = set_bit(*cpsr,C);
       }
@@ -137,7 +139,7 @@ int shift_ror(int8_t val_rs,int32_t val_rm, int8_t shift_imm, int8_t shift_val_i
       
     }
     else {
-      if (get_bit(val_rm,(get_bits(shift_imm,4,0) - 1))) {
+      if (get_bit(val_rm,val_rs - 1)) {
         *cpsr = set_bit(*cpsr,C);
       }
       else 
@@ -149,7 +151,7 @@ int shift_ror(int8_t val_rs,int32_t val_rm, int8_t shift_imm, int8_t shift_val_i
 }
 
 int shift_rrx(int8_t val_rs, int32_t val_rm, int8_t shift_imm, int8_t shift_val_imm, int *cpsr){
-  
+ 
   *cpsr = get_bit(val_rm, 0) ? set_bit(*cpsr,C) : clr_bit(*cpsr,C);
   return ((get_bit(*cpsr,29)<<31) | (val_rm>>1));
 
@@ -178,13 +180,13 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
 	cpsr = clr_bit(cpsr,C);
   }
   else{
-    rs = get_bits(ins,11,8);
-    rm = get_bits(ins,3,0);
+    rs = get_bits(ins,11,8);       // numero de registre decrivant le shift
+    rm = get_bits(ins,3,0);			// numero du registre source
     shift_imm = get_bits(ins,11,7); //valeur immediate pour le shift
-    shift = get_bits(ins,6,5); //valeur du shift
-    shift_val_imm = get_bit(ins,4); //booleen pour si il y a une valeur immediate pour shift
-    val_rs = arm_read_register(p,rs);
-    val_rm = arm_read_register(p,rm);
+    shift = get_bits(ins,6,5); //valeur du shift (lsr / lsl / aor...)
+    shift_val_imm = get_bit(ins,4); //booleen faux si il y a une valeur immediate pour shift
+    val_rs = arm_read_register(p,rs);	// valeur du shift si non val_imm
+    val_rm = arm_read_register(p,rm);	// val du registre source (valeur a shifter)
 
     if (get_bits(ins,11,4)==0){ //shift_operand = Registre -> sans shift
       shifter_operand = val_rm;
