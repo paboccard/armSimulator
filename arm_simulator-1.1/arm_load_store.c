@@ -86,7 +86,8 @@ uint32_t addr_offset(arm_core p, uint32_t ins){
 
 uint32_t addr_register_shift(arm_core p, uint32_t ins){
 	uint8_t rest,p_,u,w,rn,shift,rm,shift_imm,shift_val_imm;
-	uint32_t val_rn,val_rm,address,index,cpsr;
+	uint32_t val_rn,val_rm,address,index;
+	int cpsr;
 	
 
 	p_=get_bit(ins,24);
