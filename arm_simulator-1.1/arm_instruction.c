@@ -769,7 +769,7 @@ int arm_op_strh(arm_core p, uint32_t instr){
   return 0;
 }
 
-uint32_t start_address(arm_core p, uint32_t instr){
+/*uint32_t start_address(arm_core p, uint32_t instr){
   uint8_t i=0;
   while (i<16 && (get_bit(instr,i)==0)){
     i++;
@@ -786,15 +786,17 @@ uint32_t end_address(arm_core p, uint32_t instr){
     i++;
   }
   return arm_read_register(p,end_address);
-}
+}*/
  
 int arm_op_ldm1(arm_core p, uint32_t instr){
   int i;
   uint8_t ri, cpsr;
   uint16_t register_list;
   uint32_t value;
-  int address;
-  address = start_address(p,instr);
+  int address, end_address;
+
+  address = arm_load_store_multiple(p,instr,&end_address);
+  //  address = start_address(p,instr);
   register_list = get_bits(instr,15,0);
   for (i=0; i<15; i++){
     if (get_bit(register_list,i)){
@@ -816,15 +818,34 @@ int arm_op_ldm1(arm_core p, uint32_t instr){
     address+=4;
   }
   return 0;
-  /*PAS ENCORE SURE*/
-  /*if ((end_address(p,instr)==address))
+  if ((end_address==address-4))
     return 0;
-    else
-    return UNPREDICTABLE;*/
+  else
+    return UNPREDICTABLE;
 }
 
 int arm_op_stm1(arm_core p, uint32_t instr){
-  return 0;
+  int address, end_address, i;
+  uint8_t ri;
+  uint16_t register_list;
+  //processor_id = ExecutingProcessor()
+  address = arm_load_store_multiple(p,instr,&end_address);
+  register_list = get_bits(instr,15,0);
+  for (i = 0; i>= 15;i++){
+    if (get_bit(register_list,i)){
+      ri = i;
+      if (arm_write_word(p,address,arm_read_register(p,ri))){ //Memory[address,4] = Ri
+	address = address + 4;
+      }
+      else
+	return UNPREDICTABLE;
+    }
+  }
+  if ((end_address==address-4))
+    return 0;
+  else
+    return UNPREDICTABLE;  
+
 }
 
 
