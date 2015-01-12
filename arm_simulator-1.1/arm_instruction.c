@@ -664,6 +664,8 @@ int arm_op_mvn(arm_core p, uint32_t instr, int32_t *cpsr){
 
 /****************** LOAD / STORE ******************/
 int arm_op_ldr(arm_core p, uint32_t instr){
+  /*Attention aux acces non-aligne*/
+
   uint8_t rd;
   int cpsr;
   uint32_t y, val_rd;
@@ -768,33 +770,16 @@ int arm_op_strh(arm_core p, uint32_t instr){
   }
   return 0;
 }
-
-uint32_t start_address(arm_core p, uint32_t instr){
-  uint8_t i=0;
-  while (i<16 && (get_bit(instr,i)==0)){
-    i++;
-  }
-  return arm_read_register(p,i);
-}
-
-uint32_t end_address(arm_core p, uint32_t instr){
-  uint8_t i=0;
-  int end_address = 0;
-  while (i<16) {
-    if ((get_bit(instr,i)==0))
-      end_address++;
-    i++;
-  }
-  return arm_read_register(p,end_address);
-}
  
 int arm_op_ldm1(arm_core p, uint32_t instr){
   int i;
   uint8_t ri, cpsr;
   uint16_t register_list;
   uint32_t value;
-  int address;
-  address = start_address(p,instr);
+  int address, end_address;
+
+  address = arm_load_store_multiple(p,instr,&end_address);
+  //  address = start_address(p,instr);
   register_list = get_bits(instr,15,0);
   for (i=0; i<15; i++){
     if (get_bit(register_list,i)){
@@ -816,24 +801,38 @@ int arm_op_ldm1(arm_core p, uint32_t instr){
     address+=4;
   }
   return 0;
-  /*PAS ENCORE SURE*/
-  /*if ((end_address(p,instr)==address))
+  if ((end_address==address-4))
     return 0;
-    else
-    return UNPREDICTABLE;*/
+  else
+    return UNPREDICTABLE;
 }
 
 int arm_op_stm1(arm_core p, uint32_t instr){
-  return 0;
+  int address, end_address, i;
+  uint8_t ri;
+  uint16_t register_list;
+  //processor_id = ExecutingProcessor()
+  address = arm_load_store_multiple(p,instr,&end_address);
+  register_list = get_bits(instr,15,0);
+  for (i = 0; i>= 15;i++){
+    if (get_bit(register_list,i)){
+      ri = i;
+      if (arm_write_word(p,address,arm_read_register(p,ri))){ //Memory[address,4] = Ri
+	address = address + 4;
+      }
+      else
+	return UNPREDICTABLE;
+    }
+  }
+  if ((end_address==address-4))
+    return 0;
+  else
+    return UNPREDICTABLE;  
+
 }
 
 
 /****************** B / BL ******************/
-int arm_op_bl(arm_core p, uint32_t instr){
-  if (get_bit(instr,25)){
-  }
-  return 0;
-}
 
 int test_cond(uint8_t cond, arm_core p){
   int z,n,c,v;
@@ -1066,7 +1065,7 @@ static int arm_execute_instruction(arm_core p) {
 	  }
 	}
 	else {
-	  res = arm_op_bl(p,instr);
+	  res = arm_branch(p,instr);
 	  arm_write_cpsr(p,cpsr);
 	  return res;
 	}

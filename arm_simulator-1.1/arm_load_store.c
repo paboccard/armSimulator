@@ -266,8 +266,60 @@ int arm_load_store(arm_core p, uint32_t ins) {// A finir
     return UNDEFINED_INSTRUCTION;
 }
 
-int arm_load_store_multiple(arm_core p, uint32_t ins) {
-    return UNDEFINED_INSTRUCTION;
+int nb_registre_liste(ins){
+  uint8_t i=0;
+  int nb_registre = 0;
+  while (i<16) {
+    if ((get_bit(ins,i)==0))
+      nb_registre++;
+    i++;
+  }
+  return nb_registre;
+}
+
+int arm_load_store_multiple(arm_core p, uint32_t ins, int *end_address) {
+  int address; //start_address
+  uint8_t rn = get_bits(ins,19,16);
+  int bit_W = get_bit(ins,21); //bit 21 de l'instruction
+  uint32_t value;
+  
+  if (get_bit(ins,23)){//on est en incrementation
+    if (get_bit(ins,24)==0){
+      address = arm_read_register(p,rn);
+      *end_address = address + (nb_registre_liste(ins)*4) - 4;
+      if (bit_W){
+	value = address + nb_registre_liste(ins)*4;
+	arm_write_register(p,rn,value);
+      }
+    }
+    else{
+      address = arm_read_register(p,rn)+4;
+      *end_address = address + (nb_registre_liste(ins)*4);
+      if (bit_W){
+	value = address + nb_registre_liste(ins)*4;
+	arm_write_register(p,rn,value);
+      }
+    }
+  }
+  else{ //on est en decrementation
+    if (get_bit(ins,24)==0){
+      address = arm_read_register(p,rn) - nb_registre_liste(ins)*4 + 4 ;
+      *end_address = arm_read_register(p,rn);
+      if (bit_W){
+	value = address -4;
+	arm_write_register(p,rn,value);
+      }
+    }
+    else{
+      address = arm_read_register(p,rn) - nb_registre_liste(ins)*4;
+      *end_address = arm_read_register(p,rn) - 4;
+      if (bit_W){
+	value = address;
+	arm_write_register(p,rn,value);
+      }
+    }
+  }
+  return address;
 }
 
 int arm_coprocessor_load_store(arm_core p, uint32_t ins) {
