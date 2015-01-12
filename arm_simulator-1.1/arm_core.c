@@ -1,24 +1,24 @@
 /*
-Armator - simulateur de jeu d'instruction ARMv5T à but pédagogique
-Copyright (C) 2011 Guillaume Huard
-Ce programme est libre, vous pouvez le redistribuer et/ou le modifier selon les
-termes de la Licence Publique Générale GNU publiée par la Free Software
-Foundation (version 2 ou bien toute autre version ultérieure choisie par vous).
+  Armator - simulateur de jeu d'instruction ARMv5T à but pédagogique
+  Copyright (C) 2011 Guillaume Huard
+  Ce programme est libre, vous pouvez le redistribuer et/ou le modifier selon les
+  termes de la Licence Publique Générale GNU publiée par la Free Software
+  Foundation (version 2 ou bien toute autre version ultérieure choisie par vous).
 
-Ce programme est distribué car potentiellement utile, mais SANS AUCUNE
-GARANTIE, ni explicite ni implicite, y compris les garanties de
-commercialisation ou d'adaptation dans un but spécifique. Reportez-vous à la
-Licence Publique Générale GNU pour plus de détails.
+  Ce programme est distribué car potentiellement utile, mais SANS AUCUNE
+  GARANTIE, ni explicite ni implicite, y compris les garanties de
+  commercialisation ou d'adaptation dans un but spécifique. Reportez-vous à la
+  Licence Publique Générale GNU pour plus de détails.
 
-Vous devez avoir reçu une copie de la Licence Publique Générale GNU en même
-temps que ce programme ; si ce n'est pas le cas, écrivez à la Free Software
-Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307,
-États-Unis.
+  Vous devez avoir reçu une copie de la Licence Publique Générale GNU en même
+  temps que ce programme ; si ce n'est pas le cas, écrivez à la Free Software
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307,
+  États-Unis.
 
-Contact: Guillaume.Huard@imag.fr
-         ENSIMAG - Laboratoire LIG
-         51 avenue Jean Kuntzmann
-         38330 Montbonnot Saint-Martin
+  Contact: Guillaume.Huard@imag.fr
+  ENSIMAG - Laboratoire LIG
+  51 avenue Jean Kuntzmann
+  38330 Montbonnot Saint-Martin
 */
 #include "arm_core.h"
 #include "no_trace_location.h"
@@ -60,7 +60,7 @@ arm_core arm_create(memory mem) {
         p->registers[IRQ][13] = &p->registers_storage[22];
         p->registers[IRQ][14] = &p->registers_storage[23];
         for (j=8; j<15; j++)
-             p->registers[FIQ][j] = &p->registers_storage[j+16];
+	    p->registers[FIQ][j] = &p->registers_storage[j+16];
         arm_exception(p, RESET);
         p->cycle_count = 0;
     }
@@ -117,7 +117,7 @@ uint32_t arm_read_cpsr(arm_core p) {
     trace_register(p->cycle_count, READ, CPSR, 0, value);
     return value;
 }
-
+ 
 uint32_t arm_read_spsr(arm_core p) {
     uint8_t mode = p->cpsr & 0x1f;
     uint32_t value = p->spsr[mode];
@@ -220,30 +220,30 @@ void arm_print_state(arm_core p, FILE *out) {
             count = 0;
             for (reg=0; reg<16; reg++) {
                 if (mode == USR) {
-                        if ((reg > 0) && (reg%5 == 0))
-                            fprintf(out, "\n    ");
-                        fprintf(out, "   %3s=%08X", arm_get_register_name(reg),
-                                p->registers_storage[reg]);
+		    if ((reg > 0) && (reg%5 == 0))
+			fprintf(out, "\n    ");
+		    fprintf(out, "   %3s=%08X", arm_get_register_name(reg),
+			    p->registers_storage[reg]);
                 } else if ((p->registers[mode][reg] - p->registers_storage)
                            > 15) {
-                        if ((count > 0) && (count%5 == 0))
-                            fprintf(out, "\n    ");
-                        count++;
-                        fprintf(out, "   %3s=%08X", arm_get_register_name(reg),
-                                *p->registers[mode][reg]);
+		    if ((count > 0) && (count%5 == 0))
+			fprintf(out, "\n    ");
+		    count++;
+		    fprintf(out, "   %3s=%08X", arm_get_register_name(reg),
+			    *p->registers[mode][reg]);
                 }
             }
             if (mode == USR)
                 fprintf(out, "  CPSR=%08X", p->cpsr);
             switch (mode) {
-              case USR:
-              case FIQ:
-              case SVC:
-              case UND:
+	    case USR:
+	    case FIQ:
+	    case SVC:
+	    case UND:
                 fprintf(out, "\n");
                 break;
-              case IRQ:
-              case ABT:
+	    case IRQ:
+	    case ABT:
                 fprintf(out, "          ");
             }
         }
