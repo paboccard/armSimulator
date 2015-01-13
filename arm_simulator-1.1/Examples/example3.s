@@ -70,6 +70,7 @@ main:
 	movs r7, r2, ror #2	  @ r7 = 0x80000000 	c -> 1
 	
 @@ rrx
+	movs r9, #0
 	movs r9, r2, RRX 		@ r9 = 0 c -> 1
 	mov r9, r9, RRX			@ r9 = 0x80000000 c -> 1
 	
@@ -157,7 +158,7 @@ main:
 	cmp r7, r8				@ V -> 1   C -> 0
 	mov r7, #0x40000000
 	mov r8, #0x80000000
-	cmp r7, r8				@ V -> 1 N ->1 
+	cmp r7, r8				@ V -> 1 
 	
 
 
