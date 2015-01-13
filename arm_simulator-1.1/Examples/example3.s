@@ -2,7 +2,6 @@
 .text
 main:
 
-@@@@ TO DO !!!!!!  faire en sorte de ne pas ecraser les Flags des shifts !!!!!
 
 	mov r0, #15			@ r0 = 1111
 	mov r1, #0x9			@ r1 = 1001
@@ -28,11 +27,6 @@ main:
 	mov r8, #0x80000000
 	subs r9, r7, r8			@ V -> 1 N ->1 
 
-
-	
-
-	rsb r4, r1, r0			@ r4 = 6
-	rsb r5, r1, #10			@ r5 = 1
 	
 	
 @@@@@@@@@@@@@ test add @@@@@@@@@@@@@@@@
@@ -81,8 +75,77 @@ main:
 	
 	
 
+@@@@@@@@@@@@@@ test AND @@@@@@@@@@@@@@@@@@@@@@@@@
 
+	mov r7, r2, RRX		@ r7 = 0
+	ANDS r7, r2, r7		@ r7 = 0   Z -> 1
+	mov r7, #A0000000
+	ANDS r7, r7, #B0000000		@ r7 = #A0000000  N -> 1
+	
+@@@@@@@@@@@@@@ test EOR @@@@@@@@@@@@@@@@@@@@@@@@@@
 
+	mov r7, #13
+	mov r8, #6
+	EOR r7, r8, #13		@ r7 = 11
+	EORS r7, r7, r7		@ r7 = 0  Z -> 0
+	EORS r7, r7, #80000000		@ r7 = 0x80000000 N -> 1
+	
+
+@@@@@@@@@@@@@@ test RSB @@@@@@@@@@@@@@@@@@@@@@@@@@
+
+	subs r10, r0, r1		@ r10 = -6 N -> 1
+	sub r11, r0, #5			@ r11 = -10  #0xFFFFFFF6
+	subs r11, r11, #-10		@ Z = 1  c =1
+	mov r7, #0xC0000000
+	mov r8, #0x50000000
+	subs r9, r8, r7			@ V -> 1   C -> 1 Z -> 1
+	mov r7, #0x40000000
+	mov r8, #0x80000000
+	subs r9, r8, r7			@ V -> 1 N ->1 
+
+@@@@@@@@@@@@@@ test ADC @@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+	movs r7, r2, RRX 		@ r7 = 0 C->1
+	adcs r8, r7, #5			@ r7 = 6 C->0
+	adc r7, r8, r7			@ r7 = 6
+	mov r9, #0x80000000    
+	adcs r9, r9, r9			@ V -> 1   C -> 1 Z -> 1
+	movs r9, #0x40000000   
+	adcs r9, r9, r9			@ V -> 1   C -> 1 N -> 1
+	
+@@@@@@@@@@@@@@ test SBC @@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+	movs r7, #3, RRX		@ r3 = 1 C -> 1
+	sbcs r8, r7, #1			@ r8 = -1  C -> 0
+	sbcs r10, r1, r0		@ r10 = -6 N -> 1
+	sbc r11, r0, #5			@ r11 = 10
+	sbcs r11, r11, #10		@ Z = 1  c =1
+	movs r7, #0xC0000000
+	mov r8, #0x50000000
+	sbcs r9, r7, r8			@ V -> 1   C -> 1 Z -> 1
+	movs r7, #0x40000000
+	mov r8, #0x80000000
+	sbcs r9, r7, r8			@ V -> 1 N ->1
+	
+@@@@@@@@@@@@@@ test RSC @@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+	movs r7, #3, RRX		@ r7 = 1 C -> 1
+	rscs r8, r7, #1			@ r8 = 0  C -> 0 Z -> 1
+	rscs r10, r0, r1		@ r10 = -6 N -> 1
+	movs r7, #0xC0000000
+	mov r8, #0x50000000
+	rscs r9, r8, r7			@ V -> 1   C -> 1 Z -> 1
+
+@@@@@@@@@@@@@@ test TST @@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	
+	mov r7, r2, RRX		@ r7 = 0
+	TSTS r7, r2, r7		@ r7 = 0   Z -> 1
+	mov r7, #A0000000
+	TSTS r7, r7, #B0000000		@ r7 = #A0000000  N -> 1
+
+@@@@@@@@@@@@@@ test TEQ @@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+	
 
 
 	
