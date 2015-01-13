@@ -34,8 +34,8 @@
 #define Exception_bit_9 (CP15_reg1_EEbit << 9)
 
 void global(arm_core p,int exception, int mode){
-    printf("test\n");//TODELETE
-    printf("%d\n",mode);//TODELETE
+    printf("Exception\n");//TODELETE
+    printf("mode : %d\n",mode);//TODELETE
 
     uint32_t old_cpsr; 
     old_cpsr = arm_read_cpsr(p);
@@ -110,7 +110,6 @@ void fast_interrupt(arm_core p){
 void arm_exception(arm_core p, unsigned char exception) {
     /* We only support RESET initially */
     /* Semantics of reset interrupt (ARM manual A2-18) */
-    printf("test1");
     switch(exception){
     case(RESET):
 	reset(p);

@@ -208,34 +208,31 @@ int arm_op_add(arm_core p, uint32_t instr, int32_t *cpsr){
 	else
 	    return DATA_ABORT;
     }
-    
-    else
-	return DATA_ABORT;
-}
- else if (get_bit(instr,20)==1){
-     dest = arm_read_register(p,rd);
-     if (get_bit(dest,31)==1)
-	 *cpsr = set_bit(*cpsr,N);
-     else
-	 *cpsr = clr_bit(*cpsr,N);
-     if (dest==0)
-	 *cpsr = set_bit(*cpsr,Z); 
-     else 
-	 *cpsr = clr_bit(*cpsr,Z);
-    
-     long long int a= x+y;
-     uint32_t b=~0;
-     if(a>b)
-	 *cpsr = set_bit(*cpsr,C);
-     else
-	 *cpsr = clr_bit(*cpsr,C);
-     if((x>0 && y>0 && (x+y)<0) || (x<0 && y<0 && (x+y)>=0) )
-	 *cpsr = set_bit(*cpsr,V);
-     else
-	 *cpsr = clr_bit(*cpsr,V);
- }
-return 0;
 
+    else if (get_bit(instr,20)==1){
+	dest = arm_read_register(p,rd);
+	if (get_bit(dest,31)==1)
+	    *cpsr = set_bit(*cpsr,N);
+	else
+	    *cpsr = clr_bit(*cpsr,N);
+	if (dest==0)
+	    *cpsr = set_bit(*cpsr,Z); 
+	else 
+	    *cpsr = clr_bit(*cpsr,Z);
+    
+	long long int a= x+y;
+	uint32_t b=~0;
+	if(a>b)
+	    *cpsr = set_bit(*cpsr,C);
+	else
+	    *cpsr = clr_bit(*cpsr,C);
+	if((x>0 && y>0 && (x+y)<0) || (x<0 && y<0 && (x+y)>=0) )
+	    *cpsr = set_bit(*cpsr,V);
+	else
+	    *cpsr = clr_bit(*cpsr,V);
+    }
+    return 0;
+    
 }
 
 int arm_op_adc(arm_core p, uint32_t instr, int32_t *cpsr){
