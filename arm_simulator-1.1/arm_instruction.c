@@ -270,7 +270,7 @@ int arm_op_adc(arm_core p, uint32_t instr, int32_t *cpsr){
 		//Fonction OverflowFrom avec 3 paramètres
 		if((x>=0 && y>0 && x+y<0) || (x<=0 && y<0 && x+y>0))
 			*cpsr = set_bit(*cpsr,V);
-		else if((x+y>0 && c>0 && x+y+c < 0) || (x+y<0 && c<0 && x+y+c > 0))
+		else if((x+y>0 && carry>0 && x+y+carry < 0) || (x+y<0 && carry<0 && x+y+carry > 0))
 
 			*cpsr = set_bit(*cpsr,V);
 		else
@@ -282,7 +282,7 @@ int arm_op_adc(arm_core p, uint32_t instr, int32_t *cpsr){
 
 int arm_op_sbc(arm_core p, uint32_t instr, int32_t *cpsr){
     uint8_t rn, rd;
-    int x, y, dest;
+    int x, y, dest,carry;
  
     rn = get_bits(instr,19,16);
     rd = get_bits(instr,15,12);
