@@ -9,4 +9,5 @@ main:
 	MVNS 	r3, #15			@ r3 = FFFFFFF0 -> N = 1
 	MVNS 	r5, #0			@ r5 = 0 -> Z = 1 
 
+	swi 	0x123456
 
