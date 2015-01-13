@@ -271,7 +271,7 @@ int arm_op_adc(arm_core p, uint32_t instr, int32_t *cpsr){
 		//Fonction OverflowFrom avec 3 paramètres
 		if((x>=0 && y>0 && x+y<0) || (x<=0 && y<0 && x+y>0))
 			*cpsr = set_bit(*cpsr,V);
-		else if((x+y>0 && c>0 && x+y+c < 0) || (x+y<0 && c<0 && x+y+c > 0))
+		else if((x+y>0 && carry>0 && x+y+carry < 0) || (x+y<0 && carry<0 && x+y+carry > 0))
 
 			*cpsr = set_bit(*cpsr,V);
 		else
@@ -283,7 +283,7 @@ int arm_op_adc(arm_core p, uint32_t instr, int32_t *cpsr){
 
 int arm_op_sbc(arm_core p, uint32_t instr, int32_t *cpsr){
     uint8_t rn, rd;
-    int x, y, dest;
+    int x, y, dest, carry;
  
     rn = get_bits(instr,19,16);
     rd = get_bits(instr,15,12);
@@ -476,12 +476,13 @@ int arm_op_cmp(arm_core p, uint32_t instr, int32_t *cpsr){
 	*cpsr = clr_bit(*cpsr,Z);
       
     //NOT BorrowFrom(Rn - shifter_operand)
-    if ((x-y)>=0 && !get_bit(*cpsr,C))
+    if ((x-y)>=0 || get_bit(*cpsr, C) )
+	*cpsr = clr_bit(*cpsr,C); 
+	else 
 	*cpsr = set_bit(*cpsr,C); 
-
     
     
-    if ((x>=0 && y<0 && (x-y)<0) || (x<=0 && y>0 && (x-y)>=0) )
+    if ((x>=0 && y<0 && (x-y)<0) || (x<=0 && y>0 && (x-y)>=0))
 	*cpsr = set_bit(*cpsr,V); 
     else 
 	*cpsr = clr_bit(*cpsr,V);
@@ -498,27 +499,28 @@ int arm_op_cmn(arm_core p, uint32_t instr, int32_t *cpsr){
     x = arm_read_register(p,rn);
 
     y= arm_data_processing_shift(p,instr);
-    dest = x+y;
-    if (get_bit(dest,31)==1)
-	*cpsr = set_bit(*cpsr,N);
-    else
-	*cpsr = clr_bit(*cpsr,N);
-    if (dest==0)
-	*cpsr = set_bit(*cpsr,Z); 
-    else 
-	*cpsr = clr_bit(*cpsr,Z);
+    dest = x-y;
     
-
-    long long int a= x+y;
-    uint32_t b=~0;
-    if(a>b)
-	*cpsr = set_bit(*cpsr,C);
-    else  if (!get_bit(*cpsr,C))
-	*cpsr = clr_bit(*cpsr,C);
-    if((x>=0 && y>0 && (x+y)<0) || (x<=0 && y<0 && (x+y)>0))
-	*cpsr = set_bit(*cpsr,V);
+    //  ici
+	if (get_bit(dest,31)==1)
+		*cpsr = set_bit(*cpsr,N);
     else
-	*cpsr = clr_bit(*cpsr,V);
+		*cpsr = clr_bit(*cpsr,N);
+    if (dest==0)
+		*cpsr = set_bit(*cpsr,Z); 
+    else 
+		*cpsr = clr_bit(*cpsr,Z);
+    
+	long long int a= x+y;
+	uint32_t b=~0;
+	if(a>b && !get_bit(*cpsr,C))
+	    *cpsr = set_bit(*cpsr,C);
+
+	if((x>0 && y>0 && (x+y)<0) || (x<0 && y<0 && (x+y)>=0) )
+	    *cpsr = set_bit(*cpsr,V);
+	else
+	    *cpsr = clr_bit(*cpsr,V);
+    
     return 0;
 
 }
