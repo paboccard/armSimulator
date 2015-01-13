@@ -94,7 +94,6 @@ int arm_op_eor(arm_core p, uint32_t instr, int32_t *cpsr){
 	else 
 	    *cpsr = clr_bit(*cpsr,Z);
 	// mettre  C Flag en fonction de shifter_carry_out
-	*cpsr = clr_bit(*cpsr,V);
     }
     return 0;
 }
@@ -450,7 +449,6 @@ int arm_op_teq(arm_core p, uint32_t instr, int32_t *cpsr){
     else 
 	*cpsr = clr_bit(*cpsr,Z);
   
-    *cpsr = clr_bit(*cpsr,V);
   
     return 0;
 }
