@@ -62,7 +62,8 @@ main:
 	add r7, r2, r0, lsr #1     @ r7 = 8
 	add r8, r2, r0, lsr r2	  @ r8 = 8    
 	mov r7, #0x80000000
-	mov r7, r7, lsr #1         @ r7 = 0x40000000     
+	mov r7, r7, lsr #1         @ r7 = 0x40000000
+	mov r7, r2, lsr #1			@ Z -> 1 C -> 1     
 
 @@ lsl
 	mov r7, r2, lsl #1         @ r7 = 2
@@ -72,7 +73,7 @@ main:
 
 @@ ror
 	movs r7, r2, ror r2	  @ r7 = 0x80000000  c -> 1
-	movs r7, r2, ror #2	  @ r7 = 0x80000000 	c -> 0
+	movs r7, r2, ror #2	  @ r7 = 0x80000000 	c -> 1
 	
 @@ rrx
 	movs r9, r2, RRX 		@ r9 = 0 c -> 1
