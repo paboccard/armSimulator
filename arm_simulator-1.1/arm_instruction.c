@@ -702,6 +702,7 @@ int arm_op_mvn(arm_core p, uint32_t instr){
 	    return DATA_ABORT;
     }
     else if (get_bit(instr,20)==1){
+	printf("S = 1\n");
 	dest = arm_read_register(p,rd);
 	if (get_bit(dest,31)==1)
 	    cpsr = set_bit(cpsr,N);
@@ -712,7 +713,8 @@ int arm_op_mvn(arm_core p, uint32_t instr){
 	else 
 	    cpsr = clr_bit(cpsr,Z);
 	// C Flag en fonction de shifter_carry_out
-	cpsr = clr_bit(cpsr,V);
+	//cpsr = clr_bit(cpsr,V);
+
     }
     arm_write_cpsr(p,cpsr);
     return 0;
@@ -910,53 +912,67 @@ int test_cond(uint8_t cond, arm_core p){
     switch(cond){
     case EQ:
 	if (z==0)
-	    return 0;   
+	    return 0;
+	break;
     case NE :
 	if (z!=0)
-	    return 0; 
+	    return 0;
+	break;
     case CS :
 	if (c==0)
-	    return 0; 
+	    return 0;
+	break;
     case CC :
 	if (c!=0)
-	    return 0; 
+	    return 0;
+	break;
     case MI:
 	if (n==0)  
-	    return 0; 
+	    return 0;
+	break; 
     case PL:
 	if (n!=0)
-	    return 0; 
+	    return 0;
+	break; 
     case VS:
 	if (v==0) 
 	    return 0;
+       	break;
     case VC:
 	if (v!=0)
-	    return 0; 
+	    return 0;
+	break; 
     case HI:
 	if (c==0 || z!=0)
-	    return 0; 
+	    return 0;
+	break; 
     case LS:
 	if (c!=0 && z==0)
-	    return 0; 
+	    return 0;
+	break; 
     case GE:
 	if (n!=v)
-	    return 0; 
+	    return 0;
+	break; 
     case LT:
 	if (n==v)
-	    return 0; 
+	    return 0;
+	break; 
     case GT:
 	if (z!=0 || n!=v)
-	    return 0; 
+	    return 0;
+	break; 
     case LE:
 	if (z==0 && n==v)
-	    return 0; 
+	    return 0;
+	break; 
     case AL:
 	return 1;
 	break;
     default:
 	return UNPREDICTABLE; //exception
     }
-    return PREFETCH_ABORT;
+    return 1;
 }  
 
 static int arm_execute_instruction(arm_core p) {
@@ -974,15 +990,16 @@ static int arm_execute_instruction(arm_core p) {
 
 	if(arm_fetch(p,&instr)==0){
 	    arm_coprocessor_others_swi(p,instr); // Fini le programme quand l'instruction est swi 0x123456
+	    
+	    uint8_t cond = get_bits(instr,31, 28);
+	    test = test_cond(cond,p);
+	    
+	    if (test==0 || test ==  PREFETCH_ABORT)  return test;	
+
 	    if (get_bits(instr,27,26)==0){ //verifie à 0 les bit [27:26]
 
-
+		
 		if (!(get_bit(instr,4) && get_bit(instr,7))){ // test pour différencier les instruction avec MSR, STRH, LDRH
-
-		    uint8_t cond = get_bits(instr,31, 28);
-		    test = test_cond(cond,p);
-	
-		    if (test==0 || test ==  PREFETCH_ABORT)  return test;
 	  
 		    if ((get_bits(instr,27,23)==2) && get_bits(instr,21,20)==0)
 			res = arm_op_mrs(p,instr);

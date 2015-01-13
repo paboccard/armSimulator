@@ -29,9 +29,15 @@
 
 int arm_branch(arm_core p, uint32_t ins) {
     uint32_t value;
-    if (get_bit(ins,25))
-	arm_write_register(p,14,arm_read_register(p,15)); // R14 = adresse de retour
-    value = arm_read_register(p,15) + (arm_read_register(p,15)<<2 | get_bit(ins,24) ? 0xFC000000 : 0); //le ternaire met a 1 ou a 0 tous les bits de 26 a 32 si on a une valeur negative ou non 
+    int immed;
+    immed = get_bits(ins,23,0);
+    if (get_bit(ins,24))
+	arm_write_register(p,14,arm_read_register(p,15)-4); // R14 = adresse de retour
+
+    immed = immed | (get_bit(ins,23) ? 0x3F000000 : 0);
+    immed <<=2;
+
+    value = arm_read_register(p,15) + immed; //le ternaire met a 1 ou a 0 tous les bits de 26 a 32 si on a une valeur negative ou non 
     arm_write_register(p,15,value);
     return 0;
 }

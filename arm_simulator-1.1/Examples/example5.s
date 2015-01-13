@@ -1,16 +1,13 @@
 .global main
 .text
 main:
-    mov r0, #0x12
-    mov r1, #0x34
-    add r0, r1, r0, lsl #8
-    mov r1, #0x56
-    add r0, r1, r0, lsl #8
-    mov r1, #0x78
-    add r0, r1, r0, lsl #8
-    mov r1, #0x2000
-    str r0, [r1]
-    ldrb r2, [r1]
-    add r1, r1, #3
-    ldrb r3, [r1]
-    swi 0x123456
+
+@@@@@@@@@@@@@@@@@@ Test MVN @@@@@@@@@@@@@@@@@@
+
+	MOV 	r1, #15			@ r0 = 1111
+	MOV 	r2, #0x9		@ r1 = 1001
+	MVNS 	r3, #15			@ r3 = FFFFFFF0 -> N = 1
+	MVNS 	r5, #0			@ r5 = 0 -> Z = 1 
+
+	swi 	0x123456
+
