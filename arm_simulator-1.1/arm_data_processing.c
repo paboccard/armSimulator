@@ -165,7 +165,9 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
     int32_t cpsr;
     int rotation;
 
+
     cpsr = arm_read_cpsr(p);
+
   
     if (get_bit(ins,25)==1){
 	shifter_operand = get_bits(ins,7,0);
