@@ -152,7 +152,7 @@ int shift_ror(int8_t val_rs,int32_t val_rm, int8_t shift_imm, int8_t shift_val_i
 
 int shift_rrx(int8_t val_rs, int32_t val_rm, int8_t shift_imm, int8_t shift_val_imm, int *cpsr){
  
-    *cpsr = get_bit(val_rm, 0) ? set_bit(*cpsr,C) : clr_bit(*cpsr,C);
+    *cpsr = get_bit(val_rm, 0) ? clr_bit(*cpsr,C) : set_bit(*cpsr,C);
     return ((get_bit(*cpsr,29)<<31) | (val_rm>>1));
 
 }
@@ -165,7 +165,9 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
     int32_t cpsr;
     int rotation;
 
+
     cpsr = arm_read_cpsr(p);
+
   
     if (get_bit(ins,25)==1){
 	shifter_operand = get_bits(ins,7,0);
