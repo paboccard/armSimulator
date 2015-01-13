@@ -100,6 +100,7 @@ int arm_op_eor(arm_core p, uint32_t instr, int32_t *cpsr){
 }
 
 int arm_op_sub(arm_core p, uint32_t instr, int32_t *cpsr){
+
     uint8_t rn, rd;
     int x, y, dest;
  
@@ -128,15 +129,16 @@ int arm_op_sub(arm_core p, uint32_t instr, int32_t *cpsr){
 	else 
 	    *cpsr = clr_bit(*cpsr,Z);
       
+
 	//NOT BorrowFrom(Rn - shifter_operand)
-	if ((x-y)>=0)
+	if ((dest)>=0)
 	    *cpsr = set_bit(*cpsr,C); 
 	else 
 	    *cpsr = clr_bit(*cpsr,C); 
 	// mettre  C Flag en fonction de shifter_carry_out
     
     
-	if ((x>0 && y<0 && (x-y)<0) || (x<0 && y>0 && (x-y)>0) )
+	if ((x>=0 && y<0 && dest <0 ) || (x<=0 && y>0 && dest>=0) )
 	    *cpsr = set_bit(*cpsr,V); 
 	else 
 	    *cpsr = clr_bit(*cpsr,V);
@@ -206,6 +208,7 @@ int arm_op_add(arm_core p, uint32_t instr, int32_t *cpsr){
 	else
 	    return DATA_ABORT;
     }
+
     else if (get_bit(instr,20)==1){
 	dest = arm_read_register(p,rd);
 	if (get_bit(dest,31)==1)
@@ -223,12 +226,13 @@ int arm_op_add(arm_core p, uint32_t instr, int32_t *cpsr){
 	    *cpsr = set_bit(*cpsr,C);
 	else
 	    *cpsr = clr_bit(*cpsr,C);
-	if((x>0 && y>0 && (x+y)<0) || (x<0 && y<0 && (x+y)>0) )
+	if((x>0 && y>0 && (x+y)<0) || (x<0 && y<0 && (x+y)>=0) )
 	    *cpsr = set_bit(*cpsr,V);
 	else
 	    *cpsr = clr_bit(*cpsr,V);
     }
     return 0;
+    
 }
 
 int arm_op_adc(arm_core p, uint32_t instr, int32_t *cpsr){
@@ -273,7 +277,7 @@ int arm_op_adc(arm_core p, uint32_t instr, int32_t *cpsr){
 	    *cpsr = clr_bit(*cpsr,C);
       
 	//Fonction OverflowFrom avec 3 paramètres
-	if((x>0 && y>0 && x+y<0) || (x<0 && y<0 && x+y>0))
+	if((x>=0 && y>0 && x+y<0) || (x<=0 && y<0 && x+y>0))
 	    *cpsr = set_bit(*cpsr,V);
 	else if((x+y>0 && c>0 && x+y+c < 0) || (x+y<0 && c<0 && x+y+c > 0))
 
@@ -329,9 +333,10 @@ int arm_op_sbc(arm_core p, uint32_t instr, int32_t *cpsr){
 	    *cpsr = set_bit(*cpsr,C); 
     
 	//Flag V
-	if ((x>0 && y<0 && (x-y)<0) || (x<0 && y>0 && (x-y)>0) )
+	if ((x>=0 && y<0 && (x-y)<0) || (x<=0 && y>0 && (x-y)>=0) )
 	    *cpsr = set_bit(*cpsr,V);
 	else 
+
 		
 
 	    if ((res>0 && flagC<0 && (res-flagC)>0) || (res<0 && flagC>0 && (res-flagC)<0) ){
@@ -489,11 +494,12 @@ int arm_op_cmp(arm_core p, uint32_t instr, int32_t *cpsr){
     // mettre  C Flag en fonction de shifter_carry_out
     
     
-    if ((x>0 && y<0 && (x-y)<0) || (x<0 && y>0 && (x-y)>0) )
+    if ((x>=0 && y<0 && (x-y)<0) || (x<=0 && y>0 && (x-y)>=0) )
 	*cpsr = set_bit(*cpsr,V); 
     else 
 	*cpsr = clr_bit(*cpsr,V);
     return 0;
+
 }
 
 int arm_op_cmn(arm_core p, uint32_t instr, int32_t *cpsr){
@@ -515,17 +521,19 @@ int arm_op_cmn(arm_core p, uint32_t instr, int32_t *cpsr){
     else 
 	*cpsr = clr_bit(*cpsr,Z);
     
+
     long long int a= x+y;
     uint32_t b=~0;
     if(a>b)
 	*cpsr = set_bit(*cpsr,C);
     else
 	*cpsr = clr_bit(*cpsr,C);
-    if((x>0 && y>0 && (x+y)<0) || (x<0 && y<0 && (x+y)>0) )
+    if((x>=0 && y>0 && (x+y)<0) || (x<=0 && y<0 && (x+y)>0) )
 	*cpsr = set_bit(*cpsr,V);
     else
 	*cpsr = clr_bit(*cpsr,V);
     return 0;
+
 }
 
 // p234

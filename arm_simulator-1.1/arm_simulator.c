@@ -1,24 +1,24 @@
 /*
-Armator - simulateur de jeu d'instruction ARMv5T à but pédagogique
-Copyright (C) 2011 Guillaume Huard
-Ce programme est libre, vous pouvez le redistribuer et/ou le modifier selon les
-termes de la Licence Publique Générale GNU publiée par la Free Software
-Foundation (version 2 ou bien toute autre version ultérieure choisie par vous).
+  Armator - simulateur de jeu d'instruction ARMv5T à but pédagogique
+  Copyright (C) 2011 Guillaume Huard
+  Ce programme est libre, vous pouvez le redistribuer et/ou le modifier selon les
+  termes de la Licence Publique Générale GNU publiée par la Free Software
+  Foundation (version 2 ou bien toute autre version ultérieure choisie par vous).
 
-Ce programme est distribué car potentiellement utile, mais SANS AUCUNE
-GARANTIE, ni explicite ni implicite, y compris les garanties de
-commercialisation ou d'adaptation dans un but spécifique. Reportez-vous à la
-Licence Publique Générale GNU pour plus de détails.
+  Ce programme est distribué car potentiellement utile, mais SANS AUCUNE
+  GARANTIE, ni explicite ni implicite, y compris les garanties de
+  commercialisation ou d'adaptation dans un but spécifique. Reportez-vous à la
+  Licence Publique Générale GNU pour plus de détails.
 
-Vous devez avoir reçu une copie de la Licence Publique Générale GNU en même
-temps que ce programme ; si ce n'est pas le cas, écrivez à la Free Software
-Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307,
-États-Unis.
+  Vous devez avoir reçu une copie de la Licence Publique Générale GNU en même
+  temps que ce programme ; si ce n'est pas le cas, écrivez à la Free Software
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307,
+  États-Unis.
 
-Contact: Guillaume.Huard@imag.fr
-         ENSIMAG - Laboratoire LIG
-         51 avenue Jean Kuntzmann
-         38330 Montbonnot Saint-Martin
+  Contact: Guillaume.Huard@imag.fr
+  ENSIMAG - Laboratoire LIG
+  51 avenue Jean Kuntzmann
+  38330 Montbonnot Saint-Martin
 */
 #include <sys/socket.h>
 #include <pthread.h>
@@ -112,24 +112,24 @@ static void *irq_listener(void *arg) {
 
 void usage(char *name) {
     fprintf(stderr, "Usage:\n"
-        "%s [ --help ] [ --gdb-port port ] [ --irq-port port ] "
-        "[ --trace-file file ] [ --trace-registers ] [ --trace-memory ] "
-        "[ --trace-state ] [ --trace-position ] [ --debug filename ]\n\n"
-        "Start an ARMv5 instruction set simulator that acts as a gdb server "
-        "and can receive interrupts. It is possible to specify on which ports "
-        "the simulator listen to gdb client or irq sending program "
-        "connections. Trace options have the following behavior:\n"
-        "- trace file: file into which trace information is stored (default is"
-        " stdout)\n"
-        "- trace registers: outputs informations about each access to"
-        " registers\n"
-        "- trace memory: outputs informations about each access to memory\n"
-        "- trace state: outputs the processor state after each instruction\n"
-        "- trace position: for each traced access, outputs the file and line"
-        " at which the access has been performed\n"
-        "The debug switch enable selective reporting of debug messages on a "
-        "per source file basis\n"
-        , name);
+	    "%s [ --help ] [ --gdb-port port ] [ --irq-port port ] "
+	    "[ --trace-file file ] [ --trace-registers ] [ --trace-memory ] "
+	    "[ --trace-state ] [ --trace-position ] [ --debug filename ]\n\n"
+	    "Start an ARMv5 instruction set simulator that acts as a gdb server "
+	    "and can receive interrupts. It is possible to specify on which ports "
+	    "the simulator listen to gdb client or irq sending program "
+	    "connections. Trace options have the following behavior:\n"
+	    "- trace file: file into which trace information is stored (default is"
+	    " stdout)\n"
+	    "- trace registers: outputs informations about each access to"
+	    " registers\n"
+	    "- trace memory: outputs informations about each access to memory\n"
+	    "- trace state: outputs the processor state after each instruction\n"
+	    "- trace position: for each traced access, outputs the file and line"
+	    " at which the access has been performed\n"
+	    "The debug switch enable selective reporting of debug messages on a "
+	    "per source file basis\n"
+	    , name);
 }
 
 int main(int argc, char *argv[]) {
@@ -159,38 +159,38 @@ int main(int argc, char *argv[]) {
     while ((opt = getopt_long(argc, argv, "g:i:ht:rmspd:", longopts, NULL))
            != -1) {
         switch(opt) {
-          case 'g':
+	case 'g':
             shared.gdb_port = atoi(optarg);
             break;
-          case 'i':
+	case 'i':
             shared.irq_port = atoi(optarg);
             break;
-          case 'h':
+	case 'h':
             usage(argv[0]);
             exit(0);
-          case 't':
+	case 't':
             trace_file = fopen(optarg, "w");
             if (trace_file == NULL) {
                 perror("Trace file");
                 exit(1);
             }
             break;
-          case 'r':
+	case 'r':
             trace_add(REGISTERS);
             break;
-          case 'm':
+	case 'm':
             trace_add(MEMORY);
             break;
-          case 's':
+	case 's':
             trace_add(STATE);
             break;
-          case 'p':
+	case 'p':
             trace_add(POSITION);
             break;
-          case 'd':
+	case 'd':
             add_debug_to(optarg);
             break;
-          default:
+	default:
             fprintf(stderr, "Unrecognized option %c\n", opt);
             usage(argv[0]);
             exit(1);
