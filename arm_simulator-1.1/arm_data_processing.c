@@ -27,6 +27,9 @@
 #include "util.h"
 #include "debug.h"
 
+
+// TO DO : faire les overflows
+
 int shift_lsl(int8_t val_rs,int32_t val_rm, int8_t shift_imm, int8_t shift_val_imm, int *cpsr){ 
   
     if (shift_val_imm == 0){ //si on a une valeur immediate pour le shift

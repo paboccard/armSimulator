@@ -1,6 +1,7 @@
 .global main
 .text
 main:
+
 	mov r0, #15			@ r0 = 1111
 	mov r1, #0x9			@ r1 = 1001
 	
