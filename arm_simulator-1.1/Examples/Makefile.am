@@ -6,6 +6,7 @@ AM_LDFLAGS+=-Wl,-EB
 if HAVE_ARM_COMPILER
 noinst_PROGRAMS=example1 example2 example3 example4 example5 example6 example7 insertion_sort
 
+
 all-am: $(PROGS)
 endif
 
