@@ -724,7 +724,6 @@ int arm_op_mvn(arm_core p, uint32_t instr){
 /****************** LOAD / STORE ******************/
 int arm_op_ldr(arm_core p, uint32_t instr){
     /*Attention aux acces non-aligne*/
-
     uint8_t rd;
     int cpsr;
     uint32_t y, val_rd;
@@ -732,7 +731,6 @@ int arm_op_ldr(arm_core p, uint32_t instr){
     rd = get_bits(instr,15,12);
 
     y = arm_load_store(p,instr); //y = adresse de la valeur a load
-  
     if ((arm_read_word(p, y, &val_rd)==0)) {
 	if (rd == 15){
 	    val_rd = val_rd & 0xFFFFFFFE;
@@ -894,7 +892,6 @@ int arm_op_stm1(arm_core p, uint32_t instr){
 /****************** MRS ******************/
 int arm_op_mrs(arm_core p, uint32_t ins){
     uint8_t rd = get_bits(ins,15,12);
-    printf("MRS!"); //TODELETE
     if (get_bit(ins,22))
 	arm_write_register(p,rd,arm_read_spsr(p));
     else
@@ -989,10 +986,9 @@ static int arm_execute_instruction(arm_core p) {
     if (get_bit(rs,0)==0 && get_bit(rs,1)==0){
 	//if ((memory_read_word(p->mem,1,p->register_storage[15]-8,instr))==0){
     
-
 	if(arm_fetch(p,&instr)==0){
 	    arm_coprocessor_others_swi(p,instr); // Fini le programme quand l'instruction est swi 0x123456
-	    
+
 	    uint8_t cond = get_bits(instr,31, 28);
 	    test = test_cond(cond,p);
 	    
@@ -1000,11 +996,11 @@ static int arm_execute_instruction(arm_core p) {
 
 	    if (get_bits(instr,27,26)==0){ //verifie à 0 les bit [27:26]
 
-		
-		if (get_bit(instr,25)==1 || (get_bits(instr,7,4)!=11)){ // test pour différencier les instruction avec MRS, STRH, LDRH
-	  
-		    if ((get_bits(instr,27,23)==2) && get_bits(instr,21,20)==0)
+		if (get_bit(instr,25)==1 || (get_bits(instr,7,4)!=11)){ // test pour différencier les instruction avec STRH, LDRH
+		    if ((get_bits(instr,27,23)==2) && get_bits(instr,21,20)==0){
 			res = arm_op_mrs(p,instr);
+			return res;
+		    }
 		    else{
 
 			opcode = get_bits(instr,24,21);
@@ -1020,57 +1016,46 @@ static int arm_execute_instruction(arm_core p) {
 			    break;
 			case SUB:
 			    res = arm_op_sub(p,instr);
-			    
 			    return res;
 			    break;
 			case RSB:
 			    res = arm_op_rsb(p,instr);
-			    
 			    return res;
 			    break;
 			case ADD:
 			    res = arm_op_add(p,instr);
-			    
 			    return res;
 			    break;
 			case ADC:
 			    res = arm_op_adc(p,instr);
-			    
 			    return res;
 			    break;
 			case SBC:
 			    res = arm_op_sbc(p,instr);
-			    
 			    return res;
 			    break;
 			case RSC:
 			    res = arm_op_rsc(p,instr);
-			    
 			    return res;
 			    break;
 			case TST:
 			    res = arm_op_tst(p,instr);
-			    
 			    return res;
 			    break;
 			case TEQ:
 			    res = arm_op_teq(p,instr);
-			    
 			    return res;
 			    break;
 			case CMP:
 			    res = arm_op_cmp(p,instr);
-			    
 			    return res;
 			    break;	    
 			case CMN:
 			    res = arm_op_cmn(p,instr);
-			    
 			    return res;
 			    break;
 			case ORR:
 			    res = arm_op_orr(p,instr);
-			    
 			    return res;
 			    break;
 			case MOV:
@@ -1079,12 +1064,10 @@ static int arm_execute_instruction(arm_core p) {
 			    break;
 			case BIC:
 			    res = arm_op_bic(p,instr);
-			    
 			    return res;
 			    break;
 			case MVN:
 			    res = arm_op_mvn(p,instr);
-			    
 			    return res;
 			    break;
 			default:
