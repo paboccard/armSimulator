@@ -836,32 +836,31 @@ int arm_op_ldm1(arm_core p, uint32_t instr){
     int address, end_address;
 
     address = arm_load_store_multiple(p,instr,&end_address);
-    //  address = start_address(p,instr);
     register_list = get_bits(instr,15,0);
     for (i=0; i<15; i++){
-	if (get_bit(register_list,i)){
-	    if((arm_read_word(p,address,&value))==0){
-		ri = i;
-		arm_write_register(p,ri,value);
-		address += 4;
-	    }
-	}
+		if (get_bit(register_list,i)){
+			if((arm_read_word(p,address,&value))==0){
+				ri = i;
+				arm_write_register(p,ri,value);
+				address += 4;
+			}
+		}
     }
     if (get_bit(register_list,15)){
-	if((arm_read_word(p,address,&value))==0){
-	    ri = 15;
-	    value &= 0xFFFFFFFE;
-	    arm_write_register(p,ri,value);
-	    cpsr = arm_read_cpsr(p);
-	    cpsr = get_bit(instr,0) ? set_bit(cpsr,5) : clr_bit(cpsr,5); // T bit = y[0] 
-	}
-	address+=4;
+		if((arm_read_word(p,address,&value))==0){
+			ri = 15;
+			value &= 0xFFFFFFFE;
+			arm_write_register(p,ri,value);
+			cpsr = arm_read_cpsr(p);
+			cpsr = get_bit(instr,0) ? set_bit(cpsr,5) : clr_bit(cpsr,5); // T bit = y[0] 
+		}
+		address+=4;
     }
     return 0;
-    if ((end_address==address-4))
-	return 0;
+	if ((end_address==address-4))
+		return 0;
     else
-	return UNPREDICTABLE;
+		return UNPREDICTABLE;
 }
 
 int arm_op_stm1(arm_core p, uint32_t instr){
@@ -871,20 +870,20 @@ int arm_op_stm1(arm_core p, uint32_t instr){
     //processor_id = ExecutingProcessor()
     address = arm_load_store_multiple(p,instr,&end_address);
     register_list = get_bits(instr,15,0);
-    for (i = 0; i>= 15;i++){
-	if (get_bit(register_list,i)){
-	    ri = i;
-	    if (arm_write_word(p,address,arm_read_register(p,ri))){ //Memory[address,4] = Ri
-		address = address + 4;
-	    }
-	    else
-		return UNPREDICTABLE;
-	}
+    for (i = 0; i<= 15;i++){
+		if (get_bit(register_list,i)){
+			ri = i;
+			if (arm_write_word(p,address,arm_read_register(p,ri))==0){ //Memory[address,4] = Ri
+				address = address + 4;
+			}
+			else
+				return UNPREDICTABLE;
+		}
     }
-    if ((end_address==address-4))
-	return 0;
-    else
-	return UNPREDICTABLE;  
+	if ((end_address==address-4))
+		return 0;
+	else
+		return UNPREDICTABLE;  
     
 }
 
