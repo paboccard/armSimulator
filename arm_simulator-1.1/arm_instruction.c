@@ -683,7 +683,7 @@ int arm_op_bic(arm_core p, uint32_t instr){
 }
 
 int arm_op_mvn(arm_core p, uint32_t instr){
-	uint32_t cpsr;
+    uint32_t cpsr;
     uint8_t rd;
     int x, dest;
  
@@ -702,14 +702,14 @@ int arm_op_mvn(arm_core p, uint32_t instr){
 	    return DATA_ABORT;
     }
     else if (get_bit(instr,20)==1){
-	printf("S = 1\n");
 	dest = arm_read_register(p,rd);
 	if (get_bit(dest,31)==1)
 	    cpsr = set_bit(cpsr,N);
 	else
 	    cpsr = clr_bit(cpsr,N);
-	if (dest==0)
-	    cpsr = set_bit(cpsr,Z); 
+	if (dest==0){
+	    cpsr = set_bit(cpsr,Z);
+	} 
 	else 
 	    cpsr = clr_bit(cpsr,Z);
 	// C Flag en fonction de shifter_carry_out
@@ -893,6 +893,7 @@ int arm_op_stm1(arm_core p, uint32_t instr){
 /****************** MRS ******************/
 int arm_op_mrs(arm_core p, uint32_t ins){
     uint8_t rd = get_bits(ins,15,12);
+    printf("MRS!"); //TODELETE
     if (get_bit(ins,22))
 	arm_write_register(p,rd,arm_read_spsr(p));
     else
@@ -999,7 +1000,7 @@ static int arm_execute_instruction(arm_core p) {
 	    if (get_bits(instr,27,26)==0){ //verifie à 0 les bit [27:26]
 
 		
-		if (get_bit(instr,25)==1 || (get_bits(instr,7,4)!=11)){ // test pour différencier les instruction avec MSR, STRH, LDRH
+		if (get_bit(instr,25)==1 || (get_bits(instr,7,4)!=11)){ // test pour différencier les instruction avec MRS, STRH, LDRH
 	  
 		    if ((get_bits(instr,27,23)==2) && get_bits(instr,21,20)==0)
 			res = arm_op_mrs(p,instr);
