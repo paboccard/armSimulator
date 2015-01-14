@@ -101,63 +101,67 @@ int shift_asr(int8_t val_rs,int32_t val_rm, int8_t shift_imm, int8_t shift_val_i
 }
   
 int shift_ror(int8_t val_rs,int32_t val_rm, int8_t shift_imm, int8_t shift_val_imm, int *cpsr){
-
     if (!shift_val_imm) {
-	// p456
-	if (!val_rm) {
-	    *cpsr = clr_bit(*cpsr,C);
-	    return val_rm;
-	}
-	else if (!shift_imm) {
-	    if (get_bit(val_rm,31)) 
-		*cpsr = set_bit(*cpsr,C);
-	    else 
-		*cpsr = clr_bit(*cpsr,C);
-	    return val_rm;
-      
-	}
-	else {
-	    if (get_bit(val_rm,(shift_imm - 1))) { // on cherche le bit qui sera le bit de poid fort apres le decalage
-		*cpsr = set_bit(*cpsr,C);
-	    }
-	    else 
-		*cpsr = clr_bit(*cpsr,C);
+        // p456
+        if (!val_rm) {
+            *cpsr = clr_bit(*cpsr,C);
+            return val_rm;
+        }
+        else{
+            if (!shift_imm) {
+                if (get_bit(val_rm,31)) 
+                *cpsr = set_bit(*cpsr,C);
+                else 
+                *cpsr = clr_bit(*cpsr,C);
+                return val_rm;
+          
+            }
+            else {
+                if (get_bit(val_rm,(shift_imm - 1))) { // on cherche le bit qui sera le bit de poid fort apres le decalage
+                *cpsr = set_bit(*cpsr,C);
+                }
+                else 
+                *cpsr = clr_bit(*cpsr,C);
 
-	    return ror(val_rm, val_rs);
-	}
+                return ror(val_rm, shift_imm);
+            }
+        }
     }
     else {	// c'est un registre
-	if (!val_rm) {
-	    *cpsr = clr_bit(*cpsr,C);
-	    return val_rm;
-	}
-	else if (!val_rs) {
-	    if (get_bit(val_rm,31)) {
-		*cpsr = set_bit(*cpsr,C);
-	    }
-	    else {
-		*cpsr = clr_bit(*cpsr,C);
-	    }
-	    return val_rm;
-      
-	}
-	else {
-	    if (get_bit(val_rm,val_rs - 1)) {
-		*cpsr = set_bit(*cpsr,C);
-	    }
-	    else 
-		*cpsr = clr_bit(*cpsr,C);
-      
-	    return ror(val_rm, shift_imm);
-	}
+        if (!val_rm) {
+            *cpsr = clr_bit(*cpsr,C);
+            return val_rm;
+        }
+        else {
+            
+            if (!val_rs) {
+                if (get_bit(val_rm,31)) {
+                *cpsr = set_bit(*cpsr,C);
+                }
+                else {
+                *cpsr = clr_bit(*cpsr,C);
+                }
+                return val_rm;
+              
+            }
+            else {
+                if (get_bit(val_rm,val_rs - 1)) {
+                *cpsr = set_bit(*cpsr,C);
+                }
+                else 
+                *cpsr = clr_bit(*cpsr,C);
+              
+                return ror(val_rm, val_rs);
+            }
+        }
     } 
 }
 
 int shift_rrx(int8_t val_rs, int32_t val_rm, int8_t shift_imm, int8_t shift_val_imm, int *cpsr){
- 	int carry = get_bit(*cpsr,C);
+    int carry = get_bit(*cpsr,C);
     *cpsr = get_bit(val_rm, 0) ? set_bit(*cpsr,C) : clr_bit(*cpsr,C);
-    printf("%d \n", (int32_t)((uint32_t)val_rm >> 1));
-    printf("%d \n",(int32_t)((uint32_t)carry << 31)|(int32_t)((uint32_t)val_rm >> 1));
+ //   printf("%d \n", (int32_t)((uint32_t)val_rm >> 1));
+ //   printf("%d \n",(int32_t)((uint32_t)carry << 31)|(int32_t)((uint32_t)val_rm >> 1));
     return ((int32_t)((uint32_t)carry << 31)|(int32_t)((uint32_t)val_rm >> 1));
 
 }
@@ -209,7 +213,7 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
 	else if(shift == ASR){
 	    shifter_operand = shift_asr(val_rs,val_rm,shift_imm,shift_val_imm, &cpsr);
 	}	
-	else if((shift == RRX) && (shift_val_imm == 0)){
+	else if((shift == RRX) && (shift_imm == 0)){
 	    shifter_operand = shift_rrx(val_rs,val_rm, shift_imm,shift_val_imm, &cpsr);
 	}
 	else if(shift == ROR){
