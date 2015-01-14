@@ -109,7 +109,7 @@ int arm_op_eor(arm_core p, uint32_t instr){
 int arm_op_sub(arm_core p, uint32_t instr){
     uint32_t cpsr;
     uint8_t rn, rd;
-    int x, y, dest;
+    int32_t x, y, dest;
  
     rn = get_bits(instr,19,16);
     rd = get_bits(instr,15,12);
@@ -129,10 +129,15 @@ int arm_op_sub(arm_core p, uint32_t instr){
     }
     else if (get_bit(instr,20)==1){
 	dest = arm_read_register(p,rd);
-	if (get_bit(dest,31)==1)
+	if (get_bit(dest,31)==1){
+		printf("sub");
 	    cpsr = set_bit(cpsr,N);
-	else
+	    cpsr = clr_bit(cpsr,C);
+	}
+	else{
 	    cpsr = clr_bit(cpsr,N);
+	    cpsr = set_bit(cpsr,C); 
+	}
 	if (dest==0)
 	    cpsr = set_bit(cpsr,Z); 
 	else 
@@ -140,7 +145,7 @@ int arm_op_sub(arm_core p, uint32_t instr){
       
 
 	//NOT BorrowFrom(Rn - shifter_operand)
-	if ((dest)>=0 && !get_bit(cpsr,C))
+	if (!get_bit(cpsr,C))
 	    cpsr = set_bit(cpsr,C); 
 	 
 	// mettre  C Flag en fonction de shifter_carry_out
@@ -159,7 +164,7 @@ int arm_op_rsb(arm_core p, uint32_t instr){
     uint32_t cpsr;
     uint8_t rn, rd;
     int x, y, dest;
- 
+ 	printf("rsb");
     rn = get_bits(instr,19,16);
     rd = get_bits(instr,15,12);
     x = arm_read_register(p,rn);
@@ -188,7 +193,9 @@ int arm_op_rsb(arm_core p, uint32_t instr){
 	    cpsr = clr_bit(cpsr,Z);
 	//NOT BorrowFrom(shifter_operand - Rn)
 	if ((y-x)>=0 && !get_bit(cpsr,C))
-	    cpsr = set_bit(cpsr,C); 
+	    cpsr = set_bit(cpsr,C);
+	else
+		cpsr = clr_bit(cpsr,C); 
     
     
 	if ((y>0 && x<0 && (y-x)<0) || (y<0 && x>0 && (y-x)>0) )
@@ -204,7 +211,7 @@ int arm_op_add(arm_core p, uint32_t instr){
     uint32_t cpsr;
     uint8_t rn, rd;
     int x, y, dest;
- 
+ 	printf("add \n");
     rn = get_bits(instr,19,16);
     rd = get_bits(instr,15,12);
     x = arm_read_register(p,rn);
@@ -237,6 +244,8 @@ int arm_op_add(arm_core p, uint32_t instr){
 	uint32_t b=~0;
 	if(a>b && !get_bit(cpsr,C))
 	    cpsr = set_bit(cpsr,C);
+	else
+		cpsr = clr_bit(cpsr,C);
 
 	if((x>0 && y>0 && (x+y)<0) || (x<0 && y<0 && (x+y)>=0) )
 	    cpsr = set_bit(cpsr,V);
@@ -288,6 +297,8 @@ int arm_op_adc(arm_core p, uint32_t instr){
 		uint32_t b=~0;
 		if(test > b && !get_bit(cpsr,C))
 			cpsr = set_bit(cpsr,C);
+		else
+			cpsr = clr_bit(cpsr,C);
 		  
 		//Fonction OverflowFrom avec 3 paramètres
 		if((x>=0 && y>0 && x+y<0) || (x<=0 && y<0 && x+y>0))
@@ -347,6 +358,8 @@ int arm_op_sbc(arm_core p, uint32_t instr){
 	
 		if ((res-flagC)>=0 && !get_bit(cpsr,C))
 		   cpsr = set_bit(cpsr,C); 
+		else
+			cpsr = clr_bit(cpsr,C);
 		
 		//Flag V
 		if ((x>=0 && y<0 && (x-y)<0) || (x<=0 && y>0 && (x-y)>=0) )
@@ -410,6 +423,8 @@ int arm_op_rsc(arm_core p, uint32_t instr){
 	
 	if ((res-flagC)<0 && !get_bit(cpsr,C))
 	   cpsr = set_bit(cpsr,C); 
+	else
+		cpsr = clr_bit(cpsr,C);
     
 	//Flag V
 	if ((y>0 && x<0 && (y-x)>0) || (y<0 && x>0 && (y-x)<0) )
