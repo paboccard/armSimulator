@@ -532,8 +532,7 @@ int arm_op_cmp(arm_core p, uint32_t instr){
 int arm_op_cmn(arm_core p, uint32_t instr){
     uint32_t cpsr;
     int8_t rn;
-    int32_t x, y;
-    int dest;
+		int32_t x, y, dest;
  
     rn = get_bits(instr,19,16);
     x = arm_read_register(p,rn);
@@ -541,7 +540,7 @@ int arm_op_cmn(arm_core p, uint32_t instr){
     y= arm_data_processing_shift(p,instr);
 
     cpsr = arm_read_cpsr(p);
-    dest = x-y;
+    dest = x+y;
     
     //  ici
 	if (get_bit(dest,31)==1)
