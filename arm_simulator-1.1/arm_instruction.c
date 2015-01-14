@@ -1000,7 +1000,7 @@ static int arm_execute_instruction(arm_core p) {
 	    if (get_bits(instr,27,26)==0){ //verifie à 0 les bit [27:26]
 
 		
-		if (get_bit(instr,25)==1 || (get_bits(instr,7,4)!=11)){ // test pour différencier les instruction avec MSR, STRH, LDRH
+		if (get_bit(instr,25)==1 || (get_bits(instr,7,4)!=11)){ // test pour différencier les instruction avec MRS, STRH, LDRH
 	  
 		    if ((get_bits(instr,27,23)==2) && get_bits(instr,21,20)==0)
 			res = arm_op_mrs(p,instr);
