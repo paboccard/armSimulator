@@ -532,7 +532,7 @@ int arm_op_cmp(arm_core p, uint32_t instr){
 int arm_op_cmn(arm_core p, uint32_t instr){
     uint32_t cpsr;
     int8_t rn;
-    int x, y, dest;
+    int32_t x, y, dest;
  
     rn = get_bits(instr,19,16);
     x = arm_read_register(p,rn);
