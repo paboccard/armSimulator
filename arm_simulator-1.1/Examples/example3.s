@@ -22,7 +22,7 @@ main:
 	subs r11, r11, #10		@ Z = 1  c =1
 	mov r7, #0xC0000000
 	mov r8, #0x50000000
-	subs r9, r7, r8			@ V -> 1   C -> 1 Z -> 1
+	subs r9, r7, r8			@ V -> 1   C -> 1
 	mov r7, #0x40000000
 	mov r8, #0x80000000
 	subs r9, r7, r8			@ V -> 1 N ->1 
