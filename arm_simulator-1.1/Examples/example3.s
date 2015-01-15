@@ -124,48 +124,48 @@ main:
 	
 @@@@@@@@@@@@@@ test SBC @@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-	subs r7, r0, r0 		@ r7 = 1 C -> 1
-	add r7, r7, #1			@ r7 = 1
-	sbcs r8, r7, #1			@ r8 = -1  C -> 0
-	sbcs r10, r1, r0		@ r10 = -6 N -> 1
-	sbc r11, r0, #5			@ r11 = 10
-	sbcs r11, r11, #10		@ Z = 1  c =1
+	adds r7, r2, #0			@ r7 = 1 Flags->0
+	sbcs r8, r7, #0			@ r8 = 0  C->1 Z->1 
+	sbcs r10, r1, r0		@ r10 = -6 N->1 C->0
+	sbc r11, r0, #5			@ r11 = 9
+	sbcs r11, r11, #8		@ Z = 1 C->1
 	mov r7, #0xC0000000
 	adds r9, r2, r0			@ C -> 0
 	mov r8, #0x50000000
-	sbcs r9, r7, r8			@ V -> 1   C -> 1 Z -> 1
+	sbcs r9, r7, r8			@ V -> 1 C->1
 	adds r9, r2, r0			@ C -> 0
 	mov r7, #0x40000000
 	mov r8, #0x80000000
-	sbcs r9, r7, r8			@ V -> 1 N ->1
+	sbcs r9, r7, r8			@ V->1 N->1 C->0
 	
 @@@@@@@@@@@@@@ test RSC @@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-	adds r7, r3, r3, RRX		@ r7 = 4 C -> 1
-	rscs r8, r7, #1			@ r8 = 0  C -> 0 Z -> 1
+	adds r7, r2, #0			@ Flags -> 0
+	movs r7, r3, RRX		@ r7 = 1 C -> 1
+	rscs r8, r7, #1			@ r8 = 0  C -> 1 Z -> 1
 	rscs r10, r0, r1		@ r10 = -6 N -> 1
-	mov r7, #0xC0000000
+	mov r7, #0xE0000000
 	mov r8, #0x50000000
-	rscs r9, r8, r7			@ V -> 1   C -> 1 Z -> 1
+	rscs r9, r7, r8			@ V -> 1 C->1
 
 @@@@@@@@@@@@@@ test TST @@@@@@@@@@@@@@@@@@@@@@@@@@@@
 	
-	mov r7, r2, RRX		@ r7 = 0
+	mov r7, #0		@ r7 = 0
 	TST r2, r7		@ r7 = 0   Z -> 1
 	mov r7, #0xA0000000
-	TST r7, #0xB0000000		@ r7 = #0xA0000000  N -> 1
+	TST r7, #0xB0000000		@ r7 = #0xA0000000  N->1 C->1 
 
 @@@@@@@@@@@@@@ test CMP @@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-	cmp r1, r0				@ C -> 1
+	cmp r1, r0			@ N->1
 	mov r11, #10			@ r11 = 10
-	cmp r11, #10			@ c =0
+	cmp r11, #10			@ C->1 Z->1
 	mov r7, #0xC0000000
 	mov r8, #0x50000000
-	cmp r7, r8				@ V -> 1   C -> 0
+	cmp r7, r8				@ V -> 1   C -> 1
 	mov r7, #0x40000000
 	mov r8, #0x80000000
-	cmp r7, r8				@ V -> 1 
+	cmp r7, r8				@ V -> 1 N->1
 	
 
 
@@ -199,27 +199,4 @@ main:
 	cmn r0, r1
 	cmn r0, #5
 
-@@@@@@@@@ 		 @@@@@@@@@
-
-@	orr r4, r1, r0
-@	orr r5, r1, #5
-
-@	mov r0, #9
-@	mov r1, #9
-
-@	bic r7, r0, r1		@ r1 = 9, !r1 = 6, r0 & !r1 = 0
-@	bic r8, r0, #5		@ !#5 = 10, r0 & !#5 = 8
-
-@	mvn r10, r0		@ r0 = 9, !r0 = 6
-@	mvn r11, #5		@ !#5 = 10 
-
-
- swi 0x123456
-
-@    ldr r0, =limite
-@    ldrb r1, [r0]
-@    add r0, r0, #3
-@    ldrb r2, [r0]
-@.data
-@limite:
-@    .word 0x12345678
+	swi 0x123456

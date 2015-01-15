@@ -193,7 +193,7 @@ int arm_op_rsb(arm_core p, uint32_t instr){
 	if ((y-x)>=0 )
 	    cpsr = set_bit(cpsr,C);
 	else
-		cpsr = clr_bit(cpsr,C); 
+	    cpsr = clr_bit(cpsr,C); 
     
     
 	if ((y>0 && x<0 && (y-x)<0) || (y<0 && x>0 && (y-x)>0) )
@@ -220,11 +220,11 @@ int arm_op_add(arm_core p, uint32_t instr){
 
     arm_write_register(p,rd,x+y);
     if ((get_bit(instr,20)) && (rd==15)){
-		if (arm_current_mode_has_spsr(p)){
-			cpsr = arm_read_spsr(p);
-		}
-		else
-			return DATA_ABORT;
+	if (arm_current_mode_has_spsr(p)){
+	    cpsr = arm_read_spsr(p);
+	}
+	else
+	    return DATA_ABORT;
     }
 
     else if (get_bit(instr,20)==1){
@@ -243,7 +243,7 @@ int arm_op_add(arm_core p, uint32_t instr){
 	if(a>b )
 	    cpsr = set_bit(cpsr,C);
 	else {
-		cpsr = clr_bit(cpsr,C);
+	    cpsr = clr_bit(cpsr,C);
 	}
 
 	if((x>0 && y>0 && (x+y)<0) || (x<0 && y<0 && (x+y)>=0) )
@@ -264,7 +264,7 @@ int arm_op_adc(arm_core p, uint32_t instr){
     rn = get_bits(instr,19,16);
     rd = get_bits(instr,15,12);
     x = arm_read_register(p,rn);
-	carry = get_bit(arm_read_cpsr(p),C);
+    carry = get_bit(arm_read_cpsr(p),C);
     y= arm_data_processing_shift(p,instr);
 
     cpsr = arm_read_cpsr(p);
@@ -272,38 +272,38 @@ int arm_op_adc(arm_core p, uint32_t instr){
     arm_write_register(p, rd,x + y + carry );
   
     if(get_bit(instr,20) && rd ==15){
-		if(arm_current_mode_has_spsr(p)){
-			cpsr = arm_read_spsr(p);
-		}
+	if(arm_current_mode_has_spsr(p)){
+	    cpsr = arm_read_spsr(p);
+	}
 	else
 	    return DATA_ABORT;
     }
     else if (get_bit(instr,20)==1){
-		dest = arm_read_register(p,rd);
-		if (get_bit(dest,31)==1)
-			cpsr = set_bit(cpsr,N);
-		else
-			cpsr = clr_bit(cpsr,N);
+	dest = arm_read_register(p,rd);
+	if (get_bit(dest,31)==1)
+	    cpsr = set_bit(cpsr,N);
+	else
+	    cpsr = clr_bit(cpsr,N);
 		  
-		if (dest==0)
-			cpsr = set_bit(cpsr,Z); 
-		else 
-			cpsr = clr_bit(cpsr,Z);
+	if (dest==0)
+	    cpsr = set_bit(cpsr,Z); 
+	else 
+	    cpsr = clr_bit(cpsr,Z);
 		
-		long long int test; 
-		test = x + y + carry;
+	long long int test; 
+	test = x + y + carry;
 		
-		uint32_t b=~0;
-		if(test > b)
-			cpsr = set_bit(cpsr,C);
-		else
-			cpsr = clr_bit(cpsr,C);
+	uint32_t b=~0;
+	if(test > b)
+	    cpsr = set_bit(cpsr,C);
+	else
+	    cpsr = clr_bit(cpsr,C);
 		  
-		//Fonction OverflowFrom avec 3 paramètres
-		if((x>=0 && y>0 && x+y+carry<0) || (x<=0 && y<0 && x+y+carry>=0))
-			cpsr = set_bit(cpsr,V);
-		else
-			cpsr = clr_bit(cpsr,V);
+	//Fonction OverflowFrom avec 3 paramètres
+	if((x>=0 && y>0 && x+y+carry<0) || (x<=0 && y<0 && x+y+carry>=0))
+	    cpsr = set_bit(cpsr,V);
+	else
+	    cpsr = clr_bit(cpsr,V);
 		
     }
     arm_write_cpsr(p,cpsr);
@@ -318,58 +318,49 @@ int arm_op_sbc(arm_core p, uint32_t instr){
     rn = get_bits(instr,19,16);
     rd = get_bits(instr,15,12);
     x = arm_read_register(p,rn);
-	carry = get_bit(arm_read_cpsr(p),C);
-	carry = carry==0 ? 1 : 0 ;
+    carry = get_bit(arm_read_cpsr(p),C);
+    carry = carry==0 ? 1 : 0 ;
     y= arm_data_processing_shift(p,instr);
 
     cpsr = arm_read_cpsr(p);
 
     arm_write_register(p,rd,x-y-carry);
     if ((get_bit(instr,20)) && (rd==15)){
-		if (arm_current_mode_has_spsr(p)){
-			cpsr = arm_read_spsr(p);
-		}
-		else
-			return DATA_ABORT;
+	if (arm_current_mode_has_spsr(p)){
+	    cpsr = arm_read_spsr(p);
+	}
+	else
+	    return DATA_ABORT;
     }
     else if (get_bit(instr,20)==1){
-		dest = arm_read_register(p,rd);
-		//Flag N
-		if (get_bit(dest,31)==1)
-			cpsr = set_bit(cpsr,N);
-		else
-			cpsr = clr_bit(cpsr,N);
+	dest = arm_read_register(p,rd);
+	//Flag N
+	if (get_bit(dest,31)==1)
+	    cpsr = set_bit(cpsr,N);
+	else
+	    cpsr = clr_bit(cpsr,N);
 	   
-		//Flag Z
-		if (dest==0)
-			cpsr = set_bit(cpsr,Z); 
-		else 
-			cpsr = clr_bit(cpsr,Z);
+	//Flag Z
+	if (dest==0)
+	    cpsr = set_bit(cpsr,Z); 
+	else 
+	    cpsr = clr_bit(cpsr,Z);
 		  
-		//Flag C
-		//NOT BorrowFrom(Rn - shifter_operand)
+	//Flag C
+	//NOT BorrowFrom(Rn - shifter_operand)
 		  
-		int flagC=get_bit(cpsr,C)==0?1:0;
-		int res=x-y;
+	int res=x-y;
 	
-		if ((res-flagC)>=0)
-		   cpsr = set_bit(cpsr,C); 
-		else
-			cpsr = clr_bit(cpsr,C);
+	if ((res-carry)>=0)
+	    cpsr = set_bit(cpsr,C); 
+	else
+	    cpsr = clr_bit(cpsr,C);
 		
-		//Flag V
-		if ((x>=0 && y<0 && (x-y)<0) || (x<=0 && y>0 && (x-y)>=0) )
-			cpsr = set_bit(cpsr,V);
-		else 
-
-		
-
-			if ((res>0 && flagC<0 && (res-flagC)>0) || (res<0 && flagC>0 && (res-flagC)<0) ){
-			cpsr = clr_bit(cpsr,V); 
-			}
-			else{
-			cpsr = set_bit(cpsr,V);
-			}
+	//Flag V
+	if ((x>=0 && y<0 && (x-y-carry)<0) || (x<=0 && y>0 && (x-y-carry)>0) )
+	    cpsr = set_bit(cpsr,V);
+	else 
+	    cpsr = clr_bit(cpsr,V);
       
     }
     arm_write_cpsr(p,cpsr);
@@ -379,23 +370,24 @@ int arm_op_sbc(arm_core p, uint32_t instr){
 int arm_op_rsc(arm_core p, uint32_t instr){
     uint32_t cpsr;
     uint8_t rn, rd;
-    int x, y, dest;
+    int x, y, dest, carry;
  
     rn = get_bits(instr,19,16);
     rd = get_bits(instr,15,12);
     x = arm_read_register(p,rn);
-
+    carry = get_bit(arm_read_cpsr(p),C);
+    carry = carry==0 ? 1 : 0 ;
     y= arm_data_processing_shift(p,instr);
 
     cpsr = arm_read_cpsr(p);
 
-    arm_write_register(p,rd,x-y);
+    arm_write_register(p,rd,y-x-carry);
     if ((get_bit(instr,20)) && (rd==15)){
-		if (arm_current_mode_has_spsr(p)){
-			cpsr = arm_read_spsr(p);
-		}
-		else
-			return DATA_ABORT;
+	if (arm_current_mode_has_spsr(p)){
+	    cpsr = arm_read_spsr(p);
+	}
+	else
+	    return DATA_ABORT;
     }
     else if (get_bit(instr,20)==1){
 	dest = arm_read_register(p,rd);
@@ -404,36 +396,29 @@ int arm_op_rsc(arm_core p, uint32_t instr){
 	    cpsr = set_bit(cpsr,N);
 	else
 	    cpsr = clr_bit(cpsr,N);
-   
+	   
 	//Flag Z
 	if (dest==0)
 	    cpsr = set_bit(cpsr,Z); 
 	else 
 	    cpsr = clr_bit(cpsr,Z);
-      
+		  
 	//Flag C
 	//NOT BorrowFrom(Rn - shifter_operand)
-      
-	int flagC=get_bit(cpsr,C)==0?1:0;
+		  
 	int res=y-x;
 	
-	if ((res-flagC)<0 )
-	   cpsr = set_bit(cpsr,C); 
+	if ((res-carry)>=0)
+	    cpsr = set_bit(cpsr,C); 
 	else
-		cpsr = clr_bit(cpsr,C);
-    
-	//Flag V
-	if ((y>0 && x<0 && (y-x)>0) || (y<0 && x>0 && (y-x)<0) )
-	    cpsr = set_bit(cpsr,V);
-	else {
+	    cpsr = clr_bit(cpsr,C);
 		
-	    if ((res>0 && flagC<0 && (res-flagC)>0) || (res<0 && flagC>0 && (res-flagC)<0) ){
-		cpsr = set_bit(cpsr,V); 
-	    }
-	    else{
-		cpsr = clr_bit(cpsr,V);
-	    }
-	}
+	//Flag V
+	if ((x>=0 && y<0 && (y-x-carry)<0) || (x<=0 && y>0 && (y-x-carry)>0) )
+	    cpsr = set_bit(cpsr,V);
+	else 
+	    cpsr = clr_bit(cpsr,V);
+      
     }
     arm_write_cpsr(p,cpsr);
     return 0;
@@ -470,7 +455,7 @@ int arm_op_tst(arm_core p, uint32_t instr){
     //Fait dans data processing
   
     //Flag V
-    cpsr = clr_bit(cpsr,V);
+    //    cpsr = clr_bit(cpsr,V); UNAFFECTED
     
     arm_write_cpsr(p,cpsr);
     return 0;
@@ -525,10 +510,10 @@ int arm_op_cmp(arm_core p, uint32_t instr){
 	cpsr = clr_bit(cpsr,Z);
       
     //NOT BorrowFrom(Rn - shifter_operand)
-    if ((x-y)>=0 || get_bit(cpsr, C) )
-	cpsr = clr_bit(cpsr,C); 
-	else 
+    if ((x-y)>=0 )
 	cpsr = set_bit(cpsr,C); 
+    else 
+	cpsr = clr_bit(cpsr,C); 
     
     
     if ((x>=0 && y<0 && (x-y)<0) || (x<=0 && y>0 && (x-y)>=0))
@@ -543,7 +528,7 @@ int arm_op_cmp(arm_core p, uint32_t instr){
 int arm_op_cmn(arm_core p, uint32_t instr){
     uint32_t cpsr;
     int8_t rn;
-		int32_t x, y, dest;
+    int32_t x, y, dest;
  
     rn = get_bits(instr,19,16);
     x = arm_read_register(p,rn);
@@ -554,24 +539,24 @@ int arm_op_cmn(arm_core p, uint32_t instr){
     dest = x+y;
     
     //  ici
-	if (get_bit(dest,31)==1)
-		cpsr = set_bit(cpsr,N);
+    if (get_bit(dest,31)==1)
+	cpsr = set_bit(cpsr,N);
     else
-		cpsr = clr_bit(cpsr,N);
+	cpsr = clr_bit(cpsr,N);
     if (dest==0)
-		cpsr = set_bit(cpsr,Z); 
+	cpsr = set_bit(cpsr,Z); 
     else 
-		cpsr = clr_bit(cpsr,Z);
+	cpsr = clr_bit(cpsr,Z);
     
-	long long int a= x+y;
-	uint32_t b=~0;
-	if(a>b)
-	    cpsr = set_bit(cpsr,C);
+    long long int a= x+y;
+    uint32_t b=~0;
+    if(a>b)
+	cpsr = set_bit(cpsr,C);
 
-	if((x>0 && y>0 && (x+y)<0) || (x<0 && y<0 && (x+y)>=0) )
-	    cpsr = set_bit(cpsr,V);
-	else
-	    cpsr = clr_bit(cpsr,V);
+    if((x>0 && y>0 && (x+y)<0) || (x<0 && y<0 && (x+y)>=0) )
+	cpsr = set_bit(cpsr,V);
+    else
+	cpsr = clr_bit(cpsr,V);
     
     arm_write_cpsr(p,cpsr);
     return 0;
@@ -620,7 +605,7 @@ int arm_op_orr(arm_core p, uint32_t instr){
 int arm_op_mov(arm_core p, uint32_t instr){
     uint8_t rd;
     int x, dest;
-	uint32_t cpsr;
+    uint32_t cpsr;
 	
     rd = get_bits(instr,15,12);
     x = arm_data_processing_shift(p,instr);
@@ -846,29 +831,29 @@ int arm_op_ldm1(arm_core p, uint32_t instr){
     address = arm_load_store_multiple(p,instr,&end_address);
     register_list = get_bits(instr,15,0);
     for (i=0; i<15; i++){
-		if (get_bit(register_list,i)){
-			if((arm_read_word(p,address,&value))==0){
-				ri = i;
-				arm_write_register(p,ri,value);
-				address += 4;
-			}
-		}
+	if (get_bit(register_list,i)){
+	    if((arm_read_word(p,address,&value))==0){
+		ri = i;
+		arm_write_register(p,ri,value);
+		address += 4;
+	    }
+	}
     }
     if (get_bit(register_list,15)){
-		if((arm_read_word(p,address,&value))==0){
-			ri = 15;
-			value &= 0xFFFFFFFE;
-			arm_write_register(p,ri,value);
-			cpsr = arm_read_cpsr(p);
-			cpsr = get_bit(instr,0) ? set_bit(cpsr,5) : clr_bit(cpsr,5); // T bit = y[0] 
-		}
-		address+=4;
+	if((arm_read_word(p,address,&value))==0){
+	    ri = 15;
+	    value &= 0xFFFFFFFE;
+	    arm_write_register(p,ri,value);
+	    cpsr = arm_read_cpsr(p);
+	    cpsr = get_bit(instr,0) ? set_bit(cpsr,5) : clr_bit(cpsr,5); // T bit = y[0] 
+	}
+	address+=4;
     }
     return 0;
-	if ((end_address==address-4))
-		return 0;
+    if ((end_address==address-4))
+	return 0;
     else
-		return UNPREDICTABLE;
+	return UNPREDICTABLE;
 }
 
 int arm_op_stm1(arm_core p, uint32_t instr){
@@ -879,19 +864,19 @@ int arm_op_stm1(arm_core p, uint32_t instr){
     address = arm_load_store_multiple(p,instr,&end_address);
     register_list = get_bits(instr,15,0);
     for (i = 0; i<= 15;i++){
-		if (get_bit(register_list,i)){
-			ri = i;
-			if (arm_write_word(p,address,arm_read_register(p,ri))==0){ //Memory[address,4] = Ri
-				address = address + 4;
-			}
-			else
-				return UNPREDICTABLE;
-		}
+	if (get_bit(register_list,i)){
+	    ri = i;
+	    if (arm_write_word(p,address,arm_read_register(p,ri))==0){ //Memory[address,4] = Ri
+		address = address + 4;
+	    }
+	    else
+		return UNPREDICTABLE;
+	}
     }
-	if ((end_address==address-4))
-		return 0;
-	else
-		return UNPREDICTABLE;  
+    if ((end_address==address-4))
+	return 0;
+    else
+	return UNPREDICTABLE;  
     
 }
 
