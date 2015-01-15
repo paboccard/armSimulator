@@ -10,43 +10,10 @@ a:	.byte 4 @.word 0x04030201
 	.word 0xFF
 	.word 0xEE
 
-c:	.word 0x12
-	.word 0x34
-	.word 0x56
 error:	.word 0x404
 .global main
 .text
 main: @un
-	mov r0,#0x80000000
-	movs r0,r0,asr #32
-	beq fin
-	mov r0,#5
-
-
-
-
-
-	ldr r0,ptr_a
-	ldmia r0,{r6,r7,r8}
-	ldmib r0,{r6,r7,r8}
-	ldmda r0,{r6,r7,r8}
-	ldmdb r0,{r6,r7,r8}
-	mov r1,#1
-	mov r2,#2
-	mov r3,#3
-	stmia r0,{r1-r3}
-	ldmia r0,{r6,r7,r8}
-	stmib r0,{r1-r3}
-	ldmib r0,{r6,r7,r8}
-	stmda r0,{r1-r3}
-	ldmda r0,{r6,r7,r8}
-	stmdb r0,{r1-r3}
-	ldmdb r0,{r6,r7,r8}
-	
-
-
-
-
 	mov r2,#4	
 	ldr r0,ptr_a
 loop:	ldrb r1,[r0],#1
