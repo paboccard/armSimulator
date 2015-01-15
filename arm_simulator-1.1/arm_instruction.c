@@ -237,7 +237,9 @@ int arm_op_add(arm_core p, uint32_t instr){
 	else 
 	    cpsr = clr_bit(cpsr,Z);
 
-	if(get_bit(x,31) && get_bit(y,31))
+	long long int a= x+y;
+	uint32_t b=~0;
+	if(a>b )
 	    cpsr = set_bit(cpsr,C);
 	else {
 		cpsr = clr_bit(cpsr,C);
