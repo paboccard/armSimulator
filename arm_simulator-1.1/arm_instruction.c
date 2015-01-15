@@ -91,6 +91,7 @@ int arm_op_eor(arm_core p, uint32_t instr){
 	    return DATA_ABORT;
     }
     else if (get_bit(instr,20)==1){
+	printf("bit S = 1\n");
 	dest = arm_read_register(p,rd);
 	if (get_bit(dest,31)==1)
 	    cpsr = set_bit(cpsr,N);
@@ -299,10 +300,7 @@ int arm_op_adc(arm_core p, uint32_t instr){
 			cpsr = clr_bit(cpsr,C);
 		  
 		//Fonction OverflowFrom avec 3 paramètres
-		if((x>=0 && y>0 && x+y<0) || (x<=0 && y<0 && x+y>0))
-			cpsr = set_bit(cpsr,V);
-		else if((x+y>0 && carry>0 && x+y+carry < 0) || (x+y<0 && carry<0 && x+y+carry > 0))
-
+		if((x>=0 && y>0 && x+y+carry<0) || (x<=0 && y<0 && x+y+carry>=0))
 			cpsr = set_bit(cpsr,V);
 		else
 			cpsr = clr_bit(cpsr,V);

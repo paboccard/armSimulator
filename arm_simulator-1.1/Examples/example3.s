@@ -87,7 +87,7 @@ main:
 	mov r7, r2, RRX		@ r7 = 0
 	ANDS r7, r2, r7		@ r7 = 0   Z -> 1
 	mov r7, #0xA0000000
-	ANDS r7, r7, #0xB0000000		@ r7 = #0xA0000000  N -> 1
+	ANDS r7, r7, #0xB0000000		@ r7 = #0xA0000000  N -> 1 C->1
 	
 @@@@@@@@@@@@@@ test EOR @@@@@@@@@@@@@@@@@@@@@@@@@@
 
@@ -95,31 +95,32 @@ main:
 	mov r8, #6
 	EOR r7, r8, #13		@ r7 = 11
 	EORS r7, r7, r7		@ r7 = 0  Z -> 0
-	EORS r7, r7, #0x80000000		@ r7 = 0x80000000 N -> 1
+	EORS r7, r7, #0x80000000		@ r7 = 0x80000000 N->1 C->1 (Rotation pour un nbr imm > 4 bits)
 	
 
 @@@@@@@@@@@@@@ test RSB @@@@@@@@@@@@@@@@@@@@@@@@@@
 
-	subs r10, r0, r1		@ r10 = -6 N -> 1
-	sub r11, r0, #5			@ r11 = -10  #0xFFFFFFF6
-	subs r11, r11, #-10		@ Z = 1  c =1
+	rsbs r10, r0, r1		@ r10 = -6 N -> 1
+	rsb r11, r0, #5			@ r11 = -10  #0xFFFFFFF6
+	rsbs r11, r11, r11		@ Z = 1  c =1
 	mov r7, #0xC0000000
 	mov r8, #0x50000000
-	subs r9, r8, r7			@ V -> 1   C -> 1 Z -> 1
+	rsbs r9, r8, r7			@ V -> 1   C -> 1
 	mov r7, #0x40000000
 	mov r8, #0x80000000
-	subs r9, r8, r7			@ V -> 1 N ->1 
+	rsbs r9, r8, r7			@ V -> 1 N ->1 
 
 @@@@@@@@@@@@@@ test ADC @@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-	mov r7, r2, RRX 		@ r7 = 0 C->1
-	adcs r8, r7, #5			@ r7 = 6 C->0
+	adds r7, r2, #0			@ Maj des flags
+	movs r7, r2, RRX 		@ r7 = 0 C->1 Z->1
+	adcs r8, r7, #5			@ r8 = 6 Flags->0
 	adc r7, r8, r7			@ r7 = 6
 	mov r9, #0x80000000    
 	adcs r9, r9, r9			@ V -> 1   C -> 1 Z -> 1
 	mov r9, #0x40000000   
 	adds r8, r2, r0			@ C -> 0
-	adcs r9, r9, r9			@ V -> 1   C -> 1 N -> 1
+	adcs r9, r9, r9			@ V -> 1  N -> 1
 	
 @@@@@@@@@@@@@@ test SBC @@@@@@@@@@@@@@@@@@@@@@@@@@@
 
