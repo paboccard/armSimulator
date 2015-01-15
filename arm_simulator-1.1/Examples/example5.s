@@ -29,4 +29,8 @@ main:
 
 	STR	R8, [R1,R2,LSL #2]
 	LDR	R9, [R1,R2,LSL #2]
+
+	STMIA	R0, {R0-R15}		@save all register
+	LDM
+	
 	swi 	0x123456	

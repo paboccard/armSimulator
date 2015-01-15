@@ -315,9 +315,9 @@ int nb_registre_liste(ins){
     uint8_t i=0;
     int nb_registre = 0;
     while (i<16) {
-	if ((get_bit(ins,i)==0))
-	    nb_registre++;
-	i++;
+		if ((get_bit(ins,i)==1))
+			nb_registre++;
+		i++;
     }
     return nb_registre;
 }
@@ -333,16 +333,16 @@ int arm_load_store_multiple(arm_core p, uint32_t ins, int *end_address) {
 	    address = arm_read_register(p,rn);
 	    *end_address = address + (nb_registre_liste(ins)*4) - 4;
 	    if (bit_W){
-		value = address + nb_registre_liste(ins)*4;
-		arm_write_register(p,rn,value);
+			value = address + nb_registre_liste(ins)*4;
+			arm_write_register(p,rn,value);
 	    }
 	}
 	else{
 	    address = arm_read_register(p,rn)+4;
 	    *end_address = address + (nb_registre_liste(ins)*4);
 	    if (bit_W){
-		value = address + nb_registre_liste(ins)*4;
-		arm_write_register(p,rn,value);
+			value = address + nb_registre_liste(ins)*4;
+			arm_write_register(p,rn,value);
 	    }
 	}
     }
