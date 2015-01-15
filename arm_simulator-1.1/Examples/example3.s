@@ -199,34 +199,41 @@ main:
 
 	
 
-	
-@test avec des valeurs dépassant les 32 bits
+@@@@@@@@@@@@@@@@@@ Test LDRM STRM @@@@@@@@@@@@@@@@@@	
 
+	ldr r0,=a
+	ldmia r0,{r6,r7,r8}
+	ldmib r0,{r6,r7,r8}
+	ldmda r0,{r6,r7,r8}
+	ldmdb r0,{r6,r7,r8}
+	mov r1,#1
+	mov r2,#2
+	mov r3,#3
+	stmia r0,{r1-r3}
+	ldmia r0,{r6,r7,r8}
+	stmib r0,{r1-r3}
+	ldmib r0,{r6,r7,r8}
+	stmda r0,{r1-r3}
+	ldmda r0,{r6,r7,r8}
+	stmdb r0,{r1-r3}
+	ldmdb r0,{r6,r7,r8}
 
-	adc r10, r0, r1 		
-	adc r11, r0, #3
 
 	swi 0x123456
-	
-	sbc r4, r0, r1
-	sbc r5, r1, #5
 
-	rsc r7, r1, r0
-	rsc r8, r1, #10
+.data
+b:	.word 0xAA
+	.word 0xBB @ 0x00 00 00 BB
+	.word 0xCC
 
-@@@@@@@@@ fonctions avec Modifications des Flags uniquement @@@@@@@@
+a:	.byte 4 @.word 0x04030201
+	.byte 3
+	.byte 2
+	.byte 1
+	.word 0xFF @ 0x000000FF
+	.word 0xEE
 
-	tst r0, r1
-	tst r0, #5
-
-	teq r0, #1000
-	teq r0, r1
-	teq r0, #5
-
-	cmp r0, r1
-	cmp r0, #5
-
-	cmn r0, r1
-	cmn r0, #5
-
-	swi 0x123456
+c:	.word 0x12
+	.word 0x34
+	.word 0x56
+ptr_a:	.word a
