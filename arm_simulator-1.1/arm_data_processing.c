@@ -178,8 +178,10 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
 	shifter_operand = ror(shifter_operand,rotation); // rotation droite
 	if (bit_S){
 	    if (get_bits(ins,11,8)){
-		if (get_bit(shifter_operand,31)==1)
+		if (get_bit(shifter_operand,31)==1){
+		    printf("Shift - bit S = 1\n");
 		    cpsr = set_bit(cpsr,C);
+		}
 		else {
 		    cpsr = clr_bit(cpsr,C);
 		}
