@@ -37,7 +37,8 @@ int DEB=0;
 
 void global(arm_core p,int exception, int mode, int normal_address){
     if (DEB)
-	printf("******** Exception : %x ********\n",mode);
+	   printf("******** Exception : %x ********\n",mode);
+
 
     DEB = 1;
 
