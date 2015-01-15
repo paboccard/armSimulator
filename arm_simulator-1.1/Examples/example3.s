@@ -218,6 +218,25 @@ main:
 	stmdb r0,{r1-r3}
 	ldmdb r0,{r6,r7,r8}
 
+	@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ test sp @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+mov r4, #4
+mov r5, #5
+mov r6, #6
+mov r7, #7
+mov r8, #8
+mov r9, #9
+
+stmfd sp!, {r4, r5, r6, r7, r8, r9}                @ save variables to stack
+
+	mov r4, #0
+	mov r5, #0
+	mov r6, #0
+	mov r7, #0
+	mov r8, #0
+	mov r9, #0
+ 
+ldmfd   sp!, {r4, r5, r6, r7, r8, r9}       @ restore state from stack and leave subroutime
+
 
 	swi 0x123456
 
