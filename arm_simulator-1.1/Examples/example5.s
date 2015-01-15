@@ -3,9 +3,10 @@
 main:
 
 @@@@@@@@@@@@@@@@@@ Test MVN @@@@@@@@@@@@@@@@@@
-
-	MOV 	r1, #28			@ r1 = 1c
+	
+ 	MOV 	r1, #28			@ r1 = 1c
 	MOV 	r2, #0x9		@ r2 = 1001
+	ADDS	r8, r2, #0		@ Flags->0
 	MVNS 	r3, #15			@ r3 = FFFFFFF0 -> N = 1
 	MVNS	r5, #0xFFFFFFFF		@ r5 = 0 -> Z = 1
 	MOV	R7, #9
