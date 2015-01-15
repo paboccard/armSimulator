@@ -179,7 +179,6 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
 	if (bit_S){
 	    if (get_bits(ins,11,8)){
 		if (get_bit(shifter_operand,31)==1){
-		    printf("Shift - bit S = 1\n");
 		    cpsr = set_bit(cpsr,C);
 		}
 		else {
@@ -200,7 +199,6 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
 
 	if (get_bits(ins,11,4)==0){ //shift_operand = Registre -> sans shift
 	    shifter_operand = val_rm;
-	    cpsr = clr_bit(cpsr,C); // shifter_carry_out = C Flags
 	}
 	else if(shift == LSL){
 	    shifter_operand = shift_lsl(p, val_rs, val_rm, shift_imm, shift_val_imm, bit_S);

@@ -59,6 +59,7 @@ arm_core arm_create(memory mem) {
         p->registers[UND][14] = &p->registers_storage[21];
         p->registers[IRQ][13] = &p->registers_storage[22];
         p->registers[IRQ][14] = &p->registers_storage[23];
+
         for (j=8; j<15; j++)
 	    p->registers[FIQ][j] = &p->registers_storage[j+16];
         arm_exception(p, RESET);
