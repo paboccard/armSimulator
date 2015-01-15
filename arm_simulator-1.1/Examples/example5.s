@@ -1,8 +1,8 @@
 .global main
 .text
-main:
 
-	
+div :
+	stmfd sp!, {r2,r3,r4,lr}
 	mov r0, #10
 	mov r1, #2
 	
@@ -22,7 +22,21 @@ main:
 	/* r0 already contains Q */
 	/* r1 already contains R */
 
- 	
+ldmfd   sp!, {r2, r3, r4, pc}
+
+main:
+
+	mov r0, #10
+	mov r1, #2
+	mov r2, #4
+	mov r3, #5
+	mov r4, #6
+	cmp r1, #0
+bl div
+
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
 @@@@@@@@@@@@@@@@@ Division Euclidienne @@@@@@@@@@@@@@@@
 	    @  r0 contains N and Ni
 	    @  r1 contains D
