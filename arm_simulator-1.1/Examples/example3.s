@@ -22,7 +22,7 @@ main:
 	subs r11, r11, #10		@ Z = 1  c =1
 	mov r7, #0xC0000000
 	mov r8, #0x50000000
-	subs r9, r7, r8			@ V -> 1   C -> 1 Z -> 1
+	subs r9, r7, r8			@ V -> 1   C -> 1
 	mov r7, #0x40000000
 	mov r8, #0x80000000
 	subs r9, r7, r8			@ V -> 1 N ->1 
@@ -37,7 +37,7 @@ main:
 	mov r9, #0x80000000    
 	adds r9, r9, r9			@ V -> 1   C -> 1 Z -> 1
 	mov r9, #0x40000000   
-	adds r9, r9, r9			@ V -> 1   C -> 1 N -> 1
+	adds r9, r9, r9			@ V -> 1  N -> 1 
 
 
 
@@ -45,10 +45,14 @@ main:
 
 @@ asr 
 	add r7, r2, r0, asr #1     @ r7 = 8
-	mov r7, r0, asr #1  			@ r7 = 7
+	adds r7, r0, #0				@ flags O
+	mov r7, r0, asr #1  		@ r7 = 7
+	movs r7, r7, asr #32			@ r7 = 0 C -> 0
+	mov r7, #0x80000000
+	movs r7, r7, asr #32			@ r7 = 0xFFFFFFFF  C -> 0 N -> 1
 	add r8, r2, r0, asr r2	  @ r8 = 8     
 	mov r7, #0x8f000000
-	movs r7, r7, asr #1         @ r7 = 0xc7800000     C -> 1
+	movs r7, r7, asr #1         @ r7 = 0xc7800000     C -> 1 N -> 1 
 
 @@ lsr 
 	mov r7, #8
@@ -66,13 +70,14 @@ main:
 	movs r7, r7, lsl #1	  @ r7 = 0xfffffffc  C -> 1
 
 @@ ror
-	movs r7, r2, ror r2	  @ r7 = 0x80000000  c -> 1
-	movs r7, r2, ror #2	  @ r7 = 0x80000000 	c -> 1
+	adds r7, r2, #0
+	movs r7, r2, ror r2	  @ r7 = 0x70000000  c -> 1
+	movs r7, r2, ror #2	  @ r7 = 0x70000000 	c -> 1
 	
 @@ rrx
-	movs r9, #0
-	movs r9, r2, RRX 		@ r9 = 0 c -> 1
-	mov r9, r9, RRX			@ r9 = 0x80000000 c -> 1
+	adds r9, r2, #0
+	movs r9, r9, RRX 		@ r9 = 0 c -> 1
+	movs r9, r9, RRX			@ r9 = 0x80000000 c -> 0
 	
 	
 

@@ -37,7 +37,7 @@ int shift_lsl(int8_t val_rs,int32_t val_rm, int8_t shift_imm, int8_t shift_val_i
 	return (int32_t)((uint32_t)val_rm << shift_imm);//val_rm << shift_imm;
     }
     else{ // si on a un registre pour le shift
-	*cpsr = val_rs >= 32 ? ( val_rs == 32 ? get_bit(val_rm,0) : 0 ) : get_bit(val_rm,32-val_rs);
+	*cpsr = (val_rs >= 32 ? ( val_rs == 32 ? get_bit(val_rm,0) : 0 ) : get_bit(val_rm,32-val_rs)) ? set_bit(*cpsr, C) : clr_bit(*cpsr, C);
 	return val_rs < 32 ? (int32_t)((uint32_t)val_rm << val_rs) : 0;//val_rm << val_rs : 0;
     }  
 }
@@ -48,55 +48,35 @@ int shift_lsr(int8_t val_rs,int32_t val_rm, int8_t shift_imm, int8_t shift_val_i
 	return (int32_t)((uint32_t)val_rm >> shift_imm); //val_rm >> shift_imm;
     }
     else{ // si on a un registre pour le shift
-	*cpsr = val_rs >= 32 ? ( val_rs == 32 ? get_bit(val_rm,0) : 0 ) : get_bit(val_rm,val_rs-1);
+	*cpsr = (val_rs >= 32 ? ( val_rs == 32 ? get_bit(val_rm,0) : 0 ) : get_bit(val_rm,val_rs-1)) ? set_bit(*cpsr, C) : clr_bit(*cpsr, C);
 	return val_rs < 32 ? (int32_t)((uint32_t)val_rm >> val_rs) : 0;//val_rm >> val_rs : 0;
     }
 }
 
 int shift_asr(int8_t val_rs,int32_t val_rm, int8_t shift_imm, int8_t shift_val_imm, int *cpsr){
 
-  
-    if (shift_val_imm) {
-	if (!val_rs) {
-	    *cpsr = clr_bit(*cpsr,C);
-	    return val_rm;
-	}
-	else if (val_rs < 32) {
-	    *cpsr = get_bit(val_rm,(val_rs-1)) ? set_bit(*cpsr,C) : clr_bit(*cpsr,C);
-	    return asr(val_rm, val_rs);
-	}
-	else {
-	    if (!get_bit(val_rm,31)){
-		*cpsr = clr_bit(*cpsr,C);
-		return 0;
-	    }
-	    else {
-		*cpsr = set_bit(*cpsr,C);
-		return ~0;
-	    }
-	}
-    }
 
-    else {
-	if (!shift_imm) {
-	    *cpsr = clr_bit(*cpsr,C);
-	    return val_rm;
-	}
-	else if (shift_imm < 32) {
-	    *cpsr = get_bit(val_rm,shift_imm-1) ? set_bit(*cpsr,C) : clr_bit(*cpsr,C);
-	    return asr(val_rm, shift_imm);
-	}
-	else {
-	    if (!get_bit(val_rm,31)){
-		*cpsr = clr_bit(*cpsr,C);
-		return 0;
-	    }
-	    else {
-		*cpsr = set_bit(*cpsr,C);
-		return ~0;
-	    }
-	}
+    if (shift_val_imm) {
+    	if (!val_rs) {
+			*cpsr = get_bit(val_rm, 31) ? set_bit(*cpsr,C) : clr_bit(*cpsr,C);
+			return get_bit(val_rm, 31) ? 0xFFFFFFFF : 0x00000000;
+		}
+		else {
+			*cpsr = get_bit(val_rm,val_rs-1) ? set_bit(*cpsr,C) : clr_bit(*cpsr,C);
+			return asr(val_rm, val_rs);
+		}
     }
+    else {
+		if (!shift_imm) {
+			*cpsr = get_bit(val_rm, 31) ? set_bit(*cpsr,C) : clr_bit(*cpsr,C);
+			return get_bit(val_rm, 31) ? 0xFFFFFFFF : 0x00000000;
+		}
+		else {
+			*cpsr = get_bit(val_rm,shift_imm-1) ? set_bit(*cpsr,C) : clr_bit(*cpsr,C);
+			return asr(val_rm, shift_imm);
+		}
+	}
+	
 
 }
   
@@ -104,7 +84,6 @@ int shift_ror(int8_t val_rs,int32_t val_rm, int8_t shift_imm, int8_t shift_val_i
     if (!shift_val_imm) {
         // p456
         if (!val_rm) {
-            *cpsr = clr_bit(*cpsr,C);
             return val_rm;
         }
         else{
@@ -185,8 +164,9 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
 		if (get_bits(ins,11,8)){
 			if (get_bit(shifter_operand,31)==1)
 				cpsr = set_bit(cpsr,C);
-			else
+			else {
 				cpsr = clr_bit(cpsr,C);
+			}
 		}
 		arm_write_cpsr(p,cpsr);
 	}
@@ -221,6 +201,7 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
 	else
 	    shifter_operand = UNDEFINED_INSTRUCTION;
     }
+    arm_write_cpsr(p,cpsr);
     return shifter_operand;
 }
 

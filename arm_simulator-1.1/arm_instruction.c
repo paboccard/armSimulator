@@ -109,12 +109,12 @@ int arm_op_eor(arm_core p, uint32_t instr){
 int arm_op_sub(arm_core p, uint32_t instr){
     uint32_t cpsr;
     uint8_t rn, rd;
-    int x, y, dest;
+    int32_t x, y, dest;
  
     rn = get_bits(instr,19,16);
     rd = get_bits(instr,15,12);
     x = arm_read_register(p,rn);
-
+	
     y= arm_data_processing_shift(p,instr);
 
     cpsr = arm_read_cpsr(p);
@@ -129,10 +129,14 @@ int arm_op_sub(arm_core p, uint32_t instr){
     }
     else if (get_bit(instr,20)==1){
 	dest = arm_read_register(p,rd);
-	if (get_bit(dest,31)==1)
+	if (get_bit(dest,31)==1){
 	    cpsr = set_bit(cpsr,N);
-	else
+	    cpsr = clr_bit(cpsr,C);
+	}
+	else{
 	    cpsr = clr_bit(cpsr,N);
+	    cpsr = set_bit(cpsr,C); 
+	}
 	if (dest==0)
 	    cpsr = set_bit(cpsr,Z); 
 	else 
@@ -140,8 +144,6 @@ int arm_op_sub(arm_core p, uint32_t instr){
       
 
 	//NOT BorrowFrom(Rn - shifter_operand)
-	if ((dest)>=0 && !get_bit(cpsr,C))
-	    cpsr = set_bit(cpsr,C); 
 	 
 	// mettre  C Flag en fonction de shifter_carry_out
     
@@ -159,7 +161,7 @@ int arm_op_rsb(arm_core p, uint32_t instr){
     uint32_t cpsr;
     uint8_t rn, rd;
     int x, y, dest;
- 
+    
     rn = get_bits(instr,19,16);
     rd = get_bits(instr,15,12);
     x = arm_read_register(p,rn);
@@ -187,8 +189,10 @@ int arm_op_rsb(arm_core p, uint32_t instr){
 	else 
 	    cpsr = clr_bit(cpsr,Z);
 	//NOT BorrowFrom(shifter_operand - Rn)
-	if ((y-x)>=0 && !get_bit(cpsr,C))
-	    cpsr = set_bit(cpsr,C); 
+	if ((y-x)>=0 )
+	    cpsr = set_bit(cpsr,C);
+	else
+		cpsr = clr_bit(cpsr,C); 
     
     
 	if ((y>0 && x<0 && (y-x)<0) || (y<0 && x>0 && (y-x)>0) )
@@ -204,7 +208,7 @@ int arm_op_add(arm_core p, uint32_t instr){
     uint32_t cpsr;
     uint8_t rn, rd;
     int x, y, dest;
- 
+
     rn = get_bits(instr,19,16);
     rd = get_bits(instr,15,12);
     x = arm_read_register(p,rn);
@@ -232,11 +236,12 @@ int arm_op_add(arm_core p, uint32_t instr){
 	    cpsr = set_bit(cpsr,Z); 
 	else 
 	    cpsr = clr_bit(cpsr,Z);
-    
-	long long int a= x+y;
-	uint32_t b=~0;
-	if(a>b && !get_bit(cpsr,C))
+
+	if(get_bit(x,31) && get_bit(y,31))
 	    cpsr = set_bit(cpsr,C);
+	else {
+		cpsr = clr_bit(cpsr,C);
+	}
 
 	if((x>0 && y>0 && (x+y)<0) || (x<0 && y<0 && (x+y)>=0) )
 	    cpsr = set_bit(cpsr,V);
@@ -286,8 +291,10 @@ int arm_op_adc(arm_core p, uint32_t instr){
 		test = x + y + carry;
 		
 		uint32_t b=~0;
-		if(test > b && !get_bit(cpsr,C))
+		if(test > b)
 			cpsr = set_bit(cpsr,C);
+		else
+			cpsr = clr_bit(cpsr,C);
 		  
 		//Fonction OverflowFrom avec 3 paramètres
 		if((x>=0 && y>0 && x+y<0) || (x<=0 && y<0 && x+y>0))
@@ -345,8 +352,10 @@ int arm_op_sbc(arm_core p, uint32_t instr){
 		int flagC=get_bit(cpsr,C)==0?1:0;
 		int res=x-y;
 	
-		if ((res-flagC)>=0 && !get_bit(cpsr,C))
+		if ((res-flagC)>=0)
 		   cpsr = set_bit(cpsr,C); 
+		else
+			cpsr = clr_bit(cpsr,C);
 		
 		//Flag V
 		if ((x>=0 && y<0 && (x-y)<0) || (x<=0 && y>0 && (x-y)>=0) )
@@ -408,8 +417,10 @@ int arm_op_rsc(arm_core p, uint32_t instr){
 	int flagC=get_bit(cpsr,C)==0?1:0;
 	int res=y-x;
 	
-	if ((res-flagC)<0 && !get_bit(cpsr,C))
+	if ((res-flagC)<0 )
 	   cpsr = set_bit(cpsr,C); 
+	else
+		cpsr = clr_bit(cpsr,C);
     
 	//Flag V
 	if ((y>0 && x<0 && (y-x)>0) || (y<0 && x>0 && (y-x)<0) )
@@ -554,7 +565,7 @@ int arm_op_cmn(arm_core p, uint32_t instr){
     
 	long long int a= x+y;
 	uint32_t b=~0;
-	if(a>b && !get_bit(cpsr,C))
+	if(a>b)
 	    cpsr = set_bit(cpsr,C);
 
 	if((x>0 && y>0 && (x+y)<0) || (x<0 && y<0 && (x+y)>=0) )
@@ -627,18 +638,16 @@ int arm_op_mov(arm_core p, uint32_t instr){
     }
     else if (get_bit(instr,20)==1){
 	dest = arm_read_register(p,rd);
-	if (get_bit(dest,31)==1){
+	if (get_bit(dest,31)==1)
 	    cpsr = set_bit(cpsr,N);
-	    }
-	else{
+	else
 	    cpsr = clr_bit(cpsr,N);
-	    }
+	 
 	if (dest==0)
 	    cpsr = set_bit(cpsr,Z); 
 	else 
 	    cpsr = clr_bit(cpsr,Z);
 	// C Flag en fonction de shifter_carry_out
-	//cpsr = clr_bit(cpsr,V);
     }
     arm_write_cpsr(p,cpsr);
     return 0;
@@ -835,32 +844,31 @@ int arm_op_ldm1(arm_core p, uint32_t instr){
     int address, end_address;
 
     address = arm_load_store_multiple(p,instr,&end_address);
-    //  address = start_address(p,instr);
     register_list = get_bits(instr,15,0);
     for (i=0; i<15; i++){
-	if (get_bit(register_list,i)){
-	    if((arm_read_word(p,address,&value))==0){
-		ri = i;
-		arm_write_register(p,ri,value);
-		address += 4;
-	    }
-	}
+		if (get_bit(register_list,i)){
+			if((arm_read_word(p,address,&value))==0){
+				ri = i;
+				arm_write_register(p,ri,value);
+				address += 4;
+			}
+		}
     }
     if (get_bit(register_list,15)){
-	if((arm_read_word(p,address,&value))==0){
-	    ri = 15;
-	    value &= 0xFFFFFFFE;
-	    arm_write_register(p,ri,value);
-	    cpsr = arm_read_cpsr(p);
-	    cpsr = get_bit(instr,0) ? set_bit(cpsr,5) : clr_bit(cpsr,5); // T bit = y[0] 
-	}
-	address+=4;
+		if((arm_read_word(p,address,&value))==0){
+			ri = 15;
+			value &= 0xFFFFFFFE;
+			arm_write_register(p,ri,value);
+			cpsr = arm_read_cpsr(p);
+			cpsr = get_bit(instr,0) ? set_bit(cpsr,5) : clr_bit(cpsr,5); // T bit = y[0] 
+		}
+		address+=4;
     }
     return 0;
-    if ((end_address==address-4))
-	return 0;
+	if ((end_address==address-4))
+		return 0;
     else
-	return UNPREDICTABLE;
+		return UNPREDICTABLE;
 }
 
 int arm_op_stm1(arm_core p, uint32_t instr){
@@ -870,20 +878,20 @@ int arm_op_stm1(arm_core p, uint32_t instr){
     //processor_id = ExecutingProcessor()
     address = arm_load_store_multiple(p,instr,&end_address);
     register_list = get_bits(instr,15,0);
-    for (i = 0; i>= 15;i++){
-	if (get_bit(register_list,i)){
-	    ri = i;
-	    if (arm_write_word(p,address,arm_read_register(p,ri))){ //Memory[address,4] = Ri
-		address = address + 4;
-	    }
-	    else
-		return UNPREDICTABLE;
-	}
+    for (i = 0; i<= 15;i++){
+		if (get_bit(register_list,i)){
+			ri = i;
+			if (arm_write_word(p,address,arm_read_register(p,ri))==0){ //Memory[address,4] = Ri
+				address = address + 4;
+			}
+			else
+				return UNPREDICTABLE;
+		}
     }
-    if ((end_address==address-4))
-	return 0;
-    else
-	return UNPREDICTABLE;  
+	if ((end_address==address-4))
+		return 0;
+	else
+		return UNPREDICTABLE;  
     
 }
 
