@@ -88,7 +88,7 @@ uint32_t addr_offset(arm_core p, uint32_t ins){
 uint32_t addr_register_shift(arm_core p, uint32_t ins){
     uint8_t rest,p_,u,w,rn,shift,rm,shift_imm,shift_val_imm;
     uint32_t val_rn,val_rm,address,index;
-    int cpsr;
+    uint8_t bit_S = get_bit(ins,20);
 	
 
     p_=get_bit(ins,24);
@@ -105,7 +105,7 @@ uint32_t addr_register_shift(arm_core p, uint32_t ins){
     val_rn=arm_read_register(p, rn);
     val_rm=arm_read_register(p, rm);
     shift_val_imm=get_bit(ins,4);
-    cpsr = arm_read_cpsr(p);
+    //cpsr = arm_read_cpsr(p);
 	
     if(p_==1 && w==0){ // p463
 	if(rest==0 || shift_val_imm==1){ // [<Rn>, +/-<Rm>]
@@ -120,14 +120,14 @@ uint32_t addr_register_shift(arm_core p, uint32_t ins){
 	else{ // [<Rn>, +/-<Rm>, <shift> #<shift_imm>]
 	    switch (shift){
 	    case LSL:
-		index=shift_lsl(0,val_rm,shift_imm,shift_val_imm, &cpsr);
+		index=shift_lsl(p,0,val_rm,shift_imm,shift_val_imm,bit_S);
 		break;
 	    case LSR:
 		if(shift_imm==0){
 		    index=0;
 		}
 		else{
-		    index=shift_lsr(0,val_rm,shift_imm,shift_val_imm, &cpsr);
+		    index=shift_lsr(p,0,val_rm,shift_imm,shift_val_imm,bit_S);
 		}
 		break;
 	    case ASR:
@@ -138,15 +138,15 @@ uint32_t addr_register_shift(arm_core p, uint32_t ins){
 			index=0;
 		}
 		else{
-		    index=shift_asr(0,val_rm,shift_imm,shift_val_imm, &cpsr);
+		    index=shift_asr(p,0,val_rm,shift_imm,shift_val_imm,bit_S);
 		}
 		break;
 	    case ROR:
 		if(shift_imm==0){ // RRX
-		    index=shift_rrx(0,val_rm,shift_imm,shift_val_imm, &cpsr);
+		    index=shift_rrx(p,0,val_rm,shift_imm,shift_val_imm,bit_S);
 		}
 		else{ // ROR
-		    index=shift_ror(0,val_rm,shift_imm,shift_val_imm, &cpsr);
+		    index=shift_ror(p,0,val_rm,shift_imm,shift_val_imm,bit_S);
 		}
 		break;
 	    default:
@@ -177,14 +177,14 @@ uint32_t addr_register_shift(arm_core p, uint32_t ins){
 	else{ // [<Rn>, +/-<Rm>, <shift> #<shift_imm>]!
 	    switch (shift){
 	    case LSL:
-		index=shift_lsl(0,val_rm,shift_imm,shift_val_imm, &cpsr);
+		index=shift_lsl(p,0,val_rm,shift_imm,shift_val_imm,bit_S);
 		break;
 	    case LSR:
 		if(shift_imm==0){
 		    index=0;
 		}
 		else{
-		    index=shift_lsr(0,val_rm,shift_imm,shift_val_imm, &cpsr);
+		    index=shift_lsr(p,0,val_rm,shift_imm,shift_val_imm,bit_S);
 		}
 		break;
 	    case ASR:
@@ -195,15 +195,15 @@ uint32_t addr_register_shift(arm_core p, uint32_t ins){
 			index=0;
 		}
 		else{
-		    index=shift_asr(0,val_rm,shift_imm,shift_val_imm, &cpsr);
+		    index=shift_asr(p,0,val_rm,shift_imm,shift_val_imm,bit_S);
 		}
 		break;
 	    case ROR:
 		if(shift_imm==0){ // RRX
-		    index=shift_rrx(0,val_rm,shift_imm,shift_val_imm, &cpsr);
+		    index=shift_rrx(p,0,val_rm,shift_imm,shift_val_imm,bit_S);
 		}
 		else{ // ROR
-		    index=shift_ror(0,val_rm,shift_imm,shift_val_imm, &cpsr);
+		    index=shift_ror(p,0,val_rm,shift_imm,shift_val_imm,bit_S);
 		}
 		break;
 	    default:
@@ -237,14 +237,14 @@ uint32_t addr_register_shift(arm_core p, uint32_t ins){
 	else{ // [<Rn>], +/-<Rm>, <shift> #<shift_imm>
 	    switch (shift){
 	    case LSL:
-		index=shift_lsl(0,val_rm,shift_imm,shift_val_imm, &cpsr);
+		index=shift_lsl(p,0,val_rm,shift_imm,shift_val_imm,bit_S);
 		break;
 	    case LSR:
 		if(shift_imm==0){
 		    index=0;
 		}
 		else{
-		    index=shift_lsr(0,val_rm,shift_imm,shift_val_imm, &cpsr);
+		    index=shift_lsr(p,0,val_rm,shift_imm,shift_val_imm,bit_S);
 		}
 		break;
 	    case ASR:
@@ -255,15 +255,15 @@ uint32_t addr_register_shift(arm_core p, uint32_t ins){
 			index=0;
 		}
 		else{
-		    index=shift_asr(0,val_rm,shift_imm,shift_val_imm, &cpsr);
+		    index=shift_asr(p,0,val_rm,shift_imm,shift_val_imm,bit_S);
 		}
 		break;
 	    case ROR:
 		if(shift_imm==0){ // RRX
-		    index=shift_rrx(0,val_rm,shift_imm,shift_val_imm, &cpsr);
+		    index=shift_rrx(p,0,val_rm,shift_imm,shift_val_imm,bit_S);
 		}
 		else{ // ROR
-		    index=shift_ror(0,val_rm,shift_imm,shift_val_imm, &cpsr);
+		    index=shift_ror(p,0,val_rm,shift_imm,shift_val_imm,bit_S);
 		}
 		break;
 	    default:

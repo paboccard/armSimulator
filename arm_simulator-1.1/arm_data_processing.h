@@ -24,11 +24,11 @@ Contact: Guillaume.Huard@imag.fr
 #define __ARM_DATA_PROCESSING_H__
 #include <stdint.h>
 #include "arm_core.h"
-int shift_lsl(int8_t val_rs,int32_t val_rm, int8_t shift_imm, int8_t shift_val_imm, int *cpsr);
-int shift_lsr(int8_t val_rs,int32_t val_rm, int8_t shift_imm, int8_t shift_val_imm, int *cpsr);
-int shift_asr(int8_t val_rs,int32_t val_rm, int8_t shift_imm, int8_t shift_val_imm, int *cpsr);
-int shift_ror(int8_t val_rs,int32_t val_rm, int8_t shift_imm, int8_t shift_val_imm, int *cpsr); 
-int shift_rrx(int8_t val_rs,int32_t val_rm, int8_t shift_imm, int8_t shift_val_imm, int *cpsr); 
+int shift_lsl(arm_core p, int8_t val_rs,int32_t val_rm, int8_t shift_imm, int8_t shift_val_imm, int8_t bit_S);
+int shift_lsr(arm_core p, int8_t val_rs,int32_t val_rm, int8_t shift_imm, int8_t shift_val_imm, int8_t bit_S);
+int shift_asr(arm_core p, int8_t val_rs,int32_t val_rm, int8_t shift_imm, int8_t shift_val_imm, int8_t bit_S);
+int shift_ror(arm_core p, int8_t val_rs,int32_t val_rm, int8_t shift_imm, int8_t shift_val_imm, int8_t bit_S); 
+int shift_rrx(arm_core p, int8_t val_rs,int32_t val_rm, int8_t shift_imm, int8_t shift_val_imm, int8_t bit_S); 
 int arm_data_processing_shift(arm_core p, uint32_t ins);
 int arm_data_processing_immediate_msr(arm_core p, uint32_t ins);
 
