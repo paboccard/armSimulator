@@ -51,10 +51,10 @@ int arm_op_and(arm_core p, uint32_t instr){
 	else
 	    return DATA_ABORT;
     }
-    else if (get_bit(instr,20)==1){
+    else if (get_bit(instr,20)==1){ //bit S=1
 	  
 	dest = arm_read_register(p,rd);
-	if (get_bit(dest,31)==1)
+	if (get_bit(dest,31)==1) 
 	    cpsr = set_bit(cpsr,N);
 	else
 	    cpsr = clr_bit(cpsr,N);
