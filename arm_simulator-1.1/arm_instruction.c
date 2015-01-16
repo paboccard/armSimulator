@@ -62,8 +62,6 @@ int arm_op_and(arm_core p, uint32_t instr){
 	    cpsr = set_bit(cpsr,Z); 
 	else 
 	    cpsr = clr_bit(cpsr,Z);
-	// mettre  C Flag en fonction de shifter_carry_out
-	cpsr = clr_bit(cpsr,V);
     }
     arm_write_cpsr(p,cpsr);
     return 0;
@@ -594,8 +592,6 @@ int arm_op_orr(arm_core p, uint32_t instr){
 	    cpsr = set_bit(cpsr,Z); 
 	else 
 	    cpsr = clr_bit(cpsr,Z);
-	// C Flag en fonction de shifter_carry_out
-	cpsr = clr_bit(cpsr,V);
     }
     arm_write_cpsr(p,cpsr);
     return 0;
@@ -631,7 +627,6 @@ int arm_op_mov(arm_core p, uint32_t instr){
 	    cpsr = set_bit(cpsr,Z); 
 	else 
 	    cpsr = clr_bit(cpsr,Z);
-	// C Flag en fonction de shifter_carry_out
     }
     arm_write_cpsr(p,cpsr);
     return 0;
@@ -668,8 +663,6 @@ int arm_op_bic(arm_core p, uint32_t instr){
 	    cpsr = set_bit(cpsr,Z); 
 	else 
 	    cpsr = clr_bit(cpsr,Z);
-	//C Flag en fonction de shifter_carry_out
-	cpsr = clr_bit(cpsr,V);
     }
     arm_write_cpsr(p,cpsr);
     return 0;
@@ -705,9 +698,6 @@ int arm_op_mvn(arm_core p, uint32_t instr){
 	} 
 	else 
 	    cpsr = clr_bit(cpsr,Z);
-	// C Flag en fonction de shifter_carry_out
-	//cpsr = clr_bit(cpsr,V);
-
     }
     arm_write_cpsr(p,cpsr);
     return 0;
