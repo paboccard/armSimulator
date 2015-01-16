@@ -119,7 +119,6 @@ int arm_op_sub(arm_core p, uint32_t instr){
     y= arm_data_processing_shift(p,instr);
 
     cpsr = arm_read_cpsr(p);
-    printf("SUB !!!!!!!!!!\n");//TODELETE
     arm_write_register(p,rd,x-y);
     if ((get_bit(instr,20)) && (rd==15)){
 	if (arm_current_mode_has_spsr(p)){
@@ -130,14 +129,11 @@ int arm_op_sub(arm_core p, uint32_t instr){
     }
     else if (get_bit(instr,20)==1){
 	dest = arm_read_register(p,rd);
-	printf("dest : %x\n",dest);//TODELETE
 	if (get_bit(dest,31)==1){
-	    printf("CLR C !!!!!!!!!!\n");//TODELETE
 	    cpsr = set_bit(cpsr,N);
 	    cpsr = clr_bit(cpsr,C);
 	}
 	else{
-	    printf("set C !!!!!!!!!!\n");//TODELETE
 	    cpsr = clr_bit(cpsr,N);
 	    cpsr = set_bit(cpsr,C); 
 	}

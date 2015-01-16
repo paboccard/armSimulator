@@ -64,7 +64,7 @@ arm_core arm_create(memory mem) {
 	    p->registers[FIQ][j] = &p->registers_storage[j+16];
         arm_exception(p, RESET);
         p->cycle_count = 0;
-        arm_write_register(p,13,memory_get_size(mem));
+        arm_write_register(p,13,memory_get_size(mem)/8);
     }
     return p;
 }

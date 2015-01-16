@@ -3,8 +3,6 @@
 
 div :
 	stmfd sp!, {r2,r3,r4,lr}
-	mov r0, #10
-	mov r1, #2
 	
 	mov r2, r1             /* r2 ← r0. We keep D in r2 */
 	mov r1, r0             /* r1 ← r0. We keep N in r1 */
@@ -22,7 +20,7 @@ div :
 	/* r0 already contains Q */
 	/* r1 already contains R */
 
-ldmfd   sp!, {r2, r3, r4, pc}
+	ldmfd sp!, {r2, r3, r4, pc}
 
 main:
 
